@@ -10,10 +10,31 @@ There are two. Both reach environments only through `playtrain.runtime`.
 
 ## Install
 
-Requires Python 3.11 or newer. `playtrain` is installed as a dependency.
+Requires Python 3.11 or newer. Clone both repositories side by side, then install this
+one. `playtrain` is a dependency and is resolved from the sibling checkout, so the
+directory layout matters.
 
 ```console
-$ pip install -e .
+$ git clone https://github.com/heyodog0/playtrain
+$ git clone https://github.com/heyodog0/playtrain-trainers
+$ cd playtrain-trainers
+$ uv venv && uv pip install -e .
+```
+
+That builds PlayTrain's native backend as part of the install, which takes about a
+minute the first time and needs clang and cargo on PATH.
+
+Cloning this repository on its own fails, because `[tool.uv.sources]` in
+`pyproject.toml` points `playtrain` at `../playtrain`:
+
+```
+error: Distribution not found at: file:///.../playtrain
+```
+
+If PlayTrain lives somewhere else, override the path:
+
+```console
+$ uv pip install -e <path-to-playtrain> && uv pip install -e . --no-sources
 ```
 
 ## Train with IMPALA
