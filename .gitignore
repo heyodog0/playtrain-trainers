@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.python-version
+.DS_Store
+
+# experiment tracking / outputs
+wandb/
+/runs/
+/outputs/
+*.pt
+*.ckpt
