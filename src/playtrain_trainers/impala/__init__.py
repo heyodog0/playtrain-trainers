@@ -3,7 +3,7 @@
 This subpackage ports the deterministic pieces of FAIR's torchbeast
 (https://github.com/facebookresearch/torchbeast) into this repo so we can
 run IMPALA against the same MiniGrid / node-gym backends the PPO trainer
-uses. The math (V-trace + loss functions) is bit-exact against torchbeast;
+uses. The math (V-trace + loss functions) is equal against torchbeast;
 see tests/test_impala_vtrace.py and tests/test_impala_losses.py for the
 parity checks.
 

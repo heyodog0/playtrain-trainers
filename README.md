@@ -8,7 +8,7 @@ produced the training results in the paper.
 There are two. Both reach environments only through `playtrain.runtime`.
 
 - IMPALA with V-trace. Async actor-learner, optional LSTM. The V-trace math and losses
-  are bit-exact against FAIR's torchbeast. See `tests/test_impala_vtrace.py`.
+  are equal against FAIR's torchbeast. See `tests/test_impala_vtrace.py`.
 - PPO. Optional LSTM.
 
 ## Install
