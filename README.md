@@ -1,6 +1,9 @@
 # playtrain-trainers
 
-RL trainers for [PlayTrain](https://github.com/heyodog0/playtrain) environments.
+[**Paper**](https://arxiv.org/abs/2609.09059) | [**PlayTrain**](https://github.com/heyodog0/playtrain) | [**Project page**](https://playtrain.org)
+
+RL trainers for [PlayTrain](https://github.com/heyodog0/playtrain) environments. They
+produced the training results in the paper.
 
 There are two. Both reach environments only through `playtrain.runtime`.
 
