@@ -13,49 +13,36 @@ There are two. Both reach environments only through `playtrain.runtime`.
 Needs Python 3.11 or newer, plus clang and cargo. On macOS the default `python3` is
 often older, so check with `python3 --version` first.
 
-`playtrain` is a dependency and is not on PyPI yet, so clone both repositories and
-install PlayTrain first.
+`playtrain` is a dependency and is not on PyPI yet, so clone both repositories side by
+side. With [uv](https://docs.astral.sh/uv/) that is the only requirement, since
+`pyproject.toml` points `playtrain` at `../playtrain`:
 
 ```console
 $ git clone https://github.com/heyodog0/playtrain
 $ git clone https://github.com/heyodog0/playtrain-trainers
+$ cd playtrain-trainers
+$ uv venv && uv pip install -e .
+```
+
+If PlayTrain is somewhere else, install it by path and skip the pinned source:
+
+```console
+$ uv pip install -e <path-to-playtrain> && uv pip install -e . --no-sources
+```
+
+Without uv, install PlayTrain first. `pip` ignores `[tool.uv.sources]`, so it looks for
+`playtrain` on PyPI and fails with `No matching distribution found` if this package goes
+first.
+
+```console
 $ cd playtrain-trainers
 $ python3 -m venv .venv
 $ .venv/bin/pip install -e ../playtrain
 $ .venv/bin/pip install -e .
 ```
 
-Or with [uv](https://docs.astral.sh/uv/), which reads the sibling path out of
-`pyproject.toml` and needs only one install step:
-
-```console
-$ cd playtrain-trainers
-$ uv venv && uv pip install -e .
-```
-
 Either way this builds PlayTrain's native backend, which takes about a minute the first
 time. That is why clang and cargo are needed.
-
-Order matters for the `pip` route. Installing this package first fails, because pip goes
-looking for `playtrain` on PyPI:
-
-```
-ERROR: No matching distribution found for playtrain>=0.1
-```
-
-With uv the equivalent failure is a missing sibling directory, since `[tool.uv.sources]`
-pins `playtrain` to `../playtrain`:
-
-```
-error: Distribution not found at: file:///.../playtrain
-```
-
-If PlayTrain lives somewhere else, install it by path first and then install this package
-without the pinned source:
-
-```console
-$ uv pip install -e <path-to-playtrain> && uv pip install -e . --no-sources
-```
 
 ## Train with IMPALA
 
