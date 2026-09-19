@@ -116,7 +116,8 @@ def act_remote(
                           use_lstm=use_lstm,
                           net=str(model_spec.get("net", "impala")),
                           core=str(model_spec.get("core", "")),
-                          fwp_dim=int(model_spec.get("fwp_dim", 128)))
+                          fwp_dim=int(model_spec.get("fwp_dim", 128)),
+                          fwp_heads=int(model_spec.get("fwp_heads", 8)))
         model = model.to(device)
         model.train()  # multinomial sampling
         weight_version = maybe_reload_weights(weight_state, model, -1)

@@ -52,7 +52,7 @@ import torch
 
 from playtrain_trainers.impala.buffers import Buffers
 from playtrain_trainers.impala.diagnostics import log_rss, rss_mb, rss_note
-from playtrain_trainers.impala.net import ImpalaNet
+from playtrain_trainers.impala.net import ImpalaNet, resolve_core
 
 
 def create_vec_buffers(
@@ -227,7 +227,11 @@ def _make_infer(model, env_spec: dict, model_spec: dict, M: int, device):
                 and device.type == "cuda")
     use_graphs = (bool(env_spec.get("infer_graphs", False))
                   and device.type == "cuda")
-    use_lstm = bool(model_spec.get("use_lstm", False))
+    # Whether the model carries recurrent state at all — true for the LSTM and
+    # for the fast-weight cores, false only for the Markov feedforward core.
+    has_core_state = resolve_core(
+        model_spec.get("core"), bool(model_spec.get("use_lstm", False))
+    ) != "ff"
     obs_shape = tuple(model_spec["obs_shape"])
 
     def _ac():
@@ -275,7 +279,7 @@ def _make_infer(model, env_spec: dict, model_spec: dict, M: int, device):
         }
         static_state_in = (tuple(t.to(device).clone()
                                  for t in model.initial_state(M))
-                           if use_lstm else ())
+                           if has_core_state else ())
         s = torch.cuda.Stream()
         s.wait_stream(torch.cuda.current_stream())
         with torch.cuda.stream(s), torch.no_grad(), _ac():
@@ -421,7 +425,8 @@ def act_vec(
                           use_popart=bool(model_spec.get("use_popart", False)),
                           net=str(model_spec.get("net", "impala")),
                           core=str(model_spec.get("core", "")),
-                          fwp_dim=int(model_spec.get("fwp_dim", 128)))
+                          fwp_dim=int(model_spec.get("fwp_dim", 128)),
+                          fwp_heads=int(model_spec.get("fwp_heads", 8)))
         model = model.to(device)
         model.train()  # multinomial sampling for training rollouts
         weight_version = maybe_reload_weights(weight_state, model, -1)
@@ -621,7 +626,8 @@ def act_vec_db(
                           use_popart=bool(model_spec.get("use_popart", False)),
                           net=str(model_spec.get("net", "impala")),
                           core=str(model_spec.get("core", "")),
-                          fwp_dim=int(model_spec.get("fwp_dim", 128)))
+                          fwp_dim=int(model_spec.get("fwp_dim", 128)),
+                          fwp_heads=int(model_spec.get("fwp_heads", 8)))
         model = model.to(device)
         model.train()
         weight_version = maybe_reload_weights(weight_state, model, -1)

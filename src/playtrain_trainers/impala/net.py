@@ -62,6 +62,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
+from playtrain_trainers.impala.fwp import build_fwp_core
 from playtrain_trainers.policy import build_encoder
 
 #: Recurrent cores ImpalaNet can be built with. "ff" is the Markov default.
@@ -128,6 +129,7 @@ class ImpalaNet(nn.Module):
         net: str = "impala",
         core: str | None = None,
         fwp_dim: int = 128,
+        fwp_heads: int = 8,
     ):
         super().__init__()
         c, h, w = observation_shape
@@ -138,6 +140,7 @@ class ImpalaNet(nn.Module):
         self.core_kind = resolve_core(core, use_lstm)
         self.use_lstm = self.core_kind == "lstm"
         self.fwp_dim = fwp_dim
+        self.fwp_heads = fwp_heads
         # Encoder choice — see policy.build_encoder for the registry. Every
         # model instance in a run (shared/learner/inference/eval/worker) must
         # use the same value: the state_dicts differ.
@@ -165,9 +168,8 @@ class ImpalaNet(nn.Module):
             # Hidden size == feature size (matches monobeast AtariNet).
             self.core = nn.LSTM(features_dim, features_dim, num_layers=1)
         elif self.core_kind in FWP_CORES:
-            raise NotImplementedError(
-                f"core={self.core_kind!r} is accepted by the config but not yet "
-                "built; it lands in the fast-weight core work"
+            self.core = build_fwp_core(
+                self.core_kind, features_dim, fwp_dim, fwp_heads
             )
         self.policy = nn.Linear(core_in, num_actions)
         self.baseline = nn.Linear(core_in, 1)
@@ -242,6 +244,8 @@ class ImpalaNet(nn.Module):
         """
         if self.core_kind == "ff":
             return tuple()  # no recurrent state
+        if self.core_kind in FWP_CORES:
+            return self.core.initial_state(batch_size)
         return tuple(
             torch.zeros(self.core.num_layers, batch_size, self.core.hidden_size)
             for _ in range(2)
@@ -279,6 +283,13 @@ class ImpalaNet(nn.Module):
             else:
                 core_output, core_state = _segmented_lstm(
                     self.core, core_input, done, notdone, core_state, T)
+        elif self.core_kind in FWP_CORES:
+            # One code path for T=1 and T>1: the scan masks the state every
+            # step, which is what segmenting achieves and costs nothing on the
+            # all-ones steps, with no host sync to break the compiled graph.
+            core_input = core_input.view(T, B, -1)
+            notdone = (~inputs["done"]).float()
+            core_output, core_state = self.core(core_input, notdone, core_state)
         else:
             core_output = core_input  # [T*B, features_dim]
 
