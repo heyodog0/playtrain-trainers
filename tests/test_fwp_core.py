@@ -551,3 +551,59 @@ def test_state_norm_reaches_learn_stats_for_fwp_cores_only():
         assert present is expected, f"{core}: state-norm keys present={present}"
         if present:
             assert stats["fwp_state_norm_mean"].item() == 0.0  # fresh state
+
+
+# ------------------------------------------------------------- state decay
+#
+# P.4's intervention: bound ||S|| directly, since P.3 showed episode length
+# does not. Default 0.0, so a run that does not ask for it is unchanged.
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_decay_zero_is_bit_identical_to_no_decay(core_cls):
+    """The default must not perturb anything that already ran."""
+    torch.manual_seed(0)
+    plain = core_cls(64, fwp_dim=16, n_heads=4)
+    torch.manual_seed(0)
+    explicit = core_cls(64, fwp_dim=16, n_heads=4, decay=0.0)
+    explicit.load_state_dict(plain.state_dict())
+
+    x = torch.randn(6, 3, 64)
+    notdone = torch.ones(6, 3)
+    with torch.no_grad():
+        a, sa = plain(x, notdone, plain.initial_state(3))
+        b, sb = explicit(x, notdone, explicit.initial_state(3))
+    torch.testing.assert_close(a, b, rtol=0, atol=0)
+    torch.testing.assert_close(sa[0], sb[0], rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_decay_lowers_the_settled_state_norm(core_cls):
+    """More forgetting must mean a smaller state, monotonically."""
+    norms = {}
+    for decay in (0.0, 1e-3, 1e-2):
+        torch.manual_seed(0)
+        core = core_cls(64, fwp_dim=16, n_heads=4, decay=decay)
+        norms[decay] = run_state_norm(core, steps=LONG_HORIZON)
+    assert norms[1e-2] < norms[1e-3] < norms[0.0], norms
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_decay_keeps_the_state_bounded_even_with_a_trained_w_p(core_cls):
+    torch.manual_seed(0)
+    core = core_cls(64, fwp_dim=16, n_heads=4, decay=1e-2)
+    if isinstance(core, CompFWPCore):
+        torch.nn.init.orthogonal_(core.W_p.weight, gain=3.0)
+    assert run_state_norm(core, steps=LONG_HORIZON) < 1e3
+
+
+def test_decay_reaches_the_core_through_impalanet_and_defaults_off():
+    assert ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW).core.decay == 0.0
+    model = ImpalaNet(**FWP_SPEC, core="deltanet", **FWP_KW, fwp_decay=5e-3)
+    assert model.core.decay == pytest.approx(5e-3)
+
+
+@pytest.mark.parametrize("bad", [-0.1, 1.0, 1.5])
+def test_decay_outside_zero_to_one_is_rejected(bad):
+    with pytest.raises(ValueError, match="decay must be"):
+        DeltaNetCore(64, fwp_dim=16, n_heads=4, decay=bad)

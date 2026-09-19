@@ -54,13 +54,26 @@ class FastWeightCore(nn.Module):
 
     kind = "fastweight"
 
-    def __init__(self, features_dim: int, fwp_dim: int = 128, n_heads: int = 8):
+    def __init__(
+        self,
+        features_dim: int,
+        fwp_dim: int = 128,
+        n_heads: int = 8,
+        decay: float = 0.0,
+    ):
         super().__init__()
         if fwp_dim < 1 or n_heads < 1:
             raise ValueError("fwp_dim and n_heads must be positive")
+        if not 0.0 <= decay < 1.0:
+            raise ValueError(f"decay must be in [0, 1), got {decay}")
         self.features_dim = features_dim
         self.fwp_dim = fwp_dim
         self.n_heads = n_heads
+        # Per-step multiplicative forgetting applied before each write. 0.0 is
+        # off and is the default, so a run that does not ask for it is
+        # unchanged. It bounds the memory horizon directly — roughly 1/decay
+        # steps — which is the handle episode length turned out not to give.
+        self.decay = float(decay)
 
         self.W_k = nn.Linear(features_dim, fwp_dim, bias=False)
         self.W_v = nn.Linear(features_dim, fwp_dim, bias=False)
@@ -99,7 +112,9 @@ class FastWeightCore(nn.Module):
     # -- one timestep and the unroll ---------------------------------------
 
     def step(self, x: torch.Tensor, state: torch.Tensor):
-        """One timestep: write, then read the updated state."""
+        """One timestep: forget a little, write, then read the updated state."""
+        if self.decay:
+            state = state * (1.0 - self.decay)
         k = F.normalize(self.W_k(x), dim=-1)
         v = self.W_v(x)
         beta = torch.sigmoid(self.w_b(x))
@@ -210,8 +225,9 @@ class CompFWPCore(FastWeightCore):
         error: str = "joint",
         write: str = "delta",
         attn_heads: int = 4,
+        decay: float = 0.0,
     ):
-        super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads)
+        super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay)
         if read not in ("joint", "indep"):
             raise ValueError(f"read must be joint|indep, got {read!r}")
         if error not in ("joint", "indep"):
@@ -265,7 +281,9 @@ CORE_CLASSES: dict[str, type[FastWeightCore]] = {
 }
 
 
-def build_fwp_core(kind: str, features_dim: int, fwp_dim: int, n_heads: int, **flags):
+def build_fwp_core(
+    kind: str, features_dim: int, fwp_dim: int, n_heads: int, decay: float = 0.0, **flags
+):
     """``flags`` carries the CompFWP ablation options; other cores take none."""
     if kind not in CORE_CLASSES:
         raise NotImplementedError(
@@ -274,4 +292,4 @@ def build_fwp_core(kind: str, features_dim: int, fwp_dim: int, n_heads: int, **f
     cls = CORE_CLASSES[kind]
     if cls is not CompFWPCore:
         flags = {}
-    return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, **flags)
+    return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay, **flags)

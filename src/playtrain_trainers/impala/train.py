@@ -168,6 +168,9 @@ class ImpalaConfig:
     fwp_read: str = "joint"     # joint | indep
     fwp_error: str = "joint"    # joint | indep
     fwp_write: str = "delta"    # delta | additive
+    # Per-step multiplicative forgetting on the fast-weight state, applied
+    # before each write. 0.0 is off; roughly a 1/fwp_decay step memory horizon.
+    fwp_decay: float = 0.0
     # Force EVERY env reset (initial + auto-reset on done) to this seed.
     # Mirrors PPO's fixed_env_seed: makes the agent memorize one specific
     # instance instead of generalizing across the procedural distribution.
@@ -638,7 +641,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       use_popart=cfg.use_popart, net=cfg.net,
                       core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write)
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay)
     # Resume BEFORE workers spawn / weight_state is created, so actors start
     # from the resumed weights; optimizer/scheduler/step restore below, after
     # they exist.
@@ -725,7 +728,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                           use_lstm=cfg.use_lstm, net=cfg.net,
                           core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write)
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay)
         _wdevs = (cfg.vec_worker_device or str(device)).split(",")
         for i in range(cfg.vec_workers):
             remote_spec = dict(
@@ -774,7 +777,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                           use_popart=cfg.use_popart, net=cfg.net,
                           core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write)
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay)
         for i in range(cfg.vec_workers):
             env_spec = dict(
                 game_path=game_path, num_envs=cfg.batch_size,
@@ -830,7 +833,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                               net=cfg.net, core=cfg.core,
                               fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write).to(device)
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay).to(device)
     learner_model.load_state_dict(model.state_dict())
     if cfg.channels_last:
         learner_model = learner_model.to(memory_format=torch.channels_last)
@@ -855,7 +858,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                                     net=cfg.net, core=cfg.core,
                                     fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write).to(device)
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay).to(device)
         inference_model.load_state_dict(learner_model.state_dict())
         inference_server = InferenceServer(
             model=inference_model,
@@ -1100,7 +1103,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
             features_dim=cfg.features_dim, net=cfg.net,
             core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write,
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay,
             unroll_length=cfg.unroll_length, batch_size=cfg.batch_size,
             total_steps=cfg.total_steps, discounting=cfg.discounting,
             baseline_cost=cfg.baseline_cost, entropy_cost=cfg.entropy_cost,
@@ -1147,7 +1150,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                                net=cfg.net, core=cfg.core,
                                fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
-                      fwp_write=cfg.fwp_write).to(device)
+                      fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay).to(device)
         eval_gym_env, _ = env_fn(10_000)  # dedicated; seed set per episode
         eval_seed_list = eval_seeds(cfg.fixed_env_seed, cfg.eval_episodes)
 
