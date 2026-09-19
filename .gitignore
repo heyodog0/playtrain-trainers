@@ -10,3 +10,7 @@ wandb/
 /outputs/
 *.pt
 *.ckpt
+
+# Test fixtures are the exception to the *.pt checkpoint rule: the LSTM golden
+# tensors are the regression baseline and have to be version-controlled.
+!tests/data/*.pt
