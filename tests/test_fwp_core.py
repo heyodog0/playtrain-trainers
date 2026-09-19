@@ -397,3 +397,102 @@ def test_additive_write_ignores_the_error_term():
         got = comp.write(state, k, v, beta, q)
     want = state + beta.unsqueeze(-1) * v.unsqueeze(-1) * k.unsqueeze(-2)
     torch.testing.assert_close(got, want)
+
+
+# ------------------------------------------- long-horizon state boundedness
+#
+# The smoke at 50M died here: trainer episodes run to max_decisions=5000 and
+# the state only resets on done, so a write rule that is not contractive along
+# the write key overflows long before the episode ends. Stage 0's 40-step
+# episodes cannot surface it, which is exactly why these live at this level.
+
+LONG_HORIZON = 2000
+
+
+def run_state_norm(core, steps: int = LONG_HORIZON, B: int = 2, seed: int = 0) -> float:
+    torch.manual_seed(seed)
+    core.eval()
+    state = core.initial_state(B)[0].reshape(B, core.fwp_dim, core.fwp_dim)
+    with torch.no_grad():
+        for _ in range(steps):
+            _, state = core.step(torch.randn(B, 64), state)
+    assert torch.isfinite(state).all(), "state went non-finite"
+    return state.norm().item()
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_state_stays_bounded_over_a_trainer_length_episode(core_cls):
+    torch.manual_seed(0)
+    norm = run_state_norm(core_cls(64, fwp_dim=16, n_heads=4))
+    assert norm < 1e3, f"{core_cls.kind} state reached {norm:.4g} after {LONG_HORIZON} steps"
+
+
+@pytest.mark.parametrize("gain", [0.5, 1.0, 3.0])
+def test_compfwp_stays_bounded_once_w_p_is_trained_away_from_zero(gain):
+    """Boundedness must be structural, not an artefact of the zero init."""
+    torch.manual_seed(0)
+    core = CompFWPCore(64, fwp_dim=16, n_heads=4)
+    torch.nn.init.orthogonal_(core.W_p.weight, gain=gain)
+    norm = run_state_norm(core)
+    assert norm < 1e3, f"W_p gain {gain} diverged to {norm:.4g}"
+
+
+def test_the_correction_form_is_what_keeps_it_bounded():
+    """The regression this guards: replacing the prediction instead of
+    correcting it puts W_p @ S k inside the error, and that compounds."""
+
+    class ReplacingCompFWP(CompFWPCore):
+        def write(self, state, k, v, beta, q):
+            pred = self.W_p(self._compete(state, q, k)[:, -1])
+            return state + beta.unsqueeze(-1) * (v - pred).unsqueeze(-1) * k.unsqueeze(-2)
+
+    torch.manual_seed(0)
+    bad = ReplacingCompFWP(64, fwp_dim=16, n_heads=4)
+    torch.nn.init.orthogonal_(bad.W_p.weight, gain=1.0)
+    torch.manual_seed(0)
+    good = CompFWPCore(64, fwp_dim=16, n_heads=4)
+    torch.nn.init.orthogonal_(good.W_p.weight, gain=1.0)
+
+    with torch.no_grad():
+        bad_state = bad.initial_state(2)[0].reshape(2, 16, 16)
+        good_state = good.initial_state(2)[0].reshape(2, 16, 16)
+        torch.manual_seed(1)
+        xs = [torch.randn(2, 64) for _ in range(LONG_HORIZON)]
+        for x in xs:
+            _, bad_state = bad.step(x, bad_state)
+            if not torch.isfinite(bad_state).all():
+                break
+        for x in xs:
+            _, good_state = good.step(x, good_state)
+
+    bad_norm = bad_state.norm().item()
+    assert not (bad_norm < 1e3), "the replacing form should blow up; the guard is stale"
+    assert good_state.norm().item() < 1e3
+
+
+def test_zero_initialised_w_p_makes_the_write_path_exactly_the_delta_rule():
+    """At init only the read differs, so the contraction is exact to start."""
+    torch.manual_seed(0)
+    delta = DeltaNetCore(64, fwp_dim=16, n_heads=4)
+    torch.manual_seed(0)
+    comp = CompFWPCore(64, fwp_dim=16, n_heads=4)
+    assert not comp.W_p.weight.any()
+
+    state = torch.randn(3, 16, 16)
+    k = torch.nn.functional.normalize(torch.randn(3, 16), dim=-1)
+    v = torch.randn(3, 16)
+    beta = torch.rand(3, 1)
+    q = torch.randn(3, 4, 16)
+    with torch.no_grad():
+        torch.testing.assert_close(
+            comp.write(state, k, v, beta, q), delta.write(state, k, v, beta, q)
+        )
+
+
+def test_w_p_still_receives_gradient_despite_the_zero_init():
+    torch.manual_seed(0)
+    core = CompFWPCore(64, fwp_dim=16, n_heads=4)
+    out, _ = core(torch.randn(4, 2, 64), torch.ones(4, 2), core.initial_state(2))
+    out.sum().backward()
+    assert core.W_p.weight.grad is not None
+    assert core.W_p.weight.grad.abs().sum() > 0

@@ -156,6 +156,23 @@ class CompFWPCore(FastWeightCore):
     a prediction *from* the competitive read but not *at* the key, which is the
     coupling the contribution rests on.
 
+    **The joint term is a correction, not a replacement.** The error is
+    ``v - (S k + W_p(joint_row - S k))``, not ``v - W_p(joint_row)``. This is
+    what keeps the state bounded, and it is structural rather than a tuning
+    choice. The delta rule is contractive along the write key because it
+    measures what the state already holds there: the component along k goes to
+    ``(1-beta) S k + beta v``. Writing ``W_p(joint_row)`` instead puts ``W_p S
+    k`` inside the error, making that component ``(I - beta W_p) S k``, which
+    grows without bound whenever W_p has spectral radius above 1 — measured at
+    ||S|| = 1.9e8 by step 3000, against DeltaNet's plateau near 105. Because
+    the set block is a residual over LayerNorm'd inputs, ``joint_row - S k`` is
+    O(1) no matter how large S is, so subtracting it perturbs the contraction
+    without removing it.
+
+    W_p is zero-initialised, so at initialisation the write path is exactly the
+    delta rule and only the read differs. Competition then learns how far to
+    move the error away from it.
+
     The flags are the review's ablation table. ``read="indep"`` drops the set
     block, ``error="indep"`` measures the error at the write key with a plain
     independent read, and ``write="additive"`` drops the error term. With
@@ -186,6 +203,12 @@ class CompFWPCore(FastWeightCore):
         self.read_mode, self.error_mode, self.write_mode = read, error, write
         self.set_block = SetBlock(fwp_dim, attn_heads) if read == "joint" else None
         self.W_p = nn.Linear(fwp_dim, fwp_dim, bias=False) if error == "joint" else None
+        if self.W_p is not None:
+            # Zero: the write path starts as the plain delta rule, so the
+            # contraction is exact at initialisation and competition has to
+            # earn any departure from it. Gradients still flow, because the
+            # error depends on W_p through a generally non-zero difference.
+            nn.init.zeros_(self.W_p.weight)
 
     @property
     def variant(self) -> str:
@@ -204,10 +227,15 @@ class CompFWPCore(FastWeightCore):
     def write(self, state, k, v, beta, q):
         if self.write_mode == "additive":
             err = v
-        elif self.error_mode == "joint":
-            err = v - self.W_p(self._compete(state, q, k)[:, -1])
         else:
-            err = v - torch.einsum("bij,bj->bi", state, k)
+            indep = torch.einsum("bij,bj->bi", state, k)
+            if self.error_mode == "joint":
+                # Correction to the independent prediction. See the class
+                # docstring: replacing it outright is what diverges.
+                joint = self._compete(state, q, k)[:, -1]
+                err = v - (indep + self.W_p(joint - indep))
+            else:
+                err = v - indep
         return state + beta.unsqueeze(-1) * err.unsqueeze(-1) * k.unsqueeze(-2)
 
 
