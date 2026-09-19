@@ -114,7 +114,9 @@ def act_remote(
         model = ImpalaNet(tuple(model_spec["obs_shape"]), num_actions,
                           features_dim=int(model_spec.get("features_dim", 256)),
                           use_lstm=use_lstm,
-                          net=str(model_spec.get("net", "impala")))
+                          net=str(model_spec.get("net", "impala")),
+                          core=str(model_spec.get("core", "")),
+                          fwp_dim=int(model_spec.get("fwp_dim", 128)))
         model = model.to(device)
         model.train()  # multinomial sampling
         weight_version = maybe_reload_weights(weight_state, model, -1)

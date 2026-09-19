@@ -419,7 +419,9 @@ def act_vec(
                           features_dim=int(model_spec.get("features_dim", 256)),
                           use_lstm=bool(model_spec.get("use_lstm", False)),
                           use_popart=bool(model_spec.get("use_popart", False)),
-                          net=str(model_spec.get("net", "impala")))
+                          net=str(model_spec.get("net", "impala")),
+                          core=str(model_spec.get("core", "")),
+                          fwp_dim=int(model_spec.get("fwp_dim", 128)))
         model = model.to(device)
         model.train()  # multinomial sampling for training rollouts
         weight_version = maybe_reload_weights(weight_state, model, -1)
@@ -617,7 +619,9 @@ def act_vec_db(
                           features_dim=int(model_spec.get("features_dim", 256)),
                           use_lstm=bool(model_spec.get("use_lstm", False)),
                           use_popart=bool(model_spec.get("use_popart", False)),
-                          net=str(model_spec.get("net", "impala")))
+                          net=str(model_spec.get("net", "impala")),
+                          core=str(model_spec.get("core", "")),
+                          fwp_dim=int(model_spec.get("fwp_dim", 128)))
         model = model.to(device)
         model.train()
         weight_version = maybe_reload_weights(weight_state, model, -1)

@@ -150,7 +150,9 @@ def ddp_learner(
         model = ImpalaNet(tuple(cfg_d["obs_shape"]), cfg_d["num_actions"],
                           features_dim=cfg_d["features_dim"], use_lstm=False,
                           channels_last=True,
-                          net=cfg_d["net"]).to(device)
+                          net=cfg_d["net"],
+                          core=cfg_d.get("core", ""),
+                          fwp_dim=int(cfg_d.get("fwp_dim", 128))).to(device)
         model = model.to(memory_format=torch.channels_last)
         # Identical init across ranks: rank 0's weights are the reference
         # (they were already published to weight_state by train()).

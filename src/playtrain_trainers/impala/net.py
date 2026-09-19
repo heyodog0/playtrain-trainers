@@ -5,7 +5,13 @@ matches torchbeast's drop-in. Differences:
   - Encoder is our IMPALA-CNN (ProcGen-paper depths [16,32,32]), not the
     Atari NatureCNN-style 3-layer conv stack.
 
-Two modes, selected by `use_lstm`:
+The core between the CNN features and the heads is selected by `core`:
+`"ff"`, `"lstm"`, `"deltanet"` or `"compfwp"`. `use_lstm=True` is the old
+spelling of `core="lstm"` and still works, so every existing config runs
+unchanged; passing both is allowed only when they agree.
+
+Two of those modes are described below; the fast-weight cores are documented
+at their own classes.
 
   use_lstm=False (default) — **purely Markov feedforward**.
     policy/baseline heads see CNN features only. last_action and reward are
@@ -58,6 +64,29 @@ from torch import nn
 
 from playtrain_trainers.policy import build_encoder
 
+#: Recurrent cores ImpalaNet can be built with. "ff" is the Markov default.
+CORES = ("ff", "lstm", "deltanet", "compfwp")
+#: The fast-weight cores, whose state is a flattened matrix rather than (h, c).
+FWP_CORES = ("deltanet", "compfwp")
+
+
+def resolve_core(core: str | None, use_lstm: bool) -> str:
+    """Reconcile the new `core` option with the legacy `use_lstm` flag.
+
+    `core` unset falls back to `use_lstm`, so old configs keep their meaning.
+    When both are given they must agree — silently letting one win would make
+    a stale `use_lstm=True` quietly downgrade a fast-weight run to an LSTM.
+    """
+    if not core:
+        return "lstm" if use_lstm else "ff"
+    if core not in CORES:
+        raise ValueError(f"core must be one of {CORES}, got {core!r}")
+    if use_lstm and core != "lstm":
+        raise ValueError(
+            f"use_lstm=True contradicts core={core!r}; drop use_lstm from the config"
+        )
+    return core
+
 
 @torch.compiler.disable
 def _segmented_lstm(core, core_input, done, notdone, core_state, T):
@@ -97,12 +126,18 @@ class ImpalaNet(nn.Module):
         channels_last: bool = False,
         use_popart: bool = False,
         net: str = "impala",
+        core: str | None = None,
+        fwp_dim: int = 128,
     ):
         super().__init__()
         c, h, w = observation_shape
         self.observation_shape = observation_shape
         self.num_actions = num_actions
-        self.use_lstm = use_lstm
+        # `use_lstm` stays a real attribute because ppo_eval, vec_actor and the
+        # model_spec dicts all read it; it is now derived from the core.
+        self.core_kind = resolve_core(core, use_lstm)
+        self.use_lstm = self.core_kind == "lstm"
+        self.fwp_dim = fwp_dim
         # Encoder choice — see policy.build_encoder for the registry. Every
         # model instance in a run (shared/learner/inference/eval/worker) must
         # use the same value: the state_dicts differ.
@@ -126,9 +161,14 @@ class ImpalaNet(nn.Module):
         self.encoder = build_encoder(net, in_channels=c,
                                      features_dim=features_dim, input_hw=h)
         core_in = features_dim
-        if use_lstm:
+        if self.core_kind == "lstm":
             # Hidden size == feature size (matches monobeast AtariNet).
             self.core = nn.LSTM(features_dim, features_dim, num_layers=1)
+        elif self.core_kind in FWP_CORES:
+            raise NotImplementedError(
+                f"core={self.core_kind!r} is accepted by the config but not yet "
+                "built; it lands in the fast-weight core work"
+            )
         self.policy = nn.Linear(core_in, num_actions)
         self.baseline = nn.Linear(core_in, 1)
         nn.init.orthogonal_(self.policy.weight, gain=0.01)
@@ -193,9 +233,14 @@ class ImpalaNet(nn.Module):
         self.popart_rescale_head(*old) if old is not None else None
 
     def initial_state(self, batch_size: int = 1):
-        """Zero recurrent state. Empty tuple in feedforward mode; an (h, c)
-        pair of [num_layers, batch_size, hidden] tensors in LSTM mode."""
-        if not self.use_lstm:
+        """Zero recurrent state, as a tuple of tensors with batch at dim 1.
+
+        Empty tuple for the feedforward core; an (h, c) pair of
+        [num_layers, batch_size, hidden] tensors for the LSTM. Every core keeps
+        to that contract — a tuple of tensors batched at dim 1 — because the
+        buffers, actors and learner assume nothing else about the shape.
+        """
+        if self.core_kind == "ff":
             return tuple()  # no recurrent state
         return tuple(
             torch.zeros(self.core.num_layers, batch_size, self.core.hidden_size)
