@@ -130,6 +130,9 @@ class ImpalaNet(nn.Module):
         core: str | None = None,
         fwp_dim: int = 128,
         fwp_heads: int = 8,
+        fwp_read: str = "joint",
+        fwp_error: str = "joint",
+        fwp_write: str = "delta",
     ):
         super().__init__()
         c, h, w = observation_shape
@@ -169,7 +172,8 @@ class ImpalaNet(nn.Module):
             self.core = nn.LSTM(features_dim, features_dim, num_layers=1)
         elif self.core_kind in FWP_CORES:
             self.core = build_fwp_core(
-                self.core_kind, features_dim, fwp_dim, fwp_heads
+                self.core_kind, features_dim, fwp_dim, fwp_heads,
+                read=fwp_read, error=fwp_error, write=fwp_write,
             )
         self.policy = nn.Linear(core_in, num_actions)
         self.baseline = nn.Linear(core_in, 1)

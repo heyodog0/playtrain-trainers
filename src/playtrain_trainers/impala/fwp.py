@@ -63,11 +63,17 @@ class FastWeightCore(nn.Module):
 
     # -- the two things a subclass changes ---------------------------------
 
-    def write(self, state, k, v, beta, rows):
+    def write(self, state, k, v, beta, q):
         raise NotImplementedError
 
-    def read(self, state, q):
-        """Retrieve the M query rows. Independent by default."""
+    def read(self, state, q, k=None):
+        """Retrieve the M query rows. Independent by default, so `k` is unused."""
+        del k
+        return torch.einsum("bij,bmj->bmi", state, q)
+
+    @staticmethod
+    def retrieve(state, q):
+        """Raw matrix read, before any competition between the rows."""
         return torch.einsum("bij,bmj->bmi", state, q)
 
     # -- one timestep and the unroll ---------------------------------------
@@ -78,8 +84,8 @@ class FastWeightCore(nn.Module):
         v = self.W_v(x)
         beta = torch.sigmoid(self.w_b(x))
         q = self.W_q(x).view(x.shape[0], self.n_heads, self.fwp_dim)
-        state = self.write(state, k, v, beta, self.read(state, q))
-        rows = self.read(state, q)
+        state = self.write(state, k, v, beta, q)
+        rows = self.read(state, q, k)
         return x + self.W_o(rows.flatten(1)), state
 
     def forward(self, core_input: torch.Tensor, notdone: torch.Tensor, core_state):
@@ -105,20 +111,119 @@ class DeltaNetCore(FastWeightCore):
 
     kind = "deltanet"
 
-    def write(self, state, k, v, beta, rows):
-        del rows  # the independent error ignores what the read returned
+    def write(self, state, k, v, beta, q):
+        del q  # the independent error never looks at the other query rows
         pred = torch.einsum("bij,bj->bi", state, k)
         return state + beta.unsqueeze(-1) * (v - pred).unsqueeze(-1) * k.unsqueeze(-2)
 
 
+class SetBlock(nn.Module):
+    """One permutation-equivariant self-attention layer across the query rows.
+
+    No positional information of any kind, so the block cannot tell row 0 from
+    row 7 except by content. This is where the queries compete.
+    """
+
+    def __init__(self, dim: int, n_heads: int = 4):
+        super().__init__()
+        self.norm1 = nn.LayerNorm(dim)
+        self.attn = nn.MultiheadAttention(dim, n_heads, batch_first=True)
+        self.norm2 = nn.LayerNorm(dim)
+        self.mlp = nn.Sequential(
+            nn.Linear(dim, 2 * dim), nn.GELU(), nn.Linear(2 * dim, dim)
+        )
+
+    def forward(self, rows: torch.Tensor) -> torch.Tensor:
+        h = self.norm1(rows)
+        rows = rows + self.attn(h, h, h, need_weights=False)[0]
+        return rows + self.mlp(self.norm2(rows))
+
+
+class CompFWPCore(FastWeightCore):
+    """Competitive read, surprise-gated write (review §12), in the trainer.
+
+    The M retrieved rows pass through a set block so they can suppress one
+    another, and the delta-rule error is measured *after* that joint read:
+    whatever the competitive read already predicted is not written again.
+
+    **The write key rides along as an extra query row.** Stage 0 could name the
+    row to predict, because each query was a known item and the token said
+    which one it was about. Here the queries are projections of the features
+    and nothing names anything, so to have "the joint read's prediction for the
+    written key" actually be a joint read *at that key*, k is appended as an
+    (M+1)-th row. The block therefore sees M+1 rows; the readout uses the first
+    M and the write error uses the last. Pooling the M rows instead would give
+    a prediction *from* the competitive read but not *at* the key, which is the
+    coupling the contribution rests on.
+
+    The flags are the review's ablation table. ``read="indep"`` drops the set
+    block, ``error="indep"`` measures the error at the write key with a plain
+    independent read, and ``write="additive"`` drops the error term. With
+    indep/indep/delta this core is DeltaNet exactly, which the tests check.
+    """
+
+    kind = "compfwp"
+
+    def __init__(
+        self,
+        features_dim: int,
+        fwp_dim: int = 128,
+        n_heads: int = 8,
+        read: str = "joint",
+        error: str = "joint",
+        write: str = "delta",
+        attn_heads: int = 4,
+    ):
+        super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads)
+        if read not in ("joint", "indep"):
+            raise ValueError(f"read must be joint|indep, got {read!r}")
+        if error not in ("joint", "indep"):
+            raise ValueError(f"error must be joint|indep, got {error!r}")
+        if write not in ("delta", "additive"):
+            raise ValueError(f"write must be delta|additive, got {write!r}")
+        if error == "joint" and read == "indep":
+            raise ValueError("error='joint' needs read='joint': there is no joint read to use")
+        self.read_mode, self.error_mode, self.write_mode = read, error, write
+        self.set_block = SetBlock(fwp_dim, attn_heads) if read == "joint" else None
+        self.W_p = nn.Linear(fwp_dim, fwp_dim, bias=False) if error == "joint" else None
+
+    @property
+    def variant(self) -> str:
+        return f"{self.read_mode}/{self.error_mode}/{self.write_mode}"
+
+    def _compete(self, state, q, k):
+        """Retrieve the M query rows plus the write key, then let them compete."""
+        rows = self.retrieve(state, torch.cat([q, k.unsqueeze(1)], dim=1))
+        return self.set_block(rows)
+
+    def read(self, state, q, k=None):
+        if self.set_block is None or k is None:
+            return self.retrieve(state, q)
+        return self._compete(state, q, k)[:, : self.n_heads]
+
+    def write(self, state, k, v, beta, q):
+        if self.write_mode == "additive":
+            err = v
+        elif self.error_mode == "joint":
+            err = v - self.W_p(self._compete(state, q, k)[:, -1])
+        else:
+            err = v - torch.einsum("bij,bj->bi", state, k)
+        return state + beta.unsqueeze(-1) * err.unsqueeze(-1) * k.unsqueeze(-2)
+
+
 CORE_CLASSES: dict[str, type[FastWeightCore]] = {
     DeltaNetCore.kind: DeltaNetCore,
+    CompFWPCore.kind: CompFWPCore,
 }
 
 
-def build_fwp_core(kind: str, features_dim: int, fwp_dim: int, n_heads: int):
+def build_fwp_core(kind: str, features_dim: int, fwp_dim: int, n_heads: int, **flags):
+    """``flags`` carries the CompFWP ablation options; other cores take none."""
     if kind not in CORE_CLASSES:
         raise NotImplementedError(
             f"core={kind!r} is accepted by the config but not yet built"
         )
-    return CORE_CLASSES[kind](features_dim, fwp_dim=fwp_dim, n_heads=n_heads)
+    cls = CORE_CLASSES[kind]
+    if cls is not CompFWPCore:
+        flags = {}
+    return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, **flags)

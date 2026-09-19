@@ -426,7 +426,10 @@ def act_vec(
                           net=str(model_spec.get("net", "impala")),
                           core=str(model_spec.get("core", "")),
                           fwp_dim=int(model_spec.get("fwp_dim", 128)),
-                          fwp_heads=int(model_spec.get("fwp_heads", 8)))
+                          fwp_heads=int(model_spec.get("fwp_heads", 8)),
+                          fwp_read=str(model_spec.get("fwp_read", "joint")),
+                          fwp_error=str(model_spec.get("fwp_error", "joint")),
+                          fwp_write=str(model_spec.get("fwp_write", "delta")))
         model = model.to(device)
         model.train()  # multinomial sampling for training rollouts
         weight_version = maybe_reload_weights(weight_state, model, -1)
@@ -627,7 +630,10 @@ def act_vec_db(
                           net=str(model_spec.get("net", "impala")),
                           core=str(model_spec.get("core", "")),
                           fwp_dim=int(model_spec.get("fwp_dim", 128)),
-                          fwp_heads=int(model_spec.get("fwp_heads", 8)))
+                          fwp_heads=int(model_spec.get("fwp_heads", 8)),
+                          fwp_read=str(model_spec.get("fwp_read", "joint")),
+                          fwp_error=str(model_spec.get("fwp_error", "joint")),
+                          fwp_write=str(model_spec.get("fwp_write", "delta")))
         model = model.to(device)
         model.train()
         weight_version = maybe_reload_weights(weight_state, model, -1)

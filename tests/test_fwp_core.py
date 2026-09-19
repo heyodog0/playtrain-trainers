@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 import torch
 
-from playtrain_trainers.impala.fwp import CORE_CLASSES
+from playtrain_trainers.impala.fwp import CORE_CLASSES, CompFWPCore, DeltaNetCore
 from playtrain_trainers.impala.net import CORES, FWP_CORES, ImpalaNet, resolve_core
 
 GOLDEN = Path(__file__).parent / "data" / "lstm_golden.pt"
@@ -128,11 +128,16 @@ def test_every_fast_weight_core_validates_as_config(core):
     assert resolve_core(core, False) == core
 
 
-@pytest.mark.parametrize("core", [c for c in FWP_CORES if c not in CORE_CLASSES])
-def test_unbuilt_cores_fail_loudly_rather_than_silently(core):
-    """A core the config accepts but no module implements must not slip through."""
-    with pytest.raises(NotImplementedError, match=core):
-        ImpalaNet((3, 32, 32), 5, features_dim=32, core=core)
+def test_every_declared_fast_weight_core_has_a_module():
+    """A core the config accepts but nothing implements must not slip through."""
+    assert set(FWP_CORES) == set(CORE_CLASSES)
+
+
+def test_an_unknown_core_kind_fails_loudly():
+    from playtrain_trainers.impala.fwp import build_fwp_core
+
+    with pytest.raises(NotImplementedError, match="nonesuch"):
+        build_fwp_core("nonesuch", 32, 16, 4)
 
 
 # --------------------------------------------------------------- FWP cores
@@ -167,7 +172,7 @@ def slice_step(inputs: dict, t: int) -> dict:
     return {k: v[t : t + 1] for k, v in inputs.items()}
 
 
-BUILT_CORES = ["deltanet"]
+BUILT_CORES = ["deltanet", "compfwp"]
 
 
 @pytest.mark.parametrize("core", BUILT_CORES)
@@ -300,3 +305,95 @@ def test_default_fwp_state_fits_the_memory_budget():
     (state,) = model.initial_state(64)
     assert state.shape == (1, 64, 128 * 128)
     assert state.element_size() * state.numel() / 1e6 == pytest.approx(4.19, abs=0.01)
+
+
+# ------------------------------------------------- CompFWP and its ablations
+
+
+def test_compfwp_indep_indep_delta_is_deltanet_numerically():
+    """The ablation the review's table hangs on: no competition, plain delta."""
+    torch.manual_seed(0)
+    delta = DeltaNetCore(32, fwp_dim=16, n_heads=4)
+    comp = CompFWPCore(32, fwp_dim=16, n_heads=4, read="indep", error="indep")
+    missing, unexpected = comp.load_state_dict(delta.state_dict(), strict=False)
+    assert not missing and not unexpected
+
+    x = torch.randn(5, 3, 32)
+    notdone = torch.ones(5, 3)
+    with torch.no_grad():
+        a, sa = delta(x, notdone, delta.initial_state(3))
+        b, sb = comp(x, notdone, comp.initial_state(3))
+    torch.testing.assert_close(a, b, rtol=0, atol=0)
+    torch.testing.assert_close(sa[0], sb[0], rtol=0, atol=0)
+
+
+def test_the_joint_variant_actually_differs():
+    """Otherwise the equivalence above would be testing nothing."""
+    torch.manual_seed(0)
+    delta = DeltaNetCore(32, fwp_dim=16, n_heads=4)
+    comp = CompFWPCore(32, fwp_dim=16, n_heads=4)
+    comp.load_state_dict(delta.state_dict(), strict=False)
+    x = torch.randn(5, 3, 32)
+    notdone = torch.ones(5, 3)
+    with torch.no_grad():
+        a, _ = delta(x, notdone, delta.initial_state(3))
+        b, _ = comp(x, notdone, comp.initial_state(3))
+    assert not torch.allclose(a, b, atol=1e-5)
+
+
+def test_compfwp_ablation_flags_reach_the_core_through_impalanet():
+    model = ImpalaNet(
+        **FWP_SPEC, core="compfwp", **FWP_KW,
+        fwp_read="indep", fwp_error="indep", fwp_write="additive",
+    )
+    assert model.core.variant == "indep/indep/additive"
+    assert model.core.set_block is None and model.core.W_p is None
+
+
+def test_compfwp_rejects_an_impossible_flag_combination():
+    with pytest.raises(ValueError, match="no joint read"):
+        CompFWPCore(32, read="indep", error="joint")
+    with pytest.raises(ValueError, match="write must be"):
+        CompFWPCore(32, write="nope")
+
+
+def test_set_block_is_permutation_equivariant():
+    """No positional information: the rows must be interchangeable."""
+    torch.manual_seed(1)
+    from playtrain_trainers.impala.fwp import SetBlock
+
+    block = SetBlock(16, n_heads=4)
+    rows = torch.randn(3, 6, 16)
+    perm = torch.randperm(6)
+    with torch.no_grad():
+        a = block(rows)[:, perm]
+        b = block(rows[:, perm])
+    torch.testing.assert_close(a, b, atol=1e-5, rtol=0)
+
+
+def test_the_write_key_is_one_of_the_competing_rows():
+    """The joint prediction has to be taken at the key, not pooled from the rest."""
+    torch.manual_seed(0)
+    comp = CompFWPCore(32, fwp_dim=16, n_heads=4)
+    state = torch.randn(2, 16, 16)
+    q = torch.randn(2, 4, 16)
+    k = torch.nn.functional.normalize(torch.randn(2, 16), dim=-1)
+    with torch.no_grad():
+        rows = comp._compete(state, q, k)
+    assert rows.shape == (2, 5, 16)  # M rows plus the write key
+    with torch.no_grad():
+        assert comp.read(state, q, k).shape == (2, 4, 16)
+
+
+def test_additive_write_ignores_the_error_term():
+    torch.manual_seed(0)
+    comp = CompFWPCore(32, fwp_dim=16, n_heads=4, write="additive")
+    state = torch.randn(2, 16, 16)
+    k = torch.nn.functional.normalize(torch.randn(2, 16), dim=-1)
+    v = torch.randn(2, 16)
+    beta = torch.rand(2, 1)
+    q = torch.randn(2, 4, 16)
+    with torch.no_grad():
+        got = comp.write(state, k, v, beta, q)
+    want = state + beta.unsqueeze(-1) * v.unsqueeze(-1) * k.unsqueeze(-2)
+    torch.testing.assert_close(got, want)
