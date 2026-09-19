@@ -62,13 +62,13 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from playtrain_trainers.impala.fwp import build_fwp_core
+from playtrain_trainers.impala.fwp import FWP_CORES, build_fwp_core
 from playtrain_trainers.policy import build_encoder
 
 #: Recurrent cores ImpalaNet can be built with. "ff" is the Markov default.
-CORES = ("ff", "lstm", "deltanet", "compfwp")
-#: The fast-weight cores, whose state is a flattened matrix rather than (h, c).
-FWP_CORES = ("deltanet", "compfwp")
+#: FWP_CORES is re-exported from .fwp, where the cores themselves live.
+CORES = ("ff", "lstm", *FWP_CORES)
+__all__ = ["CORES", "FWP_CORES", "ImpalaNet", "resolve_core"]
 
 
 def resolve_core(core: str | None, use_lstm: bool) -> str:

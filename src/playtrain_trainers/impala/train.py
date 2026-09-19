@@ -1012,6 +1012,13 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                     "baseline_loss": float(new_stats["baseline_loss"].item()),
                     "entropy_loss": float(new_stats["entropy_loss"].item()),
                 }
+                # Fast-weight state size, present only for the matrix cores.
+                # This is the trace the collapse probe reads: the state is
+                # cleared only on done, so over 5000-step episodes it is the
+                # one thing that differs structurally from the LSTM.
+                for _k in ("fwp_state_norm_mean", "fwp_state_norm_max"):
+                    if _k in new_stats:
+                        synced[_k] = float(new_stats[_k].item())
                 with step_lock:
                     stats = synced
                     writer.add_scalar("losses/total", synced["total_loss"], cur_step)
@@ -1029,6 +1036,11 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                             "charts/ep_win_rate", synced["win_rate"], cur_step,
                         )
                     writer.add_scalar("charts/entropy_cost", cur_entropy, cur_step)
+                    if "fwp_state_norm_mean" in synced:
+                        writer.add_scalar(
+                            "fwp/state_norm_mean", synced["fwp_state_norm_mean"], cur_step)
+                        writer.add_scalar(
+                            "fwp/state_norm_max", synced["fwp_state_norm_max"], cur_step)
             # In central_gpu mode, push fresh weights to the inference model
             # so subsequent actor requests reflect the just-trained policy.
             # Device-to-device copies; cadence configurable via

@@ -21,6 +21,7 @@ import torch
 from torch import nn
 
 from playtrain_trainers.impala import losses, vtrace
+from playtrain_trainers.impala.fwp import FWP_CORES, matrix_state_norms
 
 
 def learn(
@@ -169,6 +170,14 @@ def learn(
             baseline_loss=baseline_loss.detach(),
             entropy_loss=entropy_loss.detach(),
         )
+
+        # Fast-weight state size entering this unroll. Measured here, before
+        # the compiled forward is involved, so the graph is untouched; kept as
+        # detached tensors for the same no-host-sync reason as the losses.
+        if getattr(learner_model, "core_kind", "ff") in FWP_CORES:
+            norms = matrix_state_norms(initial_agent_state)
+            if norms is not None:
+                stats["fwp_state_norm_mean"], stats["fwp_state_norm_max"] = norms
 
         # NOTE: no per-step finite guard here — it read total_loss on the host
         # (a CUDA sync) every step, which holds the GIL and starves the inference

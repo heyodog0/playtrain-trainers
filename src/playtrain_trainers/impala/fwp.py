@@ -25,6 +25,26 @@ import torch.nn.functional as F
 from torch import nn
 
 
+#: Cores whose state is a flattened matrix rather than an (h, c) pair.
+FWP_CORES = ("deltanet", "compfwp")
+
+
+def matrix_state_norms(core_state) -> tuple[torch.Tensor, torch.Tensor] | None:
+    """(mean, max) per-env Frobenius norm of a flattened matrix state.
+
+    Returns detached tensors and never touches the host, so the caller decides
+    when to pay the sync — the learner logs on a cadence and a per-step .item()
+    here would stall the CUDA stream and starve the inference thread.
+
+    None when there is no matrix state to measure.
+    """
+    if not core_state:
+        return None
+    flat = core_state[0]  # [1, B, fwp_dim * fwp_dim]
+    per_env = flat.reshape(-1, flat.shape[-1]).norm(dim=-1)
+    return per_env.mean().detach(), per_env.max().detach()
+
+
 class FastWeightCore(nn.Module):
     """Shared machinery: projections, the scan, and the state contract.
 

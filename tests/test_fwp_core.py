@@ -496,3 +496,58 @@ def test_w_p_still_receives_gradient_despite_the_zero_init():
     out.sum().backward()
     assert core.W_p.weight.grad is not None
     assert core.W_p.weight.grad.abs().sum() > 0
+
+
+# ------------------------------------------------- state-norm instrumentation
+#
+# The trace the collapse probe reads. Measured in the learner from the state
+# entering the unroll, so the compiled forward is untouched, and kept as
+# detached tensors so no per-step host sync is added.
+
+from playtrain_trainers.impala.fwp import matrix_state_norms  # noqa: E402
+
+
+def test_matrix_state_norms_are_per_env_frobenius_norms():
+    state = torch.zeros(1, 3, 16)
+    state[0, 0] = 3.0 / 4.0  # 16 entries of 0.75 -> norm 3
+    state[0, 1] = 1.0 / 4.0  # -> norm 1
+    mean, mx = matrix_state_norms((state,))
+    assert mx.item() == pytest.approx(3.0)
+    assert mean.item() == pytest.approx((3.0 + 1.0 + 0.0) / 3)
+    assert not mean.requires_grad and not mx.requires_grad
+
+
+def test_matrix_state_norms_is_none_without_state():
+    assert matrix_state_norms(()) is None
+
+
+def test_state_norm_reaches_learn_stats_for_fwp_cores_only():
+    """Absent for lstm and ff: there is no matrix state to measure."""
+    from playtrain_trainers.impala.learn import learn
+
+    keys = ("fwp_state_norm_mean", "fwp_state_norm_max")
+    for core, expected in (("compfwp", True), ("deltanet", True), ("lstm", False), ("ff", False)):
+        torch.manual_seed(0)
+        model = ImpalaNet(**FWP_SPEC, core=core, **FWP_KW)
+        T, B = 3, 2
+        batch = fwp_inputs(T + 1, B, seed=1)
+        batch["episode_return"] = torch.zeros(T + 1, B)
+        batch["policy_logits"] = torch.zeros(T + 1, B, FWP_SPEC["num_actions"])
+        batch["action"] = torch.zeros(T + 1, B, dtype=torch.int64)
+        batch["baseline"] = torch.zeros(T + 1, B)
+        stats = learn(
+            actor_model=None,
+            learner_model=model,
+            batch=batch,
+            initial_agent_state=model.initial_state(B),
+            optimizer=torch.optim.SGD(model.parameters(), lr=1e-4),
+            scheduler=None,
+            discounting=0.99,
+            baseline_cost=0.5,
+            entropy_cost=0.01,
+            grad_norm_clipping=40.0,
+        )
+        present = all(k in stats for k in keys)
+        assert present is expected, f"{core}: state-norm keys present={present}"
+        if present:
+            assert stats["fwp_state_norm_mean"].item() == 0.0  # fresh state
