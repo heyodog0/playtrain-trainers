@@ -188,7 +188,17 @@ def learn(
         # check (every N steps) if a non-finite ever recurs — never per-step.
         optimizer.zero_grad()
         total_loss.backward()
-        nn.utils.clip_grad_norm_(learner_model.parameters(), grad_norm_clipping)
+        # The return value is the total norm BEFORE clipping, which is the
+        # diagnostic — how hard the update wanted to pull, not how hard it was
+        # allowed to. Free: the reduction already happened inside the clip.
+        stats["grad_norm"] = nn.utils.clip_grad_norm_(
+            learner_model.parameters(), grad_norm_clipping
+        ).detach()
+        # learn() is shared with other nets (the torchbeast-comparison
+        # _TinyNet among them), so this is opt-in rather than assumed.
+        scale = getattr(learner_model, "core_out_scale", None)
+        if scale is not None:
+            stats["core_out_scale"] = scale.detach().clone()
         optimizer.step()
         if scheduler is not None:
             scheduler.step()

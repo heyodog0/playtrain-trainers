@@ -1019,6 +1019,9 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                 # This is the trace the collapse probe reads: the state is
                 # cleared only on done, so over 5000-step episodes it is the
                 # one thing that differs structurally from the LSTM.
+                for _k in ("grad_norm", "core_out_scale"):
+                    if _k in new_stats:
+                        synced[_k] = float(new_stats[_k].item())
                 for _k in ("fwp_state_norm_mean", "fwp_state_norm_max"):
                     if _k in new_stats:
                         synced[_k] = float(new_stats[_k].item())
@@ -1039,6 +1042,10 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                             "charts/ep_win_rate", synced["win_rate"], cur_step,
                         )
                     writer.add_scalar("charts/entropy_cost", cur_entropy, cur_step)
+                    for _k, _tag in (("grad_norm", "charts/grad_norm"),
+                                     ("core_out_scale", "charts/core_out_scale")):
+                        if _k in synced:
+                            writer.add_scalar(_tag, synced[_k], cur_step)
                     if "fwp_state_norm_mean" in synced:
                         writer.add_scalar(
                             "fwp/state_norm_mean", synced["fwp_state_norm_mean"], cur_step)

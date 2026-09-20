@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pytest
 import torch
 
@@ -607,3 +608,59 @@ def test_decay_reaches_the_core_through_impalanet_and_defaults_off():
 def test_decay_outside_zero_to_one_is_rejected(bad):
     with pytest.raises(ValueError, match="decay must be"):
         DeltaNetCore(64, fwp_dim=16, n_heads=4, decay=bad)
+
+
+# ------------------------------------------------------- Q.2 diagnostics
+#
+# Grad norm before clipping and the scale of the core's output, for every
+# core including the LSTM — the LSTM is the stable reference these are meant
+# to be compared against, so leaving it out would defeat the purpose.
+
+
+@pytest.mark.parametrize("core", ["lstm", "deltanet", "compfwp", "ff"])
+def test_grad_norm_and_core_scale_reach_learn_stats_for_every_core(core):
+    from playtrain_trainers.impala.learn import learn
+
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core=core, **FWP_KW)
+    T, B = 3, 2
+    batch = fwp_inputs(T + 1, B, seed=1)
+    batch["episode_return"] = torch.zeros(T + 1, B)
+    batch["policy_logits"] = torch.zeros(T + 1, B, FWP_SPEC["num_actions"])
+    batch["action"] = torch.zeros(T + 1, B, dtype=torch.int64)
+    batch["baseline"] = torch.zeros(T + 1, B)
+    stats = learn(
+        actor_model=None, learner_model=model, batch=batch,
+        initial_agent_state=model.initial_state(B),
+        optimizer=torch.optim.SGD(model.parameters(), lr=1e-4),
+        scheduler=None, discounting=0.99, baseline_cost=0.5,
+        entropy_cost=0.01, grad_norm_clipping=40.0,
+    )
+    for key in ("grad_norm", "core_out_scale"):
+        assert key in stats, f"{core}: {key} missing"
+        assert torch.isfinite(stats[key]).all()
+    assert stats["grad_norm"].item() > 0
+    assert stats["core_out_scale"].item() > 0
+
+
+def test_core_out_scale_is_not_in_the_state_dict():
+    """Non-persistent: weight sync, checkpoints and the golden must not see it."""
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    assert "core_out_scale" not in model.state_dict()
+    assert hasattr(model, "core_out_scale")
+
+
+def test_core_out_scale_tracks_the_actual_core_output():
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="deltanet", **FWP_KW)
+    model.eval()
+    batch = fwp_inputs(4, 2, seed=3)
+    with torch.no_grad():
+        model(batch, model.initial_state(2))
+    recorded = model.core_out_scale.item()
+    assert recorded > 0 and np.isfinite(recorded)
+
+    # a second, different batch must move it
+    with torch.no_grad():
+        model(fwp_inputs(4, 2, seed=9), model.initial_state(2))
+    assert model.core_out_scale.item() != recorded

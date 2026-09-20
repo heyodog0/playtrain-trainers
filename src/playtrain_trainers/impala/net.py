@@ -186,6 +186,10 @@ class ImpalaNet(nn.Module):
         # PopArt running stats of the value targets. mu=0, sigma=1 => identity
         # (v == raw head output), so with use_popart=False the net is an exact
         # no-op vs the pre-PopArt behavior. count drives fast initial adaptation.
+        # Diagnostic only: the scale of whatever the core hands the heads.
+        # Non-persistent, so it stays out of state_dict and cannot perturb the
+        # actor weight sync, eval snapshots or the LSTM golden comparison.
+        self.register_buffer("core_out_scale", torch.zeros(()), persistent=False)
         self.register_buffer("popart_mu", torch.zeros(1))
         self.register_buffer("popart_sigma", torch.ones(1))
         self.register_buffer("popart_count", torch.zeros(1))
@@ -298,6 +302,11 @@ class ImpalaNet(nn.Module):
             core_output, core_state = self.core(core_input, notdone, core_state)
         else:
             core_output = core_input  # [T*B, features_dim]
+
+        # Written inside the compiled forward on purpose: an in-place buffer
+        # mutation is functionalised by dynamo and costs no graph break, where
+        # a Python-side hook would.
+        self.core_out_scale.copy_(core_output.detach().abs().mean())
 
         policy_logits = self.policy(core_output)
         # With use_popart, this head output is the NORMALIZED value (v_tilde);
