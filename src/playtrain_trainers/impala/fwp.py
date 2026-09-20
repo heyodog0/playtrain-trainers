@@ -60,6 +60,8 @@ class FastWeightCore(nn.Module):
         fwp_dim: int = 128,
         n_heads: int = 8,
         decay: float = 0.0,
+        w_o_gain: float = 0.1,
+        read_norm: bool = False,
     ):
         super().__init__()
         if fwp_dim < 1 or n_heads < 1:
@@ -80,11 +82,17 @@ class FastWeightCore(nn.Module):
         self.W_q = nn.Linear(features_dim, n_heads * fwp_dim, bias=False)
         self.w_b = nn.Linear(features_dim, 1)
         self.W_o = nn.Linear(n_heads * fwp_dim, features_dim)
-        # Small output gain: the core starts close to a pass-through, so
-        # swapping it in does not shove a freshly initialised net around, but
-        # gradients still reach the query and write projections from step one.
-        nn.init.orthogonal_(self.W_o.weight, gain=0.1)
+        # Output gain. 0.1 was chosen so the core starts near a pass-through;
+        # the audit (F1) found that it also throttles the gradient reaching the
+        # set block so hard that the block moved 5.8% in 30M steps. Kept as the
+        # default so existing runs are unchanged; 1.0 is the candidate.
+        nn.init.orthogonal_(self.W_o.weight, gain=w_o_gain)
         nn.init.zeros_(self.W_o.bias)
+        # Optional LayerNorm on the retrieved rows before the output
+        # projection, so the readout is bounded whatever ||S|| does. Applied
+        # only on the read path: the write's post-minus-pre difference, and
+        # with it the contraction argument, is untouched.
+        self.read_norm = nn.LayerNorm(fwp_dim) if read_norm else None
 
     @property
     def state_size(self) -> int:
@@ -121,6 +129,8 @@ class FastWeightCore(nn.Module):
         q = self.W_q(x).view(x.shape[0], self.n_heads, self.fwp_dim)
         state = self.write(state, k, v, beta, q)
         rows = self.read(state, q, k)
+        if self.read_norm is not None:
+            rows = self.read_norm(rows)
         return x + self.W_o(rows.flatten(1)), state
 
     def forward(self, core_input: torch.Tensor, notdone: torch.Tensor, core_state):
@@ -226,8 +236,12 @@ class CompFWPCore(FastWeightCore):
         write: str = "delta",
         attn_heads: int = 4,
         decay: float = 0.0,
+        w_o_gain: float = 0.1,
+        read_norm: bool = False,
+        w_p_init: float = 0.0,
     ):
-        super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay)
+        super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
+                         w_o_gain=w_o_gain, read_norm=read_norm)
         if read not in ("joint", "indep"):
             raise ValueError(f"read must be joint|indep, got {read!r}")
         if error not in ("joint", "indep"):
@@ -240,11 +254,13 @@ class CompFWPCore(FastWeightCore):
         self.set_block = SetBlock(fwp_dim, attn_heads) if read == "joint" else None
         self.W_p = nn.Linear(fwp_dim, fwp_dim, bias=False) if error == "joint" else None
         if self.W_p is not None:
-            # Zero: the write path starts as the plain delta rule, so the
-            # contraction is exact at initialisation and competition has to
-            # earn any departure from it. Gradients still flow, because the
-            # error depends on W_p through a generally non-zero difference.
-            nn.init.zeros_(self.W_p.weight)
+            # Zero by default: the write path starts as the plain delta rule.
+            # The audit (F1) found zero also starves the set block of write-
+            # path gradient; w_p_init > 0 gives it a small random start.
+            if w_p_init > 0:
+                nn.init.normal_(self.W_p.weight, std=w_p_init)
+            else:
+                nn.init.zeros_(self.W_p.weight)
 
     @property
     def variant(self) -> str:
@@ -282,9 +298,10 @@ CORE_CLASSES: dict[str, type[FastWeightCore]] = {
 
 
 def build_fwp_core(
-    kind: str, features_dim: int, fwp_dim: int, n_heads: int, decay: float = 0.0, **flags
+    kind: str, features_dim: int, fwp_dim: int, n_heads: int, decay: float = 0.0,
+    w_o_gain: float = 0.1, read_norm: bool = False, **flags
 ):
-    """``flags`` carries the CompFWP ablation options; other cores take none."""
+    """``flags`` carries the CompFWP-only options; other cores take none."""
     if kind not in CORE_CLASSES:
         raise NotImplementedError(
             f"core={kind!r} is accepted by the config but not yet built"
@@ -292,4 +309,5 @@ def build_fwp_core(
     cls = CORE_CLASSES[kind]
     if cls is not CompFWPCore:
         flags = {}
-    return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay, **flags)
+    return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
+               w_o_gain=w_o_gain, read_norm=read_norm, **flags)

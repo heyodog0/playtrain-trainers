@@ -754,3 +754,71 @@ def test_vtrace_stats_present_only_when_asked_and_finite(core):
         assert torch.isfinite(on[k]).all(), k
         assert not on[k].requires_grad, k
     assert 0.0 <= on["vtrace/rho_clip_frac"].item() <= 1.0
+
+
+# ------------------------------------------------ S.2 unthrottling the block
+
+CANDIDATE = dict(fwp_w_o_gain=1.0, fwp_read_norm=True, fwp_w_p_init=0.02)
+
+
+@pytest.mark.parametrize("core", ["deltanet", "compfwp"])
+def test_track_b_defaults_are_bit_identical_to_before(core):
+    """Flags off must reproduce every run to date exactly."""
+    torch.manual_seed(0)
+    a = ImpalaNet(**FWP_SPEC, core=core, **FWP_KW)
+    torch.manual_seed(0)
+    b = ImpalaNet(**FWP_SPEC, core=core, **FWP_KW,
+                  fwp_w_o_gain=0.1, fwp_read_norm=False, fwp_w_p_init=0.0)
+    assert set(a.state_dict()) == set(b.state_dict())
+    for k in a.state_dict():
+        torch.testing.assert_close(a.state_dict()[k], b.state_dict()[k], rtol=0, atol=0)
+    inputs = fwp_inputs(4, 2, seed=1)
+    a.eval(); b.eval()
+    with torch.no_grad():
+        oa, sa = a(inputs, a.initial_state(2))
+        ob, sb = b(inputs, b.initial_state(2))
+    torch.testing.assert_close(oa["baseline"], ob["baseline"], rtol=0, atol=0)
+    torch.testing.assert_close(sa[0], sb[0], rtol=0, atol=0)
+
+
+def test_deltanet_equivalence_survives_with_flags_off():
+    torch.manual_seed(0)
+    delta = DeltaNetCore(32, fwp_dim=16, n_heads=4)
+    comp = CompFWPCore(32, fwp_dim=16, n_heads=4, read="indep", error="indep")
+    missing, unexpected = comp.load_state_dict(delta.state_dict(), strict=False)
+    assert not missing and not unexpected
+    x = torch.randn(5, 3, 32); nd = torch.ones(5, 3)
+    with torch.no_grad():
+        a, sa = delta(x, nd, delta.initial_state(3))
+        b, sb = comp(x, nd, comp.initial_state(3))
+    torch.testing.assert_close(a, b, rtol=0, atol=0)
+    torch.testing.assert_close(sa[0], sb[0], rtol=0, atol=0)
+
+
+def test_read_norm_leaves_the_write_path_untouched():
+    """The contraction argument rests on the write; read_norm must not touch it."""
+    torch.manual_seed(0)
+    plain = CompFWPCore(32, fwp_dim=16, n_heads=4)
+    torch.manual_seed(0)
+    normed = CompFWPCore(32, fwp_dim=16, n_heads=4, read_norm=True)
+    # read_norm adds LayerNorm params; everything else identical
+    sd = {k: v for k, v in normed.state_dict().items() if not k.startswith("read_norm")}
+    assert set(sd) == set(plain.state_dict())
+    x = torch.randn(6, 3, 32); nd = torch.ones(6, 3)
+    with torch.no_grad():
+        _, s_plain = plain(x, nd, plain.initial_state(3))
+        _, s_norm = normed(x, nd, normed.initial_state(3))
+    torch.testing.assert_close(s_plain[0], s_norm[0], rtol=0, atol=0)
+
+
+def test_candidate_state_stays_bounded():
+    torch.manual_seed(0)
+    core = CompFWPCore(64, fwp_dim=16, n_heads=4, w_o_gain=1.0, read_norm=True, w_p_init=0.02)
+    assert run_state_norm(core, steps=LONG_HORIZON) < 1e3
+
+
+def test_candidate_flags_reach_the_core():
+    m = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW, **CANDIDATE)
+    assert m.core.read_norm is not None
+    assert m.core.W_p.weight.abs().sum() > 0
+    assert m.core.W_o.weight.norm() > ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW).core.W_o.weight.norm() * 5

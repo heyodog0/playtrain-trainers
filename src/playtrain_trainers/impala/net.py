@@ -134,6 +134,9 @@ class ImpalaNet(nn.Module):
         fwp_error: str = "joint",
         fwp_write: str = "delta",
         fwp_decay: float = 0.0,
+        fwp_w_o_gain: float = 0.1,
+        fwp_read_norm: bool = False,
+        fwp_w_p_init: float = 0.0,
     ):
         super().__init__()
         c, h, w = observation_shape
@@ -174,8 +177,9 @@ class ImpalaNet(nn.Module):
         elif self.core_kind in FWP_CORES:
             self.core = build_fwp_core(
                 self.core_kind, features_dim, fwp_dim, fwp_heads,
-                decay=fwp_decay,
+                decay=fwp_decay, w_o_gain=fwp_w_o_gain, read_norm=fwp_read_norm,
                 read=fwp_read, error=fwp_error, write=fwp_write,
+                w_p_init=fwp_w_p_init,
             )
         self.policy = nn.Linear(core_in, num_actions)
         self.baseline = nn.Linear(core_in, 1)

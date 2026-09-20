@@ -79,12 +79,32 @@ def load_trained(model: torch.nn.Module, path: str) -> str:
 
 
 def grad_norms(core: str, T: int, B: int, fwp_dim: int, seed: int = 0,
-               ckpt: str | None = None) -> dict:
+               ckpt: str | None = None, flags: dict | None = None, steps: int = 0) -> dict:
     torch.manual_seed(seed)
-    kwargs = {"fwp_dim": fwp_dim} if core in ("deltanet", "compfwp") else {}
+    kwargs = {"fwp_dim": fwp_dim, **(flags or {})} if core in ("deltanet", "compfwp") else {}
     model = ImpalaNet(**SPEC, core=core, **kwargs)
     if ckpt:
         load_trained(model, ckpt)
+    init = {k: v.detach().clone() for k, v in model.state_dict().items() if v.is_floating_point()}
+    if steps:
+        # Displacement probe: N real learn() steps with the trainer's optimiser
+        # on fresh random batches. Random targets, so the direction is noise —
+        # what this measures is how much gradient reaches each group, x lr,
+        # which is exactly the throttling question.
+        opt = torch.optim.RMSprop(model.parameters(), lr=1e-4, alpha=0.99, eps=1e-5)
+        for i in range(steps):
+            learn(actor_model=None, learner_model=model, batch=make_batch(T, B, seed + 1 + i),
+                  initial_agent_state=model.initial_state(B), optimizer=opt, scheduler=None,
+                  discounting=0.99, baseline_cost=0.5, entropy_cost=0.01, grad_norm_clipping=40.0)
+        disp: dict[str, list] = {}
+        for k, v in model.state_dict().items():
+            if k in init:
+                g = group_of(k)
+                d, n = (v.float() - init[k].float()).pow(2).sum().item(), init[k].float().pow(2).sum().item()
+                disp.setdefault(g, [0.0, 0.0]); disp[g][0] += d; disp[g][1] += n
+        displacement = {g: (d / n) ** 0.5 if n > 0 else float("inf") for g, (d, n) in disp.items()}
+    else:
+        displacement = None
     batch = make_batch(T, B, seed)
     learn(
         actor_model=None, learner_model=model, batch=batch,
@@ -99,7 +119,7 @@ def grad_norms(core: str, T: int, B: int, fwp_dim: int, seed: int = 0,
             continue
         groups[group_of(name)] = groups.get(group_of(name), 0.0) + float(p.grad.pow(2).sum())
     total = sum(groups.values()) ** 0.5
-    return {"total": total,
+    return {"total": total, "displacement": displacement,
             "groups": OrderedDict(sorted(((k, v ** 0.5) for k, v in groups.items()),
                                          key=lambda kv: -kv[1]))}
 
@@ -111,6 +131,8 @@ def main(argv=None):
     p.add_argument("-B", type=int, default=8)
     p.add_argument("--fwp-dim", default="128")
     p.add_argument("--seeds", default="0")
+    p.add_argument("--flags", default="", help="k=v,... passed to ImpalaNet for fwp cores")
+    p.add_argument("--steps", type=int, default=0, help="learn() steps before measuring displacement")
     p.add_argument("--ckpt", default=None,
                    help="core=path,core=path — measure trained weights instead of init")
     a = p.parse_args(argv)
@@ -129,7 +151,11 @@ def main(argv=None):
                 label = core
                 if core in ckpts:
                     label = f"{core} [trained]"
-                per_seed = [grad_norms(core, T, a.B, dim, s, ckpts.get(core)) for s in seeds]
+                flags = {}
+                for kv in filter(None, a.flags.split(",")):
+                    k, v = kv.split("=", 1)
+                    flags[k] = (v.lower() == "true") if v.lower() in ("true", "false") else float(v)
+                per_seed = [grad_norms(core, T, a.B, dim, s, ckpts.get(core), flags, a.steps) for s in seeds]
                 total = sum(r["total"] for r in per_seed) / len(per_seed)
                 totals[core] = total
                 print(f"\n{label}: total grad norm {total:,.1f}")
@@ -137,9 +163,14 @@ def main(argv=None):
                 for r in per_seed:
                     for k, v in r["groups"].items():
                         merged[k] = merged.get(k, 0.0) + v / len(per_seed)
+                dispm: dict[str, float] = {}
+                for r in per_seed:
+                    for k, v in (r["displacement"] or {}).items():
+                        dispm[k] = dispm.get(k, 0.0) + v / len(per_seed)
                 for k, v in sorted(merged.items(), key=lambda kv: -kv[1]):
                     share = 100 * v**2 / max(total**2, 1e-30)
-                    print(f"    {k:18s} {v:>14,.1f}   {share:5.1f}% of total")
+                    dtxt = f"   disp {dispm[k]:.4f}" if k in dispm else ""
+                    print(f"    {k:18s} {v:>14,.1f}   {share:5.1f}% of total{dtxt}")
             if "lstm" in totals:
                 print()
                 for core, t in totals.items():
