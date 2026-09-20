@@ -175,6 +175,9 @@ class ImpalaConfig:
     # the set block, the heads). Diagnostic: adds a reduction per parameter
     # every step, so it is off unless a run is being measured.
     log_grad_groups: bool = False
+    # Log V-trace advantage statistics, |log rho| and the rho clip fraction.
+    # Diagnostic, off by default.
+    log_vtrace: bool = False
     # Force EVERY env reset (initial + auto-reset on done) to this seed.
     # Mirrors PPO's fixed_env_seed: makes the agent memorize one specific
     # instance instead of generalizing across the procedural distribution.
@@ -972,6 +975,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                     entropy_cost=cur_entropy,
                     grad_norm_clipping=cfg.grad_norm_clipping,
                     log_grad_groups=cfg.log_grad_groups,
+                    log_vtrace=cfg.log_vtrace,
                     reward_clipping=cfg.reward_clipping,
                     win_bonus=cfg.win_bonus,
                     win_bonus_threshold=cfg.win_bonus_threshold,
@@ -1027,7 +1031,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                 for _k in ("grad_norm", "core_out_scale"):
                     if _k in new_stats:
                         synced[_k] = float(new_stats[_k].item())
-                for _k in [k for k in new_stats if k.startswith("gradgrp/")]:
+                for _k in [k for k in new_stats if k.startswith(("gradgrp/", "vtrace/"))]:
                     synced[_k] = float(new_stats[_k].item())
                 for _k in ("fwp_state_norm_mean", "fwp_state_norm_max"):
                     if _k in new_stats:
@@ -1053,7 +1057,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                                      ("core_out_scale", "charts/core_out_scale")):
                         if _k in synced:
                             writer.add_scalar(_tag, synced[_k], cur_step)
-                    for _k in [k for k in synced if k.startswith("gradgrp/")]:
+                    for _k in [k for k in synced if k.startswith(("gradgrp/", "vtrace/"))]:
                         writer.add_scalar(_k, synced[_k], cur_step)
                     if "fwp_state_norm_mean" in synced:
                         writer.add_scalar(

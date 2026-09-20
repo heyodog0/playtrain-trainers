@@ -718,3 +718,39 @@ def test_grad_group_logging_is_off_by_default():
     assert not [k for k in learn(**common) if k.startswith("gradgrp/")]
     on = [k for k in learn(**common, log_grad_groups=True) if k.startswith("gradgrp/")]
     assert len(on) >= 5, on
+
+
+# --------------------------------------------------- S.1 V-trace diagnostics
+
+
+def _learn_batch(model, T=3, B=2):
+    batch = fwp_inputs(T + 1, B, seed=1)
+    batch["episode_return"] = torch.zeros(T + 1, B)
+    batch["policy_logits"] = torch.randn(T + 1, B, FWP_SPEC["num_actions"])
+    batch["action"] = torch.zeros(T + 1, B, dtype=torch.int64)
+    batch["baseline"] = torch.zeros(T + 1, B)
+    return dict(
+        actor_model=None, learner_model=model, batch=batch,
+        initial_agent_state=model.initial_state(B),
+        optimizer=torch.optim.SGD(model.parameters(), lr=0.0),
+        scheduler=None, discounting=0.99, baseline_cost=0.5,
+        entropy_cost=0.01, grad_norm_clipping=40.0,
+    )
+
+
+@pytest.mark.parametrize("core", ["lstm", "compfwp"])
+def test_vtrace_stats_present_only_when_asked_and_finite(core):
+    from playtrain_trainers.impala.learn import learn
+
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core=core, **FWP_KW)
+    off = learn(**_learn_batch(model))
+    assert not [k for k in off if k.startswith("vtrace/")]
+    on = learn(**_learn_batch(model), log_vtrace=True)
+    keys = {k for k in on if k.startswith("vtrace/")}
+    assert keys == {"vtrace/adv_abs_mean", "vtrace/adv_std", "vtrace/adv_abs_max",
+                    "vtrace/log_rho_abs_mean", "vtrace/rho_clip_frac", "vtrace/td_abs_mean"}
+    for k in keys:
+        assert torch.isfinite(on[k]).all(), k
+        assert not on[k].requires_grad, k
+    assert 0.0 <= on["vtrace/rho_clip_frac"].item() <= 1.0

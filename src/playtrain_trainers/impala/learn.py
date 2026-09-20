@@ -85,6 +85,7 @@ def learn(
     popart_beta: float = 3e-4,
     lock: threading.Lock | None = None,
     log_grad_groups: bool = False,
+    log_vtrace: bool = False,
 ) -> dict:
     """One V-trace gradient step on a (T+1, B, ...) batch."""
     lock = lock or threading.Lock()
@@ -189,6 +190,22 @@ def learn(
             # value_error = (vs - values)/sigma; grad flows to v_tilde via values.
             pg_advantages = pg_advantages / popart_sigma
             value_error = value_error / popart_sigma
+        # V-trace diagnostics. The gradient forensics located the excess in
+        # the policy term, pg = -A * log pi, with entropy only 1.2x — so the
+        # advantages A are the unmeasured suspect. |log rho| is the behaviour/
+        # target divergence directly; the clip fraction says how often V-trace
+        # is truncating it. Detached, no host sync, off by default.
+        if log_vtrace:
+            rhos = torch.exp(vt.log_rhos.detach())
+            adv = pg_advantages.detach()
+            stats_vtrace = {
+                "vtrace/adv_abs_mean": adv.abs().mean(),
+                "vtrace/adv_std": adv.std(),
+                "vtrace/adv_abs_max": adv.abs().max(),
+                "vtrace/log_rho_abs_mean": vt.log_rhos.detach().abs().mean(),
+                "vtrace/rho_clip_frac": (rhos > 1.0).float().mean(),
+                "vtrace/td_abs_mean": (vt.vs - values).detach().abs().mean(),
+            }
         pg_loss = losses.compute_policy_gradient_loss(
             learner_outputs["policy_logits"], batch["action"], pg_advantages
         )
@@ -234,6 +251,8 @@ def learn(
         # allowed to. Free: the reduction already happened inside the clip.
         if log_grad_groups:
             stats.update(grad_group_norms(learner_model))
+        if log_vtrace:
+            stats.update(stats_vtrace)
         stats["grad_norm"] = nn.utils.clip_grad_norm_(
             learner_model.parameters(), grad_norm_clipping
         ).detach()
