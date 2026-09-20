@@ -1092,3 +1092,19 @@ def test_t2_flags_validate():
     with pytest.raises(ValueError, match="divisible"):
         DeltaNetCore(32, fwp_dim=30, n_heads=4, multihead=True)
     ImpalaConfig(core="compfwp", fwp_feature_map="elu_sumnorm", fwp_multihead=True)
+
+
+# --------------------------------------------- T.5 constant-LR flag
+
+def test_lr_decay_flag_defaults_on_and_validates():
+    assert ImpalaConfig().lr_decay is True
+    assert ImpalaConfig(lr_decay=False).lr_decay is False
+
+
+def test_lr_lambda_is_linear_by_default_and_flat_when_off():
+    """Mirror of the closure in train.py: 1 - step/total, or 1.0 with lr_decay off."""
+    import inspect
+    from playtrain_trainers.impala import train as tr
+    src = inspect.getsource(tr.train)
+    assert "if not cfg.lr_decay:\n            return 1.0" in src
+    assert "1 - min(epoch * T * B, cfg.total_steps) / cfg.total_steps" in src

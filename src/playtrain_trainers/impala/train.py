@@ -183,6 +183,9 @@ class ImpalaConfig:
     # T.2: the reference's bounded read on the existing cores.
     fwp_feature_map: str = "l2k"
     fwp_multihead: bool = False
+    # Linear LR decay to zero over total_steps (monobeast default). False holds
+    # the LR constant — T.5 asks whether the decay cuts recovery short.
+    lr_decay: bool = True
     # Log pre-clip gradient norm per component (encoder, each core projection,
     # the set block, the heads). Diagnostic: adds a reduction per parameter
     # every step, so it is off unless a run is being measured.
@@ -917,6 +920,8 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
     )
 
     def lr_lambda(epoch: int) -> float:
+        if not cfg.lr_decay:
+            return 1.0
         return 1 - min(epoch * T * B, cfg.total_steps) / cfg.total_steps
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
