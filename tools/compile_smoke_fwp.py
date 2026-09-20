@@ -49,12 +49,12 @@ def counter_snapshot() -> dict:
     }
 
 
-def smoke(core: str, T: int, B: int, iters: int, mode: str, fwp_dim: int) -> dict:
+def smoke(core: str, T: int, B: int, iters: int, mode: str, fwp_dim: int, flags: dict | None = None) -> dict:
     torch._dynamo.reset()
     torch._dynamo.utils.counters.clear()
 
     torch.manual_seed(0)
-    model = ImpalaNet(**SPEC, core=core, **({} if core == "deltanet_ref" else {"fwp_dim": fwp_dim}))
+    model = ImpalaNet(**SPEC, core=core, **({} if core == "deltanet_ref" else {"fwp_dim": fwp_dim, **(flags or {})}))
     model.train()
     model.compile(mode=mode)
 
@@ -102,12 +102,18 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--iters", type=int, default=3)
     p.add_argument("--mode", default="default")
     p.add_argument("--fwp-dim", type=int, default=128)
+    p.add_argument("--flags", default="", help="comma-separated ImpalaNet kwargs, e.g. fwp_feature_map=elu_sumnorm,fwp_multihead=1")
     a = p.parse_args(argv)
+
+    flags = {}
+    for kv in filter(None, a.flags.split(",")):
+        key, val = kv.split("=", 1)
+        flags[key] = (val.lower() in ("1", "true")) if key == "fwp_multihead" else val
 
     results = []
     for core in a.cores.split(","):
         print(f"--- {core} (T={a.T}, B={a.B}, mode={a.mode}) ...", flush=True)
-        res = smoke(core, a.T, a.B, a.iters, a.mode, a.fwp_dim)
+        res = smoke(core, a.T, a.B, a.iters, a.mode, a.fwp_dim, flags)
         results.append(res)
         print(json.dumps(res, indent=2), flush=True)
 

@@ -162,7 +162,9 @@ def ddp_learner(
                           fwp_read_norm=bool(cfg_d.get("fwp_read_norm", False)),
                           fwp_w_p_init=float(cfg_d.get("fwp_w_p_init", 0.0)),
                           fwp_ref_heads=int(cfg_d.get("fwp_ref_heads", 4)),
-                          fwp_ref_dim_head=int(cfg_d.get("fwp_ref_dim_head", 64))).to(device)
+                          fwp_ref_dim_head=int(cfg_d.get("fwp_ref_dim_head", 64)),
+                          fwp_feature_map=str(cfg_d.get("fwp_feature_map", "l2k")),
+                          fwp_multihead=bool(cfg_d.get("fwp_multihead", False))).to(device)
         model = model.to(memory_format=torch.channels_last)
         # Identical init across ranks: rank 0's weights are the reference
         # (they were already published to weight_state by train()).

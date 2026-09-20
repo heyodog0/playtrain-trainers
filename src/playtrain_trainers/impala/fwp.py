@@ -28,6 +28,9 @@ from torch import nn
 #: Cores whose state is a flattened matrix rather than an (h, c) pair.
 FWP_CORES = ("deltanet", "compfwp", "deltanet_ref")
 
+#: Key/query feature maps for the trainer cores (T.2). ``l2k`` is the original.
+FEATURE_MAPS = ("l2k", "elu_sumnorm")
+
 
 def elu_p1_sum_norm(x: torch.Tensor, eps: float = 1e-5) -> torch.Tensor:
     """The reference feature map: ELU+1, then normalise to sum 1.
@@ -74,15 +77,32 @@ class FastWeightCore(nn.Module):
         decay: float = 0.0,
         w_o_gain: float = 0.1,
         read_norm: bool = False,
+        feature_map: str = "l2k",
+        multihead: bool = False,
     ):
         super().__init__()
         if fwp_dim < 1 or n_heads < 1:
             raise ValueError("fwp_dim and n_heads must be positive")
         if not 0.0 <= decay < 1.0:
             raise ValueError(f"decay must be in [0, 1), got {decay}")
+        if feature_map not in FEATURE_MAPS:
+            raise ValueError(f"feature_map must be one of {FEATURE_MAPS}, got {feature_map!r}")
+        if multihead and fwp_dim % n_heads:
+            raise ValueError(f"multihead needs fwp_dim divisible by n_heads; got {fwp_dim}/{n_heads}")
         self.features_dim = features_dim
         self.fwp_dim = fwp_dim
         self.n_heads = n_heads
+        # T.2: the two ingredients of the reference's bounded read.
+        # ``feature_map``: "l2k" is this repo's original (unit-norm key, raw
+        # query); "elu_sumnorm" puts BOTH keys and query rows on the simplex,
+        # so every read is a convex combination of stored values.
+        # ``multihead``: the state is per-head ``(n_heads, d_h, d_h)`` with
+        # ``d_h = fwp_dim // n_heads``; query row m reads only head m, and
+        # the key/value/beta are split per head. Both default off, and off is
+        # bit-identical to the pre-T.2 code.
+        self.feature_map = feature_map
+        self.multihead = multihead
+        self.d_h = fwp_dim // n_heads if multihead else fwp_dim
         # Per-step multiplicative forgetting applied before each write. 0.0 is
         # off and is the default, so a run that does not ask for it is
         # unchanged. It bounds the memory horizon directly — roughly 1/decay
@@ -91,9 +111,11 @@ class FastWeightCore(nn.Module):
 
         self.W_k = nn.Linear(features_dim, fwp_dim, bias=False)
         self.W_v = nn.Linear(features_dim, fwp_dim, bias=False)
-        self.W_q = nn.Linear(features_dim, n_heads * fwp_dim, bias=False)
-        self.w_b = nn.Linear(features_dim, 1)
-        self.W_o = nn.Linear(n_heads * fwp_dim, features_dim)
+        # Query rows: n_heads rows of width d_h. Single-head d_h == fwp_dim,
+        # so the shapes below reduce to the originals.
+        self.W_q = nn.Linear(features_dim, n_heads * self.d_h, bias=False)
+        self.w_b = nn.Linear(features_dim, n_heads if multihead else 1)
+        self.W_o = nn.Linear(n_heads * self.d_h, features_dim)
         # Output gain. 0.1 was chosen so the core starts near a pass-through;
         # the audit (F1) found that it also throttles the gradient reaching the
         # set block so hard that the block moved 5.8% in 30M steps. Kept as the
@@ -104,11 +126,21 @@ class FastWeightCore(nn.Module):
         # projection, so the readout is bounded whatever ||S|| does. Applied
         # only on the read path: the write's post-minus-pre difference, and
         # with it the contraction argument, is untouched.
-        self.read_norm = nn.LayerNorm(fwp_dim) if read_norm else None
+        self.read_norm = nn.LayerNorm(self.d_h) if read_norm else None
+
+    @property
+    def state_shape(self) -> tuple[int, ...]:
+        """Per-env state: (d, d) single-head, (H, d_h, d_h) multihead."""
+        if self.multihead:
+            return (self.n_heads, self.d_h, self.d_h)
+        return (self.fwp_dim, self.fwp_dim)
 
     @property
     def state_size(self) -> int:
-        return self.fwp_dim * self.fwp_dim
+        n = 1
+        for d in self.state_shape:
+            n *= d
+        return n
 
     def initial_state(self, batch_size: int = 1) -> tuple[torch.Tensor]:
         """Zero matrix state, flattened, batch at dim 1 — a 1-tuple."""
@@ -122,12 +154,57 @@ class FastWeightCore(nn.Module):
     def read(self, state, q, k=None):
         """Retrieve the M query rows. Independent by default, so `k` is unused."""
         del k
-        return torch.einsum("bij,bmj->bmi", state, q)
+        return self.retrieve(state, q)
 
-    @staticmethod
-    def retrieve(state, q):
-        """Raw matrix read, before any competition between the rows."""
-        return torch.einsum("bij,bmj->bmi", state, q)
+    def retrieve(self, state, q):
+        """Raw matrix read, before any competition between the rows.
+
+        Single-head: every row reads the one matrix. Multihead: row m reads
+        head m, and ``q`` may carry several rows per head stacked along dim 1
+        (``q.shape[1]`` a multiple of ``n_heads``, head-major).
+        """
+        if not self.multihead:
+            return torch.einsum("bij,bmj->bmi", state, q)
+        B, M, d_h = q.shape
+        q = q.view(B, -1, self.n_heads, d_h)  # [B, rows_per_head, H, d_h]
+        rows = torch.einsum("bhij,brhj->brhi", state, q)
+        return rows.reshape(B, M, d_h)
+
+    def key_pred(self, state, k):
+        """The state's current prediction at the write key: S k, per head."""
+        if not self.multihead:
+            return torch.einsum("bij,bj->bi", state, k)
+        return torch.einsum("bhij,bhj->bhi", state, k)
+
+    def key_rows(self, k):
+        """The write key as query row(s): one row single-head, one per head multihead."""
+        return k if self.multihead else k.unsqueeze(1)
+
+    def outer_update(self, state, beta, err, k):
+        """``S + beta * err k^T`` in either layout."""
+        return state + beta.unsqueeze(-1) * err.unsqueeze(-1) * k.unsqueeze(-2)
+
+    def project(self, x: torch.Tensor):
+        """k, v, beta, q for one timestep, in the configured layout.
+
+        Single-head: k, v [B, d]; beta [B, 1]; q [B, M, d].
+        Multihead:   k, v [B, H, d_h]; beta [B, H, 1]; q [B, H, d_h].
+        """
+        B = x.shape[0]
+        k = self.W_k(x)
+        v = self.W_v(x)
+        beta = torch.sigmoid(self.w_b(x))
+        q = self.W_q(x).view(B, self.n_heads, self.d_h)
+        if self.multihead:
+            k = k.view(B, self.n_heads, self.d_h)
+            v = v.view(B, self.n_heads, self.d_h)
+            beta = beta.view(B, self.n_heads, 1)
+        if self.feature_map == "elu_sumnorm":
+            k = elu_p1_sum_norm(k)
+            q = elu_p1_sum_norm(q)
+        else:
+            k = F.normalize(k, dim=-1)
+        return k, v, beta, q
 
     # -- one timestep and the unroll ---------------------------------------
 
@@ -135,10 +212,7 @@ class FastWeightCore(nn.Module):
         """One timestep: forget a little, write, then read the updated state."""
         if self.decay:
             state = state * (1.0 - self.decay)
-        k = F.normalize(self.W_k(x), dim=-1)
-        v = self.W_v(x)
-        beta = torch.sigmoid(self.w_b(x))
-        q = self.W_q(x).view(x.shape[0], self.n_heads, self.fwp_dim)
+        k, v, beta, q = self.project(x)
         state = self.write(state, k, v, beta, q)
         rows = self.read(state, q, k)
         if self.read_norm is not None:
@@ -148,10 +222,11 @@ class FastWeightCore(nn.Module):
     def forward(self, core_input: torch.Tensor, notdone: torch.Tensor, core_state):
         """core_input [T, B, F], notdone [T, B] float -> ([T*B, F], state)."""
         T, B, _ = core_input.shape
-        state = core_state[0].reshape(B, self.fwp_dim, self.fwp_dim)
+        state = core_state[0].reshape(B, *self.state_shape)
         outs = []
+        mask_shape = (B,) + (1,) * len(self.state_shape)
         for t in range(T):
-            state = state * notdone[t].view(B, 1, 1)
+            state = state * notdone[t].view(*mask_shape)
             out, state = self.step(core_input[t], state)
             outs.append(out)
         flat = torch.flatten(torch.stack(outs), 0, 1)
@@ -170,8 +245,7 @@ class DeltaNetCore(FastWeightCore):
 
     def write(self, state, k, v, beta, q):
         del q  # the independent error never looks at the other query rows
-        pred = torch.einsum("bij,bj->bi", state, k)
-        return state + beta.unsqueeze(-1) * (v - pred).unsqueeze(-1) * k.unsqueeze(-2)
+        return self.outer_update(state, beta, v - self.key_pred(state, k), k)
 
 
 class SetBlock(nn.Module):
@@ -251,9 +325,12 @@ class CompFWPCore(FastWeightCore):
         w_o_gain: float = 0.1,
         read_norm: bool = False,
         w_p_init: float = 0.0,
+        feature_map: str = "l2k",
+        multihead: bool = False,
     ):
         super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
-                         w_o_gain=w_o_gain, read_norm=read_norm)
+                         w_o_gain=w_o_gain, read_norm=read_norm,
+                         feature_map=feature_map, multihead=multihead)
         if read not in ("joint", "indep"):
             raise ValueError(f"read must be joint|indep, got {read!r}")
         if error not in ("joint", "indep"):
@@ -263,8 +340,11 @@ class CompFWPCore(FastWeightCore):
         if error == "joint" and read == "indep":
             raise ValueError("error='joint' needs read='joint': there is no joint read to use")
         self.read_mode, self.error_mode, self.write_mode = read, error, write
-        self.set_block = SetBlock(fwp_dim, attn_heads) if read == "joint" else None
-        self.W_p = nn.Linear(fwp_dim, fwp_dim, bias=False) if error == "joint" else None
+        # Rows are d_h wide (== fwp_dim single-head). Multihead appends one
+        # write-key row PER head, so the block sees 2H rows and W_p is shared
+        # across heads.
+        self.set_block = SetBlock(self.d_h, attn_heads) if read == "joint" else None
+        self.W_p = nn.Linear(self.d_h, self.d_h, bias=False) if error == "joint" else None
         if self.W_p is not None:
             # Zero by default: the write path starts as the plain delta rule.
             # The audit (F1) found zero also starves the set block of write-
@@ -280,7 +360,7 @@ class CompFWPCore(FastWeightCore):
 
     def _compete(self, state, q, k):
         """Retrieve the M query rows plus the write key, then let them compete."""
-        rows = self.retrieve(state, torch.cat([q, k.unsqueeze(1)], dim=1))
+        rows = self.retrieve(state, torch.cat([q, self.key_rows(k)], dim=1))
         return self.set_block(rows)
 
     def read(self, state, q, k=None):
@@ -292,15 +372,17 @@ class CompFWPCore(FastWeightCore):
         if self.write_mode == "additive":
             err = v
         else:
-            indep = torch.einsum("bij,bj->bi", state, k)
+            indep = self.key_pred(state, k)
             if self.error_mode == "joint":
                 # Correction to the independent prediction. See the class
                 # docstring: replacing it outright is what diverges.
-                joint = self._compete(state, q, k)[:, -1]
+                joint = self._compete(state, q, k)[:, self.n_heads :]
+                if not self.multihead:
+                    joint = joint[:, -1]
                 err = v - (indep + self.W_p(joint - indep))
             else:
                 err = v - indep
-        return state + beta.unsqueeze(-1) * err.unsqueeze(-1) * k.unsqueeze(-2)
+        return self.outer_update(state, beta, err, k)
 
 
 class RefDeltaNetCore(nn.Module):
@@ -381,7 +463,8 @@ CORE_CLASSES: dict[str, type[nn.Module]] = {
 def build_fwp_core(
     kind: str, features_dim: int, fwp_dim: int, n_heads: int, decay: float = 0.0,
     w_o_gain: float = 0.1, read_norm: bool = False,
-    ref_heads: int = 4, ref_dim_head: int = 64, **flags
+    ref_heads: int = 4, ref_dim_head: int = 64,
+    feature_map: str = "l2k", multihead: bool = False, **flags
 ):
     """``flags`` carries the CompFWP-only options; other cores take none."""
     if kind not in CORE_CLASSES:
@@ -394,4 +477,5 @@ def build_fwp_core(
     if cls is not CompFWPCore:
         flags = {}
     return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
-               w_o_gain=w_o_gain, read_norm=read_norm, **flags)
+               w_o_gain=w_o_gain, read_norm=read_norm,
+               feature_map=feature_map, multihead=multihead, **flags)

@@ -939,3 +939,156 @@ def test_ref_parameter_count(capsys):
     with capsys.disabled():
         print(f"\n  deltanet_ref: {n} params ({n_core} in the core)")
     assert n_core > 0
+
+
+# --------------------------------------------- T.2 the bounded read on our cores
+#
+# fwp_feature_map="elu_sumnorm" puts q rows and k on the simplex;
+# fwp_multihead=True makes the state per-head. Off is the pre-T.2 code.
+
+from playtrain_trainers.impala.fwp import DeltaNetCore, CompFWPCore, FEATURE_MAPS  # noqa: E402
+from playtrain_trainers.impala.train import ImpalaConfig  # noqa: E402
+
+T2_KW = {"fwp_dim": 32, "fwp_heads": 4}  # multihead -> d_h = 8
+
+
+def _copy_ref_into_ours(ref: RefDeltaNetCore, ours: DeltaNetCore) -> None:
+    """Share weights: ref's fused qkvβ rows -> our W_q/W_k/W_v/w_b; out_linear -> W_o.
+
+    Our projections have no bias, so the ref's q/k/v bias is zeroed; β keeps its bias.
+    """
+    H, dh = ref.n_heads, ref.dim_head
+    Wq, Wk, Wv, Wb = torch.split(ref.qkvb.weight.data, [H * dh, H * dh, H * dh, H], dim=0)
+    bq, bk, bv, bb = torch.split(ref.qkvb.bias.data, [H * dh, H * dh, H * dh, H], dim=0)
+    bq.zero_(); bk.zero_(); bv.zero_()
+    with torch.no_grad():
+        ours.W_q.weight.copy_(Wq); ours.W_k.weight.copy_(Wk); ours.W_v.weight.copy_(Wv)
+        ours.w_b.weight.copy_(Wb); ours.w_b.bias.copy_(bb)
+        ours.W_o.weight.copy_(ref.out_linear.weight); ours.W_o.bias.copy_(ref.out_linear.bias)
+
+
+def test_deltanet_elu_sumnorm_multihead_equals_the_reference_core():
+    """The port's correctness proof: our DeltaNet with both T.2 flags on is
+    Irie's core at matched H, d_h and shared weights."""
+    torch.manual_seed(0)
+    ref = RefDeltaNetCore(32, n_heads=4, dim_head=8).eval()
+    ours = DeltaNetCore(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm", multihead=True).eval()
+    _copy_ref_into_ours(ref, ours)
+    assert ours.state_size == ref.state_size == 4 * 8 * 8
+    T, B = 12, 5
+    torch.manual_seed(1)
+    x = torch.randn(T, B, 32)
+    notdone = (torch.rand(T, B) > 0.15).float()
+    with torch.no_grad():
+        out_ref, st_ref = ref(x, notdone, ref.initial_state(B))
+        out_ours, st_ours = ours(x, notdone, ours.initial_state(B))
+    torch.testing.assert_close(out_ours, out_ref, atol=1e-5, rtol=0)
+    torch.testing.assert_close(st_ours[0], st_ref[0], atol=1e-5, rtol=0)
+
+
+def test_the_equivalence_needs_both_flags():
+    """Otherwise the proof above would pass for the wrong reason."""
+    torch.manual_seed(0)
+    ref = RefDeltaNetCore(32, n_heads=4, dim_head=8).eval()
+    x = torch.randn(4, 3, 32); nd = torch.ones(4, 3)
+    with torch.no_grad():
+        out_ref, _ = ref(x, nd, ref.initial_state(3))
+    core = DeltaNetCore(32, fwp_dim=32, n_heads=4, feature_map="l2k", multihead=True).eval()
+    _copy_ref_into_ours(ref, core)
+    with torch.no_grad():
+        out, _ = core(x, nd, core.initial_state(3))
+    assert not torch.allclose(out, out_ref, atol=1e-3)
+
+
+@pytest.mark.parametrize("core", BUILT_CORES)
+@pytest.mark.parametrize("flags", [
+    {"fwp_feature_map": "elu_sumnorm"},
+    {"fwp_multihead": True},
+    {"fwp_feature_map": "elu_sumnorm", "fwp_multihead": True},
+])
+def test_t2_flags_keep_the_state_contract_and_step_equivalence(core, flags):
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core=core, **T2_KW, **flags).eval()
+    size = 4 * 8 * 8 if flags.get("fwp_multihead") else 32 * 32
+    B, T = 3, 6
+    assert m.initial_state(B)[0].shape == (1, B, size)
+    inputs = fwp_inputs(T, B, done_at=((1, 0), (3, 2)), seed=5)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    assert bstate[0].shape == (1, B, size)
+    torch.testing.assert_close(batched["baseline"], torch.cat([s["baseline"] for s in steps]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+@pytest.mark.parametrize("flags", [
+    {"feature_map": "elu_sumnorm"},
+    {"multihead": True},
+    {"feature_map": "elu_sumnorm", "multihead": True},
+])
+def test_compfwp_indep_indep_delta_is_still_deltanet_with_t2_flags(flags):
+    torch.manual_seed(0)
+    a = DeltaNetCore(32, fwp_dim=32, n_heads=4, **flags).eval()
+    torch.manual_seed(0)
+    b = CompFWPCore(32, fwp_dim=32, n_heads=4, read="indep", error="indep", write="delta", **flags).eval()
+    b.load_state_dict(a.state_dict(), strict=True)
+    x = torch.randn(5, 3, 32); nd = torch.ones(5, 3)
+    with torch.no_grad():
+        oa, sa = a(x, nd, a.initial_state(3)); ob, sb = b(x, nd, b.initial_state(3))
+    assert torch.equal(oa, ob) and torch.equal(sa[0], sb[0])
+
+
+def test_compfwp_multihead_competes_with_one_write_key_row_per_head():
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, multihead=True).eval()
+    seen = {}
+
+    def record(mod, inp):
+        seen["rows"] = tuple(inp[0].shape)
+
+    core.set_block.register_forward_pre_hook(record)
+    S = torch.randn(2, 4, 8, 8)
+    with torch.no_grad():
+        core.step(torch.randn(2, 32), S)
+    assert seen["rows"] == (2, 8, 8)  # 4 query rows + 4 write-key rows, each d_h=8 wide
+
+
+def test_compfwp_multihead_write_is_the_delta_rule_at_w_p_zero():
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, multihead=True, feature_map="elu_sumnorm").eval()
+    S = torch.randn(2, 4, 8, 8)
+    x = torch.randn(2, 32)
+    with torch.no_grad():
+        k, v, beta, q = core.project(x)
+        S_new = core.write(S, k, v, beta, q)
+        expect = S + beta.unsqueeze(-1) * (v - torch.einsum("bhij,bhj->bhi", S, k)).unsqueeze(-1) * k.unsqueeze(-2)
+    torch.testing.assert_close(S_new, expect)
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_elu_sumnorm_multihead_state_stays_bounded_over_a_trainer_length_episode(core_cls):
+    torch.manual_seed(0)
+    core = core_cls(64, fwp_dim=64, n_heads=4, feature_map="elu_sumnorm", multihead=True).eval()
+    S = core.initial_state(2)[0].reshape(2, *core.state_shape)
+    with torch.no_grad():
+        for _ in range(LONG_HORIZON):
+            _, S = core.step(torch.randn(2, 64), S)
+    assert torch.isfinite(S).all() and S.norm().item() < 1e3
+
+
+def test_t2_flags_reach_the_core_through_impalanet_and_default_off():
+    m = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    assert m.core.feature_map == "l2k" and m.core.multihead is False
+    m = ImpalaNet(**FWP_SPEC, core="deltanet", **T2_KW, fwp_feature_map="elu_sumnorm", fwp_multihead=True)
+    assert m.core.feature_map == "elu_sumnorm" and m.core.multihead is True and m.core.d_h == 8
+
+
+def test_t2_flags_validate():
+    assert FEATURE_MAPS == ("l2k", "elu_sumnorm")
+    with pytest.raises(ValueError, match="feature_map"):
+        DeltaNetCore(32, fwp_dim=16, n_heads=4, feature_map="softmax")
+    with pytest.raises(ValueError, match="divisible"):
+        DeltaNetCore(32, fwp_dim=30, n_heads=4, multihead=True)
+    ImpalaConfig(core="compfwp", fwp_feature_map="elu_sumnorm", fwp_multihead=True)
