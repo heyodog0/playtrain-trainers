@@ -24,6 +24,46 @@ from playtrain_trainers.impala import losses, vtrace
 from playtrain_trainers.impala.fwp import FWP_CORES, matrix_state_norms
 
 
+#: Which component a parameter belongs to, for gradient attribution.
+GRAD_GROUPS = ("encoder", "core.set_block", "core.W_k", "core.W_v", "core.W_q",
+               "core.W_o", "core.W_p", "core.w_b", "core.rnn", "heads", "mix")
+
+
+def grad_group(name: str) -> str:
+    if name.startswith("encoder"):
+        return "encoder"
+    if name.startswith("core.set_block"):
+        return "core.set_block"
+    for part in ("W_k", "W_v", "W_q", "W_o", "W_p", "w_b"):
+        if f"core.{part}" in name:
+            return f"core.{part}"
+    if name.startswith("core"):
+        return "core.rnn"
+    if name.startswith(("policy", "baseline")):
+        return "heads"
+    if name.startswith("mix"):
+        return "mix"
+    return "other"
+
+
+def grad_group_norms(model) -> dict:
+    """Pre-clip gradient norm per component, as detached tensors.
+
+    R.1a established that this cannot be reproduced on synthetic batches, so
+    it has to be measured here, inside a real run. Off by default: it adds a
+    reduction per parameter on every step, on top of the one clip_grad_norm_
+    already does.
+    """
+    sums: dict = {}
+    for name, p in model.named_parameters():
+        if p.grad is None:
+            continue
+        g = grad_group(name)
+        sq = p.grad.detach().pow(2).sum()
+        sums[g] = sq if g not in sums else sums[g] + sq
+    return {f"gradgrp/{k}": v.sqrt() for k, v in sums.items()}
+
+
 def learn(
     *,
     actor_model: nn.Module | None,
@@ -44,6 +84,7 @@ def learn(
     use_popart: bool = False,
     popart_beta: float = 3e-4,
     lock: threading.Lock | None = None,
+    log_grad_groups: bool = False,
 ) -> dict:
     """One V-trace gradient step on a (T+1, B, ...) batch."""
     lock = lock or threading.Lock()
@@ -191,6 +232,8 @@ def learn(
         # The return value is the total norm BEFORE clipping, which is the
         # diagnostic — how hard the update wanted to pull, not how hard it was
         # allowed to. Free: the reduction already happened inside the clip.
+        if log_grad_groups:
+            stats.update(grad_group_norms(learner_model))
         stats["grad_norm"] = nn.utils.clip_grad_norm_(
             learner_model.parameters(), grad_norm_clipping
         ).detach()

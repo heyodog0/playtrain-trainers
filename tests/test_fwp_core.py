@@ -664,3 +664,57 @@ def test_core_out_scale_tracks_the_actual_core_output():
     with torch.no_grad():
         model(fwp_inputs(4, 2, seed=9), model.initial_state(2))
     assert model.core_out_scale.item() != recorded
+
+
+# ----------------------------------------------- R.1b per-group attribution
+
+
+def test_grad_group_assigns_every_parameter_of_every_core():
+    """No parameter may fall into 'other', or the attribution has a hole."""
+    from playtrain_trainers.impala.learn import GRAD_GROUPS, grad_group
+
+    for core in ("lstm", "deltanet", "compfwp", "ff"):
+        model = ImpalaNet(**FWP_SPEC, core=core, **FWP_KW)
+        for name, _ in model.named_parameters():
+            g = grad_group(name)
+            assert g in GRAD_GROUPS, f"{core}: {name} -> {g}"
+
+
+def test_grad_group_norms_partition_the_total():
+    """The per-group norms must reconstruct the total, or they mislead."""
+    from playtrain_trainers.impala.learn import grad_group_norms
+
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    out, _ = model(fwp_inputs(4, 2, seed=1), model.initial_state(2))
+    out["baseline"].pow(2).mean().backward()
+
+    groups = grad_group_norms(model)
+    assert groups, "no groups recorded"
+    combined = sum(v.item() ** 2 for v in groups.values()) ** 0.5
+    total = sum(p.grad.pow(2).sum().item() for p in model.parameters()
+                if p.grad is not None) ** 0.5
+    assert combined == pytest.approx(total, rel=1e-5)
+
+
+def test_grad_group_logging_is_off_by_default():
+    from playtrain_trainers.impala.learn import learn
+
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    T, B = 3, 2
+    batch = fwp_inputs(T + 1, B, seed=1)
+    batch["episode_return"] = torch.zeros(T + 1, B)
+    batch["policy_logits"] = torch.zeros(T + 1, B, FWP_SPEC["num_actions"])
+    batch["action"] = torch.zeros(T + 1, B, dtype=torch.int64)
+    batch["baseline"] = torch.zeros(T + 1, B)
+    common = dict(
+        actor_model=None, learner_model=model, batch=batch,
+        initial_agent_state=model.initial_state(B),
+        optimizer=torch.optim.SGD(model.parameters(), lr=0.0),
+        scheduler=None, discounting=0.99, baseline_cost=0.5,
+        entropy_cost=0.01, grad_norm_clipping=40.0,
+    )
+    assert not [k for k in learn(**common) if k.startswith("gradgrp/")]
+    on = [k for k in learn(**common, log_grad_groups=True) if k.startswith("gradgrp/")]
+    assert len(on) >= 5, on

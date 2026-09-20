@@ -171,6 +171,10 @@ class ImpalaConfig:
     # Per-step multiplicative forgetting on the fast-weight state, applied
     # before each write. 0.0 is off; roughly a 1/fwp_decay step memory horizon.
     fwp_decay: float = 0.0
+    # Log pre-clip gradient norm per component (encoder, each core projection,
+    # the set block, the heads). Diagnostic: adds a reduction per parameter
+    # every step, so it is off unless a run is being measured.
+    log_grad_groups: bool = False
     # Force EVERY env reset (initial + auto-reset on done) to this seed.
     # Mirrors PPO's fixed_env_seed: makes the agent memorize one specific
     # instance instead of generalizing across the procedural distribution.
@@ -967,6 +971,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                     baseline_cost=cfg.baseline_cost,
                     entropy_cost=cur_entropy,
                     grad_norm_clipping=cfg.grad_norm_clipping,
+                    log_grad_groups=cfg.log_grad_groups,
                     reward_clipping=cfg.reward_clipping,
                     win_bonus=cfg.win_bonus,
                     win_bonus_threshold=cfg.win_bonus_threshold,
@@ -1022,6 +1027,8 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                 for _k in ("grad_norm", "core_out_scale"):
                     if _k in new_stats:
                         synced[_k] = float(new_stats[_k].item())
+                for _k in [k for k in new_stats if k.startswith("gradgrp/")]:
+                    synced[_k] = float(new_stats[_k].item())
                 for _k in ("fwp_state_norm_mean", "fwp_state_norm_max"):
                     if _k in new_stats:
                         synced[_k] = float(new_stats[_k].item())
@@ -1046,6 +1053,8 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                                      ("core_out_scale", "charts/core_out_scale")):
                         if _k in synced:
                             writer.add_scalar(_tag, synced[_k], cur_step)
+                    for _k in [k for k in synced if k.startswith("gradgrp/")]:
+                        writer.add_scalar(_k, synced[_k], cur_step)
                     if "fwp_state_norm_mean" in synced:
                         writer.add_scalar(
                             "fwp/state_norm_mean", synced["fwp_state_norm_mean"], cur_step)
