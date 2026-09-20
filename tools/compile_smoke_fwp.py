@@ -54,7 +54,7 @@ def smoke(core: str, T: int, B: int, iters: int, mode: str, fwp_dim: int) -> dic
     torch._dynamo.utils.counters.clear()
 
     torch.manual_seed(0)
-    model = ImpalaNet(**SPEC, core=core, fwp_dim=fwp_dim)
+    model = ImpalaNet(**SPEC, core=core, **({} if core == "deltanet_ref" else {"fwp_dim": fwp_dim}))
     model.train()
     model.compile(mode=mode)
 

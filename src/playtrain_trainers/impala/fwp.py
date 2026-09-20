@@ -26,7 +26,19 @@ from torch import nn
 
 
 #: Cores whose state is a flattened matrix rather than an (h, c) pair.
-FWP_CORES = ("deltanet", "compfwp")
+FWP_CORES = ("deltanet", "compfwp", "deltanet_ref")
+
+
+def elu_p1_sum_norm(x: torch.Tensor, eps: float = 1e-5) -> torch.Tensor:
+    """The reference feature map: ELU+1, then normalise to sum 1.
+
+    Verbatim from IDSIA/recurrent-fwp `torchbeast/layer.py`:
+    ``y = F.elu(x, 1., False) + 1.; y / (y.sum(-1, keepdim=True) + 1e-5)``.
+    Applied to BOTH queries and keys there, which makes the read ``W q`` a
+    convex combination of what was written — bounded whatever ``W`` does.
+    """
+    y = F.elu(x, 1.0) + 1.0
+    return y / (y.sum(-1, keepdim=True) + eps)
 
 
 def matrix_state_norms(core_state) -> tuple[torch.Tensor, torch.Tensor] | None:
@@ -291,15 +303,85 @@ class CompFWPCore(FastWeightCore):
         return state + beta.unsqueeze(-1) * err.unsqueeze(-1) * k.unsqueeze(-2)
 
 
-CORE_CLASSES: dict[str, type[FastWeightCore]] = {
+class RefDeltaNetCore(nn.Module):
+    """Irie et al.'s RL DeltaNet, ported as a reference core.
+
+    Faithful to IDSIA/recurrent-fwp ``reinforcement_learning/torchbeast/
+    layer.py`` and ``fast_weight/__init__.py`` (read 2026-09-20):
+
+    * one linear produces q, k, v per head and a beta per head;
+    * q and k both pass through ELU+1 sum-normalisation;
+    * per-head fast weights ``W_h`` of shape ``(dim_head, dim_head)``;
+    * ``v_old = W k;  W += beta * (v - v_old) ⊗ k;  out = W q`` — read AFTER
+      the write;
+    * ``x + out_linear(out)``, no LayerNorm.
+
+    Differences from the reference that are deliberate: one layer instead of
+    two, no dropout (RL), and no clipped-reward input to the core — the
+    reference concatenates it to the CNN features; that is a separate flag if
+    wanted. The state keeps this repo's contract: a 1-tuple, batch at dim 1,
+    flattened to ``(1, B, H * dh * dh)``.
+    """
+
+    kind = "deltanet_ref"
+
+    def __init__(self, features_dim: int, n_heads: int = 4, dim_head: int = 64):
+        super().__init__()
+        if n_heads * dim_head != features_dim:
+            raise ValueError(
+                f"reference core needs n_heads*dim_head == features_dim; "
+                f"got {n_heads}*{dim_head} != {features_dim}"
+            )
+        self.features_dim, self.n_heads, self.dim_head = features_dim, n_heads, dim_head
+        self.qkvb = nn.Linear(features_dim, 3 * n_heads * dim_head + n_heads)
+        self.out_linear = nn.Linear(n_heads * dim_head, features_dim)
+
+    @property
+    def state_size(self) -> int:
+        return self.n_heads * self.dim_head * self.dim_head
+
+    def initial_state(self, batch_size: int = 1) -> tuple[torch.Tensor]:
+        return (torch.zeros(1, batch_size, self.state_size),)
+
+    def project(self, x: torch.Tensor):
+        B, H, dh = x.shape[0], self.n_heads, self.dim_head
+        qkvb = self.qkvb(x)
+        q, k, v, beta = torch.split(qkvb, [H * dh, H * dh, H * dh, H], dim=-1)
+        q = elu_p1_sum_norm(q.view(B, H, dh))
+        k = elu_p1_sum_norm(k.view(B, H, dh))
+        v = v.view(B, H, dh)
+        beta = torch.sigmoid(beta).view(B, H, 1)
+        return q, k, v, beta
+
+    def step(self, x: torch.Tensor, W: torch.Tensor):
+        q, k, v, beta = self.project(x)
+        v_old = torch.einsum("bhij,bhj->bhi", W, k)
+        W = W + torch.einsum("bhi,bhj->bhij", beta * (v - v_old), k)
+        out = torch.einsum("bhij,bhj->bhi", W, q).reshape(x.shape[0], -1)
+        return x + self.out_linear(out), W
+
+    def forward(self, core_input: torch.Tensor, notdone: torch.Tensor, core_state):
+        T, B, _ = core_input.shape
+        W = core_state[0].reshape(B, self.n_heads, self.dim_head, self.dim_head)
+        outs = []
+        for t in range(T):
+            W = W * notdone[t].view(B, 1, 1, 1)
+            out, W = self.step(core_input[t], W)
+            outs.append(out)
+        return torch.flatten(torch.stack(outs), 0, 1), (W.reshape(1, B, self.state_size),)
+
+
+CORE_CLASSES: dict[str, type[nn.Module]] = {
     DeltaNetCore.kind: DeltaNetCore,
     CompFWPCore.kind: CompFWPCore,
+    RefDeltaNetCore.kind: RefDeltaNetCore,
 }
 
 
 def build_fwp_core(
     kind: str, features_dim: int, fwp_dim: int, n_heads: int, decay: float = 0.0,
-    w_o_gain: float = 0.1, read_norm: bool = False, **flags
+    w_o_gain: float = 0.1, read_norm: bool = False,
+    ref_heads: int = 4, ref_dim_head: int = 64, **flags
 ):
     """``flags`` carries the CompFWP-only options; other cores take none."""
     if kind not in CORE_CLASSES:
@@ -307,6 +389,8 @@ def build_fwp_core(
             f"core={kind!r} is accepted by the config but not yet built"
         )
     cls = CORE_CLASSES[kind]
+    if cls is RefDeltaNetCore:
+        return cls(features_dim, n_heads=ref_heads, dim_head=ref_dim_head)
     if cls is not CompFWPCore:
         flags = {}
     return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,

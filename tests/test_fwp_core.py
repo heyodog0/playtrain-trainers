@@ -822,3 +822,120 @@ def test_candidate_flags_reach_the_core():
     assert m.core.read_norm is not None
     assert m.core.W_p.weight.abs().sum() > 0
     assert m.core.W_o.weight.norm() > ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW).core.W_o.weight.norm() * 5
+
+
+# --------------------------------------------- T.1 the reference core port
+#
+# Irie et al.'s RL DeltaNet (IDSIA/recurrent-fwp), ported as deltanet_ref.
+# features_dim 32 in FWP_SPEC, so heads*dim_head must be 32.
+
+from playtrain_trainers.impala.fwp import RefDeltaNetCore, elu_p1_sum_norm  # noqa: E402
+
+REF_KW = {"fwp_ref_heads": 4, "fwp_ref_dim_head": 8}
+
+
+def build_ref() -> ImpalaNet:
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core="deltanet_ref", **REF_KW)
+    m.eval()
+    return m
+
+
+def test_ref_feature_map_is_nonnegative_and_sums_to_one():
+    """The property the whole comparison rests on: W q is a convex combination."""
+    x = torch.randn(5, 4, 8) * 3
+    y = elu_p1_sum_norm(x)
+    assert (y >= 0).all()
+    torch.testing.assert_close(y.sum(-1), torch.ones(5, 4), atol=1e-4, rtol=0)
+    # and it really is applied to both q and k inside the core
+    core = RefDeltaNetCore(32, n_heads=4, dim_head=8)
+    q, k, v, beta = core.project(torch.randn(3, 32))
+    for t in (q, k):
+        assert (t >= 0).all()
+        torch.testing.assert_close(t.sum(-1), torch.ones(3, 4), atol=1e-4, rtol=0)
+    assert ((beta > 0) & (beta < 1)).all() and beta.shape == (3, 4, 1)
+
+
+def test_ref_rejects_mismatched_head_geometry():
+    with pytest.raises(ValueError, match="n_heads\\*dim_head"):
+        RefDeltaNetCore(32, n_heads=4, dim_head=9)
+
+
+def test_ref_initial_state_is_a_one_tuple_batch_at_dim_1():
+    m = build_ref()
+    state = m.initial_state(6)
+    assert isinstance(state, tuple) and len(state) == 1
+    assert state[0].shape == (1, 6, 4 * 8 * 8) and not state[0].any()
+
+
+def test_ref_t_step_equals_single_steps_with_boundaries():
+    m = build_ref()
+    T, B = 6, 3
+    inputs = fwp_inputs(T, B, done_at=((0, 1), (2, 0), (4, 2)), seed=2)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    for key in ("policy_logits", "baseline"):
+        torch.testing.assert_close(batched[key], torch.cat([s[key] for s in steps]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+def test_ref_carry_across_unrolls_equals_one_long_unroll():
+    m = build_ref()
+    T, B = 8, 3
+    inputs = fwp_inputs(T, B, done_at=((3, 1),), seed=3)
+    window = lambda lo, hi: {k: v[lo:hi] for k, v in inputs.items()}  # noqa: E731
+    with torch.no_grad():
+        long_out, long_state = m(inputs, m.initial_state(B))
+        first, mid = m(window(0, 5), m.initial_state(B))
+        second, split_state = m(window(5, 8), mid)
+    torch.testing.assert_close(long_out["baseline"], torch.cat([first["baseline"], second["baseline"]]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(long_state[0], split_state[0], atol=1e-5, rtol=1e-5)
+
+
+def test_ref_state_is_zeroed_entering_a_done_step():
+    m = build_ref()
+    B = 2
+    inputs = fwp_inputs(1, B, done_at=((0, 0),), seed=4)
+    dirty = (torch.randn(1, B, 4 * 8 * 8),)
+    clean = (dirty[0].clone(),); clean[0][:, 0] = 0.0
+    with torch.no_grad():
+        _, after_dirty = m(inputs, dirty)
+        _, after_clean = m(inputs, clean)
+    torch.testing.assert_close(after_dirty[0][:, 0], after_clean[0][:, 0])
+
+
+def test_ref_read_is_after_write_and_bounded_by_written_values():
+    """With sum-normalised q the read is a convex combination of written rows,
+    so a single write of v followed by a read must return something inside
+    v's range — the bound that the unnormalised bilinear read does not have."""
+    core = RefDeltaNetCore(32, n_heads=4, dim_head=8).eval()
+    W = torch.zeros(1, 4, 8, 8)
+    x = torch.randn(1, 32)
+    with torch.no_grad():
+        q, k, v, beta = core.project(x)
+        _, W = core.step(x, W)
+        out = torch.einsum("bhij,bhj->bhi", W, q)
+    # after one write from zero, W q = (beta*v) * (k . q); |k.q| <= 1 since both on the simplex
+    assert (out.abs() <= (beta * v).abs() + 1e-6).all()
+
+
+def test_ref_state_stays_bounded_over_a_trainer_length_episode():
+    torch.manual_seed(0)
+    core = RefDeltaNetCore(64, n_heads=4, dim_head=16).eval()
+    W = core.initial_state(2)[0].reshape(2, 4, 16, 16)
+    with torch.no_grad():
+        for _ in range(LONG_HORIZON):
+            _, W = core.step(torch.randn(2, 64), W)
+    assert torch.isfinite(W).all() and W.norm().item() < 1e3
+
+
+def test_ref_parameter_count(capsys):
+    m = build_ref()
+    n = sum(p.numel() for p in m.parameters())
+    n_core = sum(p.numel() for p in m.core.parameters())
+    with capsys.disabled():
+        print(f"\n  deltanet_ref: {n} params ({n_core} in the core)")
+    assert n_core > 0

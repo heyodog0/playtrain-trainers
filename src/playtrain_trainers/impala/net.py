@@ -137,6 +137,8 @@ class ImpalaNet(nn.Module):
         fwp_w_o_gain: float = 0.1,
         fwp_read_norm: bool = False,
         fwp_w_p_init: float = 0.0,
+        fwp_ref_heads: int = 4,
+        fwp_ref_dim_head: int = 64,
     ):
         super().__init__()
         c, h, w = observation_shape
@@ -178,6 +180,7 @@ class ImpalaNet(nn.Module):
             self.core = build_fwp_core(
                 self.core_kind, features_dim, fwp_dim, fwp_heads,
                 decay=fwp_decay, w_o_gain=fwp_w_o_gain, read_norm=fwp_read_norm,
+                ref_heads=fwp_ref_heads, ref_dim_head=fwp_ref_dim_head,
                 read=fwp_read, error=fwp_error, write=fwp_write,
                 w_p_init=fwp_w_p_init,
             )
