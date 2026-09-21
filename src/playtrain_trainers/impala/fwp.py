@@ -79,8 +79,14 @@ class FastWeightCore(nn.Module):
         read_norm: bool = False,
         feature_map: str = "l2k",
         multihead: bool = False,
+        key_scale: float = 1.0,
+        beta_max: float = 1.0,
     ):
         super().__init__()
+        if not key_scale > 0:
+            raise ValueError(f"key_scale must be positive, got {key_scale}")
+        if not 0.0 < beta_max <= 1.0:
+            raise ValueError(f"beta_max must be in (0, 1], got {beta_max}")
         if fwp_dim < 1 or n_heads < 1:
             raise ValueError("fwp_dim and n_heads must be positive")
         if not 0.0 <= decay < 1.0:
@@ -104,6 +110,12 @@ class FastWeightCore(nn.Module):
         # bit-identical to the pre-T.2 code.
         self.feature_map = feature_map
         self.multihead = multihead
+        # fwp-write W.1: two knobs on the write size. The actor-learner
+        # mismatch tracks how fast S moves (fwp-hybrid H.2); the write is
+        # beta (v - S k) k^T, so scaling k after the feature map or capping
+        # beta slows it directly. Both 1.0 = unchanged.
+        self.key_scale = float(key_scale)
+        self.beta_max = float(beta_max)
         self.d_h = fwp_dim // n_heads if multihead else fwp_dim
         # Per-step multiplicative forgetting applied before each write. 0.0 is
         # off and is the default, so a run that does not ask for it is
@@ -212,6 +224,10 @@ class FastWeightCore(nn.Module):
             q = elu_p1_sum_norm(q)
         else:
             k = F.normalize(k, dim=-1)
+        if self.key_scale != 1.0:
+            k = k * self.key_scale
+        if self.beta_max != 1.0:
+            beta = beta * self.beta_max
         return k, v, beta, q
 
     # -- one timestep and the unroll ---------------------------------------
@@ -335,10 +351,13 @@ class CompFWPCore(FastWeightCore):
         w_p_init: float = 0.0,
         feature_map: str = "l2k",
         multihead: bool = False,
+        key_scale: float = 1.0,
+        beta_max: float = 1.0,
     ):
         super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                          w_o_gain=w_o_gain, read_norm=read_norm,
-                         feature_map=feature_map, multihead=multihead)
+                         feature_map=feature_map, multihead=multihead,
+                         key_scale=key_scale, beta_max=beta_max)
         if read not in ("joint", "indep"):
             raise ValueError(f"read must be joint|indep, got {read!r}")
         if error not in ("joint", "indep"):
@@ -472,7 +491,8 @@ def build_fwp_core(
     kind: str, features_dim: int, fwp_dim: int, n_heads: int, decay: float = 0.0,
     w_o_gain: float = 0.1, read_norm: bool = False,
     ref_heads: int = 4, ref_dim_head: int = 64,
-    feature_map: str = "l2k", multihead: bool = False, **flags
+    feature_map: str = "l2k", multihead: bool = False,
+    key_scale: float = 1.0, beta_max: float = 1.0, **flags
 ):
     """``flags`` carries the CompFWP-only options; other cores take none."""
     if kind not in CORE_CLASSES:
@@ -486,4 +506,5 @@ def build_fwp_core(
         flags = {}
     return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                w_o_gain=w_o_gain, read_norm=read_norm,
-               feature_map=feature_map, multihead=multihead, **flags)
+               feature_map=feature_map, multihead=multihead,
+               key_scale=key_scale, beta_max=beta_max, **flags)

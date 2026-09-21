@@ -128,7 +128,9 @@ def act_remote(
                           fwp_ref_heads=int(model_spec.get("fwp_ref_heads", 4)),
                           fwp_ref_dim_head=int(model_spec.get("fwp_ref_dim_head", 64)),
                           fwp_feature_map=str(model_spec.get("fwp_feature_map", "l2k")),
-                          fwp_multihead=bool(model_spec.get("fwp_multihead", False)))
+                          fwp_multihead=bool(model_spec.get("fwp_multihead", False)),
+                          fwp_key_scale=float(model_spec.get("fwp_key_scale", 1.0)),
+                          fwp_beta_max=float(model_spec.get("fwp_beta_max", 1.0)))
         model = model.to(device)
         model.train()  # multinomial sampling
         weight_version = maybe_reload_weights(weight_state, model, -1)

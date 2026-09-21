@@ -1187,3 +1187,58 @@ def test_elu_q_l2k_validates_and_reaches_the_core():
     m = ImpalaNet(**FWP_SPEC, core="compfwp", **T2_KW, fwp_feature_map="elu_q_l2k")
     assert m.core.feature_map == "elu_q_l2k"
     ImpalaConfig(core="compfwp", fwp_feature_map="elu_q_l2k")
+
+
+# --------------------------------------------- fwp-write W.1: key_scale, beta_max
+
+def test_key_scale_halves_the_key_and_the_first_write():
+    torch.manual_seed(0)
+    a = DeltaNetCore(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm").eval()
+    torch.manual_seed(0)
+    b = DeltaNetCore(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm", key_scale=0.5).eval()
+    b.load_state_dict(a.state_dict(), strict=True)
+    x = torch.randn(3, 32)
+    ka, va, ba, qa = a.project(x); kb, vb, bb, qb = b.project(x)
+    torch.testing.assert_close(kb, 0.5 * ka)
+    assert torch.equal(va, vb) and torch.equal(ba, bb) and torch.equal(qa, qb)
+    S0 = torch.zeros(3, 32, 32)
+    with torch.no_grad():
+        Sa = a.write(S0, ka, va, ba, qa); Sb = b.write(S0, kb, vb, bb, qb)
+    torch.testing.assert_close(Sb, 0.5 * Sa)
+
+
+def test_beta_max_caps_the_write_gate():
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, beta_max=0.5).eval()
+    _, _, beta, _ = core.project(torch.randn(64, 32) * 10)
+    assert (beta <= 0.5).all() and (beta > 0).all()
+
+
+def test_key_scale_and_beta_max_validate():
+    for bad in ({"key_scale": 0.0}, {"key_scale": -1.0}, {"beta_max": 0.0}, {"beta_max": 1.5}):
+        with pytest.raises(ValueError):
+            DeltaNetCore(32, fwp_dim=16, n_heads=4, **bad)
+
+
+@pytest.mark.parametrize("core", BUILT_CORES)
+def test_key_scale_and_beta_max_keep_step_equivalence(core):
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core=core, **T2_KW, fwp_feature_map="elu_sumnorm", fwp_key_scale=0.25, fwp_beta_max=0.5).eval()
+    B, T = 3, 6
+    inputs = fwp_inputs(T, B, done_at=((1, 0), (3, 2)), seed=9)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    torch.testing.assert_close(batched["baseline"], torch.cat([s["baseline"] for s in steps]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+def test_key_scale_and_beta_max_reach_the_core_and_default_off():
+    m = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    assert m.core.key_scale == 1.0 and m.core.beta_max == 1.0
+    m = ImpalaNet(**FWP_SPEC, core="deltanet", **T2_KW, fwp_key_scale=0.5, fwp_beta_max=0.25)
+    assert m.core.key_scale == 0.5 and m.core.beta_max == 0.25
+    cfg = ImpalaConfig(core="compfwp", fwp_key_scale=0.5, fwp_beta_max=0.5)
+    assert cfg.fwp_key_scale == 0.5 and cfg.fwp_beta_max == 0.5
