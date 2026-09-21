@@ -29,7 +29,7 @@ from torch import nn
 FWP_CORES = ("deltanet", "compfwp", "deltanet_ref")
 
 #: Key/query feature maps for the trainer cores (T.2). ``l2k`` is the original.
-FEATURE_MAPS = ("l2k", "elu_sumnorm")
+FEATURE_MAPS = ("l2k", "elu_sumnorm", "elu_q_l2k")
 
 
 def elu_p1_sum_norm(x: torch.Tensor, eps: float = 1e-5) -> torch.Tensor:
@@ -96,6 +96,8 @@ class FastWeightCore(nn.Module):
         # ``feature_map``: "l2k" is this repo's original (unit-norm key, raw
         # query); "elu_sumnorm" puts BOTH keys and query rows on the simplex,
         # so every read is a convex combination of stored values.
+        # "elu_q_l2k" keeps the simplex query (bounded read) with the unit key
+        # (full delta-rule contraction along k).
         # ``multihead``: the state is per-head ``(n_heads, d_h, d_h)`` with
         # ``d_h = fwp_dim // n_heads``; query row m reads only head m, and
         # the key/value/beta are split per head. Both default off, and off is
@@ -201,6 +203,12 @@ class FastWeightCore(nn.Module):
             beta = beta.view(B, self.n_heads, 1)
         if self.feature_map == "elu_sumnorm":
             k = elu_p1_sum_norm(k)
+            q = elu_p1_sum_norm(q)
+        elif self.feature_map == "elu_q_l2k":
+            # Hybrid (fwp-hybrid H.1): the read bound needs q on the simplex;
+            # the write contraction (1 - beta ||k||^2) needs a unit key. The
+            # simplex key of elu_sumnorm has ||k||^2 << 1 and lets S accumulate.
+            k = F.normalize(k, dim=-1)
             q = elu_p1_sum_norm(q)
         else:
             k = F.normalize(k, dim=-1)

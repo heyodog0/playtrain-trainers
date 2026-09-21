@@ -1086,7 +1086,7 @@ def test_t2_flags_reach_the_core_through_impalanet_and_default_off():
 
 
 def test_t2_flags_validate():
-    assert FEATURE_MAPS == ("l2k", "elu_sumnorm")
+    assert FEATURE_MAPS == ("l2k", "elu_sumnorm", "elu_q_l2k")
     with pytest.raises(ValueError, match="feature_map"):
         DeltaNetCore(32, fwp_dim=16, n_heads=4, feature_map="softmax")
     with pytest.raises(ValueError, match="divisible"):
@@ -1108,3 +1108,82 @@ def test_lr_lambda_is_linear_by_default_and_flat_when_off():
     src = inspect.getsource(tr.train)
     assert "if not cfg.lr_decay:\n            return 1.0" in src
     assert "1 - min(epoch * T * B, cfg.total_steps) / cfg.total_steps" in src
+
+
+# --------------------------------------------- fwp-hybrid H.1: elu_q_l2k
+
+HYB = {"feature_map": "elu_q_l2k"}
+
+
+def test_elu_q_l2k_puts_q_on_the_simplex_and_k_on_the_sphere():
+    torch.manual_seed(0)
+    core = DeltaNetCore(32, fwp_dim=32, n_heads=4, **HYB).eval()
+    k, v, beta, q = core.project(torch.randn(6, 32) * 3)
+    assert (q >= 0).all()
+    torch.testing.assert_close(q.sum(-1), torch.ones(6, 4), atol=1e-4, rtol=0)
+    torch.testing.assert_close(k.norm(dim=-1), torch.ones(6), atol=1e-5, rtol=0)
+
+
+def test_elu_q_l2k_compfwp_indep_indep_delta_is_deltanet():
+    torch.manual_seed(0)
+    a = DeltaNetCore(32, fwp_dim=32, n_heads=4, **HYB).eval()
+    torch.manual_seed(0)
+    b = CompFWPCore(32, fwp_dim=32, n_heads=4, read="indep", error="indep", write="delta", **HYB).eval()
+    b.load_state_dict(a.state_dict(), strict=True)
+    x = torch.randn(5, 3, 32); nd = torch.ones(5, 3)
+    with torch.no_grad():
+        oa, sa = a(x, nd, a.initial_state(3)); ob, sb = b(x, nd, b.initial_state(3))
+    assert torch.equal(oa, ob) and torch.equal(sa[0], sb[0])
+
+
+@pytest.mark.parametrize("core", BUILT_CORES)
+def test_elu_q_l2k_t_step_equals_single_steps_with_resets(core):
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core=core, **T2_KW, fwp_feature_map="elu_q_l2k").eval()
+    B, T = 3, 6
+    inputs = fwp_inputs(T, B, done_at=((1, 0), (3, 2)), seed=7)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    torch.testing.assert_close(batched["baseline"], torch.cat([s["baseline"] for s in steps]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_elu_q_l2k_write_path_is_the_default_write_path(core_cls):
+    """The hybrid changes only the read: with the same weights the state
+    trajectory under elu_q_l2k is bit-identical to the default l2k map
+    (W_p = 0, so the CompFWP write never sees the query rows). Whatever ||S||
+    the default reaches in training, the hybrid reaches the same at init.
+
+    Recorded while writing this test (fwp-hybrid H.1): on 2000 random
+    inputs ||S|| is 74.8 for l2k and the hybrid but 42.9 for elu_sumnorm — the
+    simplex key writes smaller increments, so 'a unit key contracts harder'
+    does NOT make S smaller. The training-time ||S|| difference (2.8 vs 45 at
+    5M) is a learned effect and only the screen can measure it."""
+    torch.manual_seed(0)
+    hyb = core_cls(64, fwp_dim=64, n_heads=4, feature_map="elu_q_l2k").eval()
+    torch.manual_seed(0)
+    ref = core_cls(64, fwp_dim=64, n_heads=4, feature_map="l2k").eval()
+    ref.load_state_dict(hyb.state_dict(), strict=True)
+    torch.manual_seed(1)
+    xs = torch.randn(200, 2, 64)
+    S_h = hyb.initial_state(2)[0].reshape(2, *hyb.state_shape)
+    S_r = ref.initial_state(2)[0].reshape(2, *ref.state_shape)
+    outs_differ = False
+    with torch.no_grad():
+        for x in xs:
+            o_h, S_h = hyb.step(x, S_h)
+            o_r, S_r = ref.step(x, S_r)
+            outs_differ |= not torch.equal(o_h, o_r)
+    assert torch.equal(S_h, S_r)
+    assert outs_differ  # the read does change, or the flag would be a no-op
+
+
+def test_elu_q_l2k_validates_and_reaches_the_core():
+    assert "elu_q_l2k" in FEATURE_MAPS
+    m = ImpalaNet(**FWP_SPEC, core="compfwp", **T2_KW, fwp_feature_map="elu_q_l2k")
+    assert m.core.feature_map == "elu_q_l2k"
+    ImpalaConfig(core="compfwp", fwp_feature_map="elu_q_l2k")
