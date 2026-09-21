@@ -20,6 +20,8 @@ force a host sync, so the scan stays compilable.
 
 from __future__ import annotations
 
+import math
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -81,6 +83,7 @@ class FastWeightCore(nn.Module):
         multihead: bool = False,
         key_scale: float = 1.0,
         beta_max: float = 1.0,
+        gate: bool = False,
     ):
         super().__init__()
         if not key_scale > 0:
@@ -141,6 +144,20 @@ class FastWeightCore(nn.Module):
         # only on the read path: the write's post-minus-pre difference, and
         # with it the contraction argument, is untouched.
         self.read_norm = nn.LayerNorm(self.d_h) if read_norm else None
+        # fwp-gate G.2: a learned per-step forget gate, S <- alpha(x) S + write,
+        # alpha = sigmoid(w_a x + b_a) — the Gated DeltaNet retention rule. Off
+        # by default. When on, the fixed ``decay`` is not applied; it sets the
+        # gate's initial value instead (w_a = 0, sigmoid(b_a) = 1 - decay), so
+        # the gated core starts bit-identical to the fixed-decay core.
+        self.gate = bool(gate)
+        if self.gate:
+            init = 1.0 - (self.decay if self.decay > 0 else 0.01)
+            self.w_alpha = nn.Linear(features_dim, 1)
+            nn.init.zeros_(self.w_alpha.weight)
+            nn.init.constant_(self.w_alpha.bias, math.log(init / (1.0 - init)))
+        # Last forward's gate values, [T, B], detached. Read by the learner for
+        # fwp/alpha_* logging; None until a forward has run or when gate is off.
+        self.last_alpha: torch.Tensor | None = None
 
     @property
     def state_shape(self) -> tuple[int, ...]:
@@ -232,9 +249,22 @@ class FastWeightCore(nn.Module):
 
     # -- one timestep and the unroll ---------------------------------------
 
-    def step(self, x: torch.Tensor, state: torch.Tensor):
-        """One timestep: forget a little, write, then read the updated state."""
-        if self.decay:
+    def gate_alpha(self, x: torch.Tensor) -> torch.Tensor:
+        """Per-env retention alpha in (0, 1), shape [B, 1]."""
+        return torch.sigmoid(self.w_alpha(x))
+
+    def step(self, x: torch.Tensor, state: torch.Tensor, alpha: torch.Tensor | None = None):
+        """One timestep: forget a little, write, then read the updated state.
+
+        ``alpha`` is the gate value for this step when the gate is on (the
+        caller computes it so it can be logged); the fixed decay applies only
+        when the gate is off.
+        """
+        if self.gate:
+            if alpha is None:
+                alpha = self.gate_alpha(x)
+            state = state * alpha.view(x.shape[0], *([1] * len(self.state_shape)))
+        elif self.decay:
             state = state * (1.0 - self.decay)
         k, v, beta, q = self.project(x)
         state = self.write(state, k, v, beta, q)
@@ -248,11 +278,17 @@ class FastWeightCore(nn.Module):
         T, B, _ = core_input.shape
         state = core_state[0].reshape(B, *self.state_shape)
         outs = []
+        alphas = []
         mask_shape = (B,) + (1,) * len(self.state_shape)
         for t in range(T):
             state = state * notdone[t].view(*mask_shape)
-            out, state = self.step(core_input[t], state)
+            alpha = self.gate_alpha(core_input[t]) if self.gate else None
+            out, state = self.step(core_input[t], state, alpha)
             outs.append(out)
+            if alpha is not None:
+                alphas.append(alpha)
+        if alphas:
+            self.last_alpha = torch.stack(alphas).squeeze(-1).detach()
         flat = torch.flatten(torch.stack(outs), 0, 1)
         return flat, (state.reshape(1, B, self.state_size),)
 
@@ -353,11 +389,12 @@ class CompFWPCore(FastWeightCore):
         multihead: bool = False,
         key_scale: float = 1.0,
         beta_max: float = 1.0,
+        gate: bool = False,
     ):
         super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                          w_o_gain=w_o_gain, read_norm=read_norm,
                          feature_map=feature_map, multihead=multihead,
-                         key_scale=key_scale, beta_max=beta_max)
+                         key_scale=key_scale, beta_max=beta_max, gate=gate)
         if read not in ("joint", "indep"):
             raise ValueError(f"read must be joint|indep, got {read!r}")
         if error not in ("joint", "indep"):
@@ -492,7 +529,7 @@ def build_fwp_core(
     w_o_gain: float = 0.1, read_norm: bool = False,
     ref_heads: int = 4, ref_dim_head: int = 64,
     feature_map: str = "l2k", multihead: bool = False,
-    key_scale: float = 1.0, beta_max: float = 1.0, **flags
+    key_scale: float = 1.0, beta_max: float = 1.0, gate: bool = False, **flags
 ):
     """``flags`` carries the CompFWP-only options; other cores take none."""
     if kind not in CORE_CLASSES:
@@ -507,4 +544,4 @@ def build_fwp_core(
     return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                w_o_gain=w_o_gain, read_norm=read_norm,
                feature_map=feature_map, multihead=multihead,
-               key_scale=key_scale, beta_max=beta_max, **flags)
+               key_scale=key_scale, beta_max=beta_max, gate=gate, **flags)

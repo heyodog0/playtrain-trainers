@@ -1267,3 +1267,82 @@ def test_log_rho_by_position_handles_short_unrolls():
     model = ImpalaNet(**FWP_SPEC, core="lstm")
     stats = learn(**_learn_batch(model, T=3, B=2), log_vtrace=True)
     assert sum(k.startswith("vtrace/log_rho_abs_by_pos/") for k in stats) == 3
+
+
+# --------------------------------------------- fwp-gate G.2: learned forget gate, core_lr_mult
+
+from playtrain_trainers.impala.train import optimizer_param_groups  # noqa: E402
+
+
+@pytest.mark.parametrize("core_cls", [DeltaNetCore, CompFWPCore])
+def test_gated_core_at_init_is_bit_identical_to_the_fixed_decay_core(core_cls):
+    torch.manual_seed(0)
+    fixed = core_cls(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm", decay=0.01).eval()
+    torch.manual_seed(0)
+    gated = core_cls(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm", decay=0.01, gate=True).eval()
+    sd = {k: v for k, v in gated.state_dict().items() if not k.startswith("w_alpha")}
+    fixed.load_state_dict(sd, strict=True)
+    assert torch.allclose(torch.sigmoid(gated.w_alpha.bias), torch.tensor([0.99]))
+    x = torch.randn(6, 3, 32); nd = (torch.rand(6, 3) > 0.2).float()
+    with torch.no_grad():
+        of, sf = fixed(x, nd, fixed.initial_state(3)); og, sg = gated(x, nd, gated.initial_state(3))
+    torch.testing.assert_close(og, of, atol=1e-6, rtol=0)
+    torch.testing.assert_close(sg[0], sf[0], atol=1e-6, rtol=0)
+    assert gated.last_alpha is not None and gated.last_alpha.shape == (6, 3)
+    assert ((gated.last_alpha > 0) & (gated.last_alpha < 1)).all()
+    assert fixed.last_alpha is None
+
+
+def test_gate_off_leaves_no_gate_parameters():
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4)
+    assert not hasattr(core, "w_alpha") and core.gate is False and core.last_alpha is None
+
+
+@pytest.mark.parametrize("core", BUILT_CORES)
+def test_gated_t_step_equals_single_steps_with_resets(core):
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core=core, **T2_KW, fwp_feature_map="elu_sumnorm", fwp_decay=0.01, fwp_gate=True).eval()
+    with torch.no_grad():
+        m.core.w_alpha.weight.normal_(std=0.5)  # a non-trivial, input-dependent gate
+    B, T = 3, 6
+    inputs = fwp_inputs(T, B, done_at=((1, 0), (3, 2)), seed=11)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    torch.testing.assert_close(batched["baseline"], torch.cat([s["baseline"] for s in steps]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+def test_gate_alpha_reaches_learn_stats():
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW, fwp_gate=True)
+    stats = learn(**_learn_batch(model, T=4, B=2))
+    assert 0.0 < stats["fwp_alpha_min"].item() <= stats["fwp_alpha_mean"].item() < 1.0
+    plain = learn(**_learn_batch(ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW), T=4, B=2))
+    assert "fwp_alpha_mean" not in plain
+
+
+def test_gate_flag_reaches_the_core_and_config():
+    m = ImpalaNet(**FWP_SPEC, core="deltanet", **FWP_KW, fwp_gate=True)
+    assert m.core.gate is True and hasattr(m.core, "w_alpha")
+    assert ImpalaConfig(core="compfwp", fwp_gate=True, core_lr_mult=0.25).core_lr_mult == 0.25
+
+
+def test_core_lr_mult_one_is_a_single_group_and_a_quarter_scales_only_the_core():
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    groups = optimizer_param_groups(model, 1e-4, 1.0)
+    assert not isinstance(groups, list)  # the plain parameters() iterator: one group, unchanged
+    groups = optimizer_param_groups(model, 1e-4, 0.25)
+    assert len(groups) == 2 and groups[1]["lr"] == 2.5e-5 and groups[0]["lr"] == 1e-4
+    core_ids = {id(p) for p in model.core.parameters()}
+    assert {id(p) for p in groups[1]["params"]} == core_ids
+    assert not (core_ids & {id(p) for p in groups[0]["params"]})
+    assert len(groups[0]["params"]) + len(groups[1]["params"]) == len(list(model.parameters()))
+    # the LambdaLR scales both groups
+    opt = torch.optim.RMSprop(groups, lr=1e-4)
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda e: 0.5)
+    opt.step(); sched.step()
+    assert [g["lr"] for g in opt.param_groups] == pytest.approx([5e-5, 1.25e-5])

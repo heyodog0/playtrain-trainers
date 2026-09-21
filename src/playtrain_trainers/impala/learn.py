@@ -243,6 +243,13 @@ def learn(
             norms = matrix_state_norms(initial_agent_state)
             if norms is not None:
                 stats["fwp_state_norm_mean"], stats["fwp_state_norm_max"] = norms
+            # fwp-gate G.2: the learned retention alpha of this unroll, stashed
+            # by the core's forward (detached; the compiled forward replays the
+            # attribute write onto the original module).
+            alpha = getattr(getattr(learner_model, "core", None), "last_alpha", None)
+            if alpha is not None:
+                stats["fwp_alpha_mean"] = alpha.mean()
+                stats["fwp_alpha_min"] = alpha.min()
 
         # NOTE: no per-step finite guard here — it read total_loss on the host
         # (a CUDA sync) every step, which holds the GIL and starves the inference

@@ -166,7 +166,8 @@ def ddp_learner(
                           fwp_feature_map=str(cfg_d.get("fwp_feature_map", "l2k")),
                           fwp_multihead=bool(cfg_d.get("fwp_multihead", False)),
                           fwp_key_scale=float(cfg_d.get("fwp_key_scale", 1.0)),
-                          fwp_beta_max=float(cfg_d.get("fwp_beta_max", 1.0))).to(device)
+                          fwp_beta_max=float(cfg_d.get("fwp_beta_max", 1.0)),
+                          fwp_gate=bool(cfg_d.get("fwp_gate", False))).to(device)
         model = model.to(memory_format=torch.channels_last)
         # Identical init across ranks: rank 0's weights are the reference
         # (they were already published to weight_state by train()).
@@ -176,8 +177,10 @@ def ddp_learner(
         if cfg_d["compile_mode"] != "off":
             model.compile(mode=cfg_d["compile_mode"])
         ddp_model = DDP(model, device_ids=[rank])
+        from playtrain_trainers.impala.train import optimizer_param_groups
         optimizer = torch.optim.RMSprop(
-            ddp_model.parameters(), lr=cfg_d["learning_rate"], momentum=0.0,
+            optimizer_param_groups(model, cfg_d["learning_rate"], float(cfg_d.get("core_lr_mult", 1.0))),
+            lr=cfg_d["learning_rate"], momentum=0.0,
             eps=cfg_d["rmsprop_epsilon"], alpha=cfg_d["rmsprop_alpha"])
         autocast = (torch.autocast("cuda", torch.bfloat16)
                     if cfg_d["learner_precision"] == "bf16"
