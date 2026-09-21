@@ -206,6 +206,13 @@ def learn(
                 "vtrace/rho_clip_frac": (rhos > 1.0).float().mean(),
                 "vtrace/td_abs_mean": (vt.vs - values).detach().abs().mean(),
             }
+            # fwp-gate G.1: |log rho| by position within the unroll, 10 buckets
+            # (fewer when T < 10). If the recurrent state's sensitivity to the
+            # parameter change accumulates along the unroll (no forgetting),
+            # the mismatch grows with position; a gated state stays flat.
+            abs_lr = vt.log_rhos.detach().abs()  # [T, B]
+            for b, chunk in enumerate(torch.tensor_split(abs_lr, min(10, abs_lr.shape[0]), dim=0)):
+                stats_vtrace[f"vtrace/log_rho_abs_by_pos/{b:02d}"] = chunk.mean()
         pg_loss = losses.compute_policy_gradient_loss(
             learner_outputs["policy_logits"], batch["action"], pg_advantages
         )

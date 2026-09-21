@@ -748,8 +748,10 @@ def test_vtrace_stats_present_only_when_asked_and_finite(core):
     assert not [k for k in off if k.startswith("vtrace/")]
     on = learn(**_learn_batch(model), log_vtrace=True)
     keys = {k for k in on if k.startswith("vtrace/")}
-    assert keys == {"vtrace/adv_abs_mean", "vtrace/adv_std", "vtrace/adv_abs_max",
-                    "vtrace/log_rho_abs_mean", "vtrace/rho_clip_frac", "vtrace/td_abs_mean"}
+    assert {k for k in keys if "by_pos" not in k} == {
+        "vtrace/adv_abs_mean", "vtrace/adv_std", "vtrace/adv_abs_max",
+        "vtrace/log_rho_abs_mean", "vtrace/rho_clip_frac", "vtrace/td_abs_mean"}
+    assert any("log_rho_abs_by_pos" in k for k in keys)  # fwp-gate G.1 buckets
     for k in keys:
         assert torch.isfinite(on[k]).all(), k
         assert not on[k].requires_grad, k
@@ -1242,3 +1244,26 @@ def test_key_scale_and_beta_max_reach_the_core_and_default_off():
     assert m.core.key_scale == 0.5 and m.core.beta_max == 0.25
     cfg = ImpalaConfig(core="compfwp", fwp_key_scale=0.5, fwp_beta_max=0.5)
     assert cfg.fwp_key_scale == 0.5 and cfg.fwp_beta_max == 0.5
+
+
+# --------------------------------------------- fwp-gate G.1: |log rho| by unroll position
+
+from playtrain_trainers.impala.learn import learn  # noqa: E402
+
+def test_log_rho_by_position_buckets_average_to_the_overall_mean():
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW)
+    stats = learn(**_learn_batch(model, T=20, B=3), log_vtrace=True)
+    keys = sorted(k for k in stats if k.startswith("vtrace/log_rho_abs_by_pos/"))
+    assert keys == [f"vtrace/log_rho_abs_by_pos/{b:02d}" for b in range(10)]
+    bucket_mean = torch.stack([stats[k] for k in keys]).mean()
+    torch.testing.assert_close(bucket_mean, stats["vtrace/log_rho_abs_mean"], atol=1e-5, rtol=0)
+    off = learn(**_learn_batch(model, T=20, B=3))
+    assert not any(k.startswith("vtrace/") for k in off)
+
+
+def test_log_rho_by_position_handles_short_unrolls():
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="lstm")
+    stats = learn(**_learn_batch(model, T=3, B=2), log_vtrace=True)
+    assert sum(k.startswith("vtrace/log_rho_abs_by_pos/") for k in stats) == 3
