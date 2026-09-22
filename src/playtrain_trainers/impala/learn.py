@@ -250,6 +250,10 @@ def learn(
             if alpha is not None:
                 stats["fwp_alpha_mean"] = alpha.mean()
                 stats["fwp_alpha_min"] = alpha.min()
+            gate = getattr(getattr(learner_model, "core", None), "last_gate", None)
+            if gate is not None:
+                stats["fwp_gate_mean"] = gate.mean()
+                stats["fwp_gate_min"] = gate.min()
 
         # NOTE: no per-step finite guard here — it read total_loss on the host
         # (a CUDA sync) every step, which holds the GIL and starves the inference

@@ -131,7 +131,9 @@ def act_remote(
                           fwp_multihead=bool(model_spec.get("fwp_multihead", False)),
                           fwp_key_scale=float(model_spec.get("fwp_key_scale", 1.0)),
                           fwp_beta_max=float(model_spec.get("fwp_beta_max", 1.0)),
-                          fwp_gate=bool(model_spec.get("fwp_gate", False)))
+                          fwp_gate=bool(model_spec.get("fwp_gate", False)),
+                          fwp_out_norm=bool(model_spec.get("fwp_out_norm", False)),
+                          fwp_out_gate=bool(model_spec.get("fwp_out_gate", False)))
         model = model.to(device)
         model.train()  # multinomial sampling
         weight_version = maybe_reload_weights(weight_state, model, -1)

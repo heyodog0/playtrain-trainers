@@ -84,6 +84,8 @@ class FastWeightCore(nn.Module):
         key_scale: float = 1.0,
         beta_max: float = 1.0,
         gate: bool = False,
+        out_norm: bool = False,
+        out_gate: bool = False,
     ):
         super().__init__()
         if not key_scale > 0:
@@ -158,6 +160,19 @@ class FastWeightCore(nn.Module):
         # Last forward's gate values, [T, B], detached. Read by the learner for
         # fwp/alpha_* logging; None until a forward has run or when gate is off.
         self.last_alpha: torch.Tensor | None = None
+        # fwp-read R.1: the read path. ``out_norm`` RMS-normalises the flattened
+        # read before W_o (GLA / DeltaNet output norm), so its scale is bounded
+        # whatever ||S|| does. ``out_gate`` is a GTrXL-style gate on the
+        # residual: out = x + sigmoid(W_g [x; r] + b_g) * r with W_g = 0 and
+        # b_g = -2 at init, so the block starts near identity (gate 0.12) and
+        # the core earns its way into the policy. Both off = unchanged.
+        self.out_norm = nn.RMSNorm(n_heads * self.d_h) if out_norm else None
+        self.out_gate_lin = nn.Linear(2 * features_dim, features_dim) if out_gate else None
+        if self.out_gate_lin is not None:
+            nn.init.zeros_(self.out_gate_lin.weight)
+            nn.init.constant_(self.out_gate_lin.bias, -2.0)
+        self.last_gate: torch.Tensor | None = None
+        self._gate_steps: list = []
 
     @property
     def state_shape(self) -> tuple[int, ...]:
@@ -271,7 +286,15 @@ class FastWeightCore(nn.Module):
         rows = self.read(state, q, k)
         if self.read_norm is not None:
             rows = self.read_norm(rows)
-        return x + self.W_o(rows.flatten(1)), state
+        flat = rows.flatten(1)
+        if self.out_norm is not None:
+            flat = self.out_norm(flat)
+        r = self.W_o(flat)
+        if self.out_gate_lin is not None:
+            g = torch.sigmoid(self.out_gate_lin(torch.cat([x, r], dim=-1)))
+            self._gate_steps.append(g.mean(-1).detach())
+            return x + g * r, state
+        return x + r, state
 
     def forward(self, core_input: torch.Tensor, notdone: torch.Tensor, core_state):
         """core_input [T, B, F], notdone [T, B] float -> ([T*B, F], state)."""
@@ -279,6 +302,7 @@ class FastWeightCore(nn.Module):
         state = core_state[0].reshape(B, *self.state_shape)
         outs = []
         alphas = []
+        self._gate_steps = []
         mask_shape = (B,) + (1,) * len(self.state_shape)
         for t in range(T):
             state = state * notdone[t].view(*mask_shape)
@@ -289,6 +313,9 @@ class FastWeightCore(nn.Module):
                 alphas.append(alpha)
         if alphas:
             self.last_alpha = torch.stack(alphas).squeeze(-1).detach()
+        if self._gate_steps:
+            self.last_gate = torch.stack(self._gate_steps)  # [T, B]
+        self._gate_steps = []
         flat = torch.flatten(torch.stack(outs), 0, 1)
         return flat, (state.reshape(1, B, self.state_size),)
 
@@ -390,11 +417,14 @@ class CompFWPCore(FastWeightCore):
         key_scale: float = 1.0,
         beta_max: float = 1.0,
         gate: bool = False,
+        out_norm: bool = False,
+        out_gate: bool = False,
     ):
         super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                          w_o_gain=w_o_gain, read_norm=read_norm,
                          feature_map=feature_map, multihead=multihead,
-                         key_scale=key_scale, beta_max=beta_max, gate=gate)
+                         key_scale=key_scale, beta_max=beta_max, gate=gate,
+                         out_norm=out_norm, out_gate=out_gate)
         if read not in ("joint", "indep"):
             raise ValueError(f"read must be joint|indep, got {read!r}")
         if error not in ("joint", "indep"):
@@ -529,7 +559,8 @@ def build_fwp_core(
     w_o_gain: float = 0.1, read_norm: bool = False,
     ref_heads: int = 4, ref_dim_head: int = 64,
     feature_map: str = "l2k", multihead: bool = False,
-    key_scale: float = 1.0, beta_max: float = 1.0, gate: bool = False, **flags
+    key_scale: float = 1.0, beta_max: float = 1.0, gate: bool = False,
+    out_norm: bool = False, out_gate: bool = False, **flags
 ):
     """``flags`` carries the CompFWP-only options; other cores take none."""
     if kind not in CORE_CLASSES:
@@ -544,4 +575,5 @@ def build_fwp_core(
     return cls(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                w_o_gain=w_o_gain, read_norm=read_norm,
                feature_map=feature_map, multihead=multihead,
-               key_scale=key_scale, beta_max=beta_max, gate=gate, **flags)
+               key_scale=key_scale, beta_max=beta_max, gate=gate,
+               out_norm=out_norm, out_gate=out_gate, **flags)

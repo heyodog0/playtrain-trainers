@@ -108,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
     flags = {}
     for kv in filter(None, a.flags.split(",")):
         key, val = kv.split("=", 1)
-        flags[key] = (val.lower() in ("1", "true")) if key in ("fwp_multihead", "fwp_gate") else float(val) if key in ("fwp_key_scale", "fwp_beta_max", "fwp_decay", "fwp_w_p_init", "fwp_w_o_gain") else val
+        flags[key] = (val.lower() in ("1", "true")) if key in ("fwp_multihead", "fwp_gate", "fwp_out_norm", "fwp_out_gate") else float(val) if key in ("fwp_key_scale", "fwp_beta_max", "fwp_decay", "fwp_w_p_init", "fwp_w_o_gain") else val
 
     results = []
     for core in a.cores.split(","):

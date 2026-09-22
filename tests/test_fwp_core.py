@@ -1346,3 +1346,65 @@ def test_core_lr_mult_one_is_a_single_group_and_a_quarter_scales_only_the_core()
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda e: 0.5)
     opt.step(); sched.step()
     assert [g["lr"] for g in opt.param_groups] == pytest.approx([5e-5, 1.25e-5])
+
+
+# --------------------------------------------- fwp-read R.1: output norm + gated residual
+
+def test_out_gate_starts_near_identity_and_logs_the_gate():
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm", out_gate=True).eval()
+    torch.manual_seed(0)
+    plain = CompFWPCore(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm").eval()
+    plain.load_state_dict({k: v for k, v in core.state_dict().items() if not k.startswith("out_gate_lin")}, strict=True)
+    x = torch.randn(6, 3, 32); nd = torch.ones(6, 3)
+    with torch.no_grad():
+        og, sg = core(x, nd, core.initial_state(3)); op, sp_ = plain(x, nd, plain.initial_state(3))
+    assert torch.equal(sg[0], sp_[0])                       # the write path is untouched
+    r = (op - x.reshape(-1, 32))                             # plain residual contribution
+    torch.testing.assert_close(og, x.reshape(-1, 32) + torch.sigmoid(torch.tensor(-2.0)) * r, atol=1e-6, rtol=0)
+    assert core.last_gate is not None and core.last_gate.shape == (6, 3)
+    torch.testing.assert_close(core.last_gate, torch.full((6, 3), float(torch.sigmoid(torch.tensor(-2.0)))), atol=1e-3, rtol=0)
+    assert plain.last_gate is None
+
+
+def test_out_norm_gives_unit_rms_input_to_w_o():
+    torch.manual_seed(0)
+    core = DeltaNetCore(32, fwp_dim=32, n_heads=4, feature_map="elu_sumnorm", out_norm=True).eval()
+    seen = {}
+    core.W_o.register_forward_pre_hook(lambda m, inp: seen.setdefault("flat", inp[0].detach()))
+    S = torch.randn(4, 32, 32)
+    with torch.no_grad():
+        core.step(torch.randn(4, 32) * 5, S)
+    rms = seen["flat"].pow(2).mean(-1).sqrt()
+    torch.testing.assert_close(rms, torch.ones(4), atol=1e-4, rtol=0)
+
+
+@pytest.mark.parametrize("core", BUILT_CORES)
+def test_read_flags_keep_step_equivalence(core):
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core=core, **T2_KW, fwp_feature_map="elu_sumnorm", fwp_decay=0.01,
+                  fwp_out_norm=True, fwp_out_gate=True).eval()
+    with torch.no_grad():
+        m.core.out_gate_lin.weight.normal_(std=0.3)
+    B, T = 3, 6
+    inputs = fwp_inputs(T, B, done_at=((1, 0), (3, 2)), seed=13)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    torch.testing.assert_close(batched["baseline"], torch.cat([s["baseline"] for s in steps]), atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+def test_read_flags_reach_learn_stats_and_config():
+    torch.manual_seed(0)
+    model = ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW, fwp_out_gate=True)
+    stats = learn(**_learn_batch(model, T=4, B=2))
+    assert 0.0 < stats["fwp_gate_min"].item() <= stats["fwp_gate_mean"].item() < 1.0
+    plain = learn(**_learn_batch(ImpalaNet(**FWP_SPEC, core="compfwp", **FWP_KW), T=4, B=2))
+    assert "fwp_gate_mean" not in plain
+    m = ImpalaNet(**FWP_SPEC, core="deltanet", **FWP_KW)
+    assert m.core.out_norm is None and m.core.out_gate_lin is None
+    cfg = ImpalaConfig(core="compfwp", fwp_out_norm=True, fwp_out_gate=True)
+    assert cfg.fwp_out_norm and cfg.fwp_out_gate

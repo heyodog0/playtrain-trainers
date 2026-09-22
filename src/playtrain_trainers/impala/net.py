@@ -144,6 +144,8 @@ class ImpalaNet(nn.Module):
         fwp_key_scale: float = 1.0,
         fwp_beta_max: float = 1.0,
         fwp_gate: bool = False,
+        fwp_out_norm: bool = False,
+        fwp_out_gate: bool = False,
     ):
         super().__init__()
         c, h, w = observation_shape
@@ -188,6 +190,7 @@ class ImpalaNet(nn.Module):
                 ref_heads=fwp_ref_heads, ref_dim_head=fwp_ref_dim_head,
                 feature_map=fwp_feature_map, multihead=fwp_multihead,
                 key_scale=fwp_key_scale, beta_max=fwp_beta_max, gate=fwp_gate,
+                out_norm=fwp_out_norm, out_gate=fwp_out_gate,
                 read=fwp_read, error=fwp_error, write=fwp_write,
                 w_p_init=fwp_w_p_init,
             )

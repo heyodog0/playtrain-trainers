@@ -190,6 +190,10 @@ class ImpalaConfig:
     # fwp-gate G.2: learned per-step forget gate on the fast weights (Gated
     # DeltaNet form). Off = unchanged; on, fwp_decay only sets the gate init.
     fwp_gate: bool = False
+    # fwp-read R.1: the read path — RMSNorm on the read before W_o (GLA /
+    # DeltaNet) and a GTrXL-style gated residual. Both off = unchanged.
+    fwp_out_norm: bool = False
+    fwp_out_gate: bool = False
     # Core-only learning-rate multiplier: the core's parameters get their own
     # optimizer group at learning_rate * core_lr_mult. 1.0 = one group,
     # bit-identical to before.
@@ -698,7 +702,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate)
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate)
     # Resume BEFORE workers spawn / weight_state is created, so actors start
     # from the resumed weights; optimizer/scheduler/step restore below, after
     # they exist.
@@ -790,7 +794,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate)
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate)
         _wdevs = (cfg.vec_worker_device or str(device)).split(",")
         for i in range(cfg.vec_workers):
             remote_spec = dict(
@@ -844,7 +848,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate)
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate)
         for i in range(cfg.vec_workers):
             env_spec = dict(
                 game_path=game_path, num_envs=cfg.batch_size,
@@ -905,7 +909,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate).to(device)
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate).to(device)
     learner_model.load_state_dict(model.state_dict())
     if cfg.channels_last:
         learner_model = learner_model.to(memory_format=torch.channels_last)
@@ -935,7 +939,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate).to(device)
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate).to(device)
         inference_model.load_state_dict(learner_model.state_dict())
         inference_server = InferenceServer(
             model=inference_model,
@@ -1106,7 +1110,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                 for _k in [k for k in new_stats if k.startswith(("gradgrp/", "vtrace/"))]:
                     synced[_k] = float(new_stats[_k].item())
                 for _k in ("fwp_state_norm_mean", "fwp_state_norm_max",
-                           "fwp_alpha_mean", "fwp_alpha_min"):
+                           "fwp_alpha_mean", "fwp_alpha_min", "fwp_gate_mean", "fwp_gate_min"):
                     if _k in new_stats:
                         synced[_k] = float(new_stats[_k].item())
                 with step_lock:
@@ -1140,6 +1144,9 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                     if "fwp_alpha_mean" in synced:
                         writer.add_scalar("fwp/alpha_mean", synced["fwp_alpha_mean"], cur_step)
                         writer.add_scalar("fwp/alpha_min", synced["fwp_alpha_min"], cur_step)
+                    if "fwp_gate_mean" in synced:
+                        writer.add_scalar("fwp/gate_mean", synced["fwp_gate_mean"], cur_step)
+                        writer.add_scalar("fwp/gate_min", synced["fwp_gate_min"], cur_step)
             # In central_gpu mode, push fresh weights to the inference model
             # so subsequent actor requests reflect the just-trained policy.
             # Device-to-device copies; cadence configurable via
@@ -1204,7 +1211,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate,
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate,
             unroll_length=cfg.unroll_length, batch_size=cfg.batch_size,
             total_steps=cfg.total_steps, discounting=cfg.discounting,
             baseline_cost=cfg.baseline_cost, entropy_cost=cfg.entropy_cost,
@@ -1256,7 +1263,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
-                      fwp_gate=cfg.fwp_gate).to(device)
+                      fwp_gate=cfg.fwp_gate, fwp_out_norm=cfg.fwp_out_norm, fwp_out_gate=cfg.fwp_out_gate).to(device)
         eval_gym_env, _ = env_fn(10_000)  # dedicated; seed set per episode
         eval_seed_list = eval_seeds(cfg.fixed_env_seed, cfg.eval_episodes)
 
