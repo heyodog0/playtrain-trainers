@@ -1217,7 +1217,9 @@ def test_beta_max_caps_the_write_gate():
 
 
 def test_key_scale_and_beta_max_validate():
-    for bad in ({"key_scale": 0.0}, {"key_scale": -1.0}, {"beta_max": 0.0}, {"beta_max": 1.5}):
+    # 1.5 used to be rejected; fwp-equi E.1 raised the ceiling to 2.0 so the
+    # transition eigenvalue 1 - beta ||k||^2 can reach negative. 2.5 is still out.
+    for bad in ({"key_scale": 0.0}, {"key_scale": -1.0}, {"beta_max": 0.0}, {"beta_max": 2.5}):
         with pytest.raises(ValueError):
             DeltaNetCore(32, fwp_dim=16, n_heads=4, **bad)
 
@@ -1408,3 +1410,94 @@ def test_read_flags_reach_learn_stats_and_config():
     assert m.core.out_norm is None and m.core.out_gate_lin is None
     cfg = ImpalaConfig(core="compfwp", fwp_out_norm=True, fwp_out_gate=True)
     assert cfg.fwp_out_norm and cfg.fwp_out_gate
+
+
+# ------------------------------------- fwp-equi E.1: set_attn, beta_max to 2
+
+def test_set_attn_default_on_is_bit_identical_to_before():
+    """The flag must not move any existing run."""
+    torch.manual_seed(0)
+    a = ImpalaNet(**FWP_SPEC, core="compfwp", **T2_KW).eval()
+    torch.manual_seed(0)
+    b = ImpalaNet(**FWP_SPEC, core="compfwp", **T2_KW, fwp_set_attn=True).eval()
+    b.load_state_dict(a.state_dict(), strict=True)
+    inputs = fwp_inputs(5, 3, done_at=((2, 1),), seed=4)
+    with torch.no_grad():
+        oa, sa = a(inputs, a.initial_state(3))
+        ob, sb = b(inputs, b.initial_state(3))
+    assert torch.equal(oa["baseline"], ob["baseline"]) and torch.equal(sa[0], sb[0])
+
+
+def test_set_attn_off_drops_only_the_attention():
+    """No attention params, norms and MLP kept, and the rows stop interacting."""
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, set_attn=False).eval()
+    assert core.set_block is not None and core.set_block.attn is None
+    names = {n for n, _ in core.set_block.named_parameters()}
+    assert any(n.startswith("mlp") for n in names)
+    assert any(n.startswith("norm2") for n in names)
+    assert not any("attn" in n for n in names)
+    # row-wise: permuting the rows permutes the output the same way, and a row
+    # is unchanged by what the other rows contain (which attention would break)
+    rows = torch.randn(2, 5, 32)
+    with torch.no_grad():
+        out = core.set_block(rows)
+        alt = rows.clone(); alt[:, 1:] = torch.randn_like(alt[:, 1:])
+        out_alt = core.set_block(alt)
+    torch.testing.assert_close(out[:, 0], out_alt[:, 0])
+
+
+def test_set_attn_on_makes_rows_interact():
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, set_attn=True).eval()
+    rows = torch.randn(2, 5, 32)
+    with torch.no_grad():
+        out = core.set_block(rows)
+        alt = rows.clone(); alt[:, 1:] = torch.randn_like(alt[:, 1:])
+        out_alt = core.set_block(alt)
+    assert not torch.allclose(out[:, 0], out_alt[:, 0])
+
+
+def test_beta_max_two_lets_beta_exceed_one():
+    """The point of the ceiling: 1 - beta ||k||^2 can now reach negative."""
+    torch.manual_seed(0)
+    core = CompFWPCore(32, fwp_dim=32, n_heads=4, feature_map="elu_q_l2k",
+                       beta_max=2.0).eval()
+    k, _, beta, _ = core.project(torch.randn(256, 32) * 10)
+    assert (beta > 1.0).any(), "beta never exceeded 1 with beta_max=2"
+    assert (beta <= 2.0).all() and (beta > 0).all()
+    # elu_q_l2k gives a unit key, so the eigenvalue along k is 1 - beta
+    torch.testing.assert_close(k.norm(dim=-1), torch.ones(256), atol=1e-5, rtol=1e-5)
+    assert (1.0 - beta.squeeze(-1) < 0).any(), "eigenvalue never went negative"
+
+
+def test_beta_max_validates_above_two():
+    for bad in ({"beta_max": 0.0}, {"beta_max": -1.0}, {"beta_max": 2.5}):
+        with pytest.raises(ValueError):
+            DeltaNetCore(32, fwp_dim=16, n_heads=4, **bad)
+    DeltaNetCore(32, fwp_dim=16, n_heads=4, beta_max=2.0)  # boundary allowed
+
+
+@pytest.mark.parametrize("kw", [{"fwp_set_attn": False},
+                                {"fwp_beta_max": 2.0, "fwp_feature_map": "elu_q_l2k"}])
+def test_equi_flags_keep_step_equivalence(kw):
+    """Batched unroll == stepwise, which is what the actor/learner split needs."""
+    torch.manual_seed(0)
+    m = ImpalaNet(**FWP_SPEC, core="compfwp", **{**T2_KW, **kw}).eval()
+    B, T = 3, 6
+    inputs = fwp_inputs(T, B, done_at=((1, 0), (3, 2)), seed=9)
+    with torch.no_grad():
+        batched, bstate = m(inputs, m.initial_state(B))
+        state = m.initial_state(B); steps = []
+        for t in range(T):
+            out, state = m(slice_step(inputs, t), state); steps.append(out)
+    torch.testing.assert_close(batched["baseline"],
+                               torch.cat([s["baseline"] for s in steps]),
+                               atol=1e-5, rtol=1e-5)
+    torch.testing.assert_close(bstate[0], state[0], atol=1e-5, rtol=1e-5)
+
+
+def test_set_attn_reaches_the_core_from_the_net():
+    m = ImpalaNet(**FWP_SPEC, core="compfwp", **T2_KW, fwp_set_attn=False)
+    assert m.core.set_block.attn is None
+    assert ImpalaNet(**FWP_SPEC, core="compfwp", **T2_KW).core.set_block.attn is not None

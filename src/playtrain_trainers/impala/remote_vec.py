@@ -125,6 +125,7 @@ def act_remote(
                           fwp_w_o_gain=float(model_spec.get("fwp_w_o_gain", 0.1)),
                           fwp_read_norm=bool(model_spec.get("fwp_read_norm", False)),
                           fwp_w_p_init=float(model_spec.get("fwp_w_p_init", 0.0)),
+                          fwp_set_attn=bool(model_spec.get("fwp_set_attn", True)),
                           fwp_ref_heads=int(model_spec.get("fwp_ref_heads", 4)),
                           fwp_ref_dim_head=int(model_spec.get("fwp_ref_dim_head", 64)),
                           fwp_feature_map=str(model_spec.get("fwp_feature_map", "l2k")),

@@ -161,6 +161,7 @@ def ddp_learner(
                           fwp_w_o_gain=float(cfg_d.get("fwp_w_o_gain", 0.1)),
                           fwp_read_norm=bool(cfg_d.get("fwp_read_norm", False)),
                           fwp_w_p_init=float(cfg_d.get("fwp_w_p_init", 0.0)),
+                          fwp_set_attn=bool(cfg_d.get("fwp_set_attn", True)),
                           fwp_ref_heads=int(cfg_d.get("fwp_ref_heads", 4)),
                           fwp_ref_dim_head=int(cfg_d.get("fwp_ref_dim_head", 64)),
                           fwp_feature_map=str(cfg_d.get("fwp_feature_map", "l2k")),

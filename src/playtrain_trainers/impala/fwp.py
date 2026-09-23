@@ -90,8 +90,16 @@ class FastWeightCore(nn.Module):
         super().__init__()
         if not key_scale > 0:
             raise ValueError(f"key_scale must be positive, got {key_scale}")
-        if not 0.0 < beta_max <= 1.0:
-            raise ValueError(f"beta_max must be in (0, 1], got {beta_max}")
+        # fwp-equi E.1: the ceiling is 2.0, not 1.0. The delta-rule transition
+        # along the write key is ``1 - beta ||k||^2``, so beta in (0, 1] pins
+        # the eigenvalue in (0, 1] and the state can only ever contract toward
+        # the stored value. The linear-RNN state-tracking results hold that
+        # rank-1 updates need NEGATIVE eigenvalues to track group words, and
+        # tracking a permutation (AnaloGen's latent) is exactly that. beta up
+        # to 2 with a unit key reaches (-1, 1]. > 1 stays opt-in: nothing
+        # changes for a run that does not ask for it.
+        if not 0.0 < beta_max <= 2.0:
+            raise ValueError(f"beta_max must be in (0, 2], got {beta_max}")
         if fwp_dim < 1 or n_heads < 1:
             raise ValueError("fwp_dim and n_heads must be positive")
         if not 0.0 <= decay < 1.0:
@@ -340,20 +348,30 @@ class SetBlock(nn.Module):
 
     No positional information of any kind, so the block cannot tell row 0 from
     row 7 except by content. This is where the queries compete.
+
+    ``attn=False`` (fwp-equi E.1) keeps the LayerNorms and the row-wise MLP
+    and drops only the attention residual, so the rows no longer interact.
+    fwp-wp W.2 measured +0.248 held-out for having this block at all and no
+    effect from training it; that is consistent either with the block being a
+    permutation-equivariance prior (the row interaction matters) or with it
+    merely bounding the read (the norms matter). Removing the attention alone
+    separates the two. The attention parameters are not allocated when it is
+    off, so the arm is also a smaller model.
     """
 
-    def __init__(self, dim: int, n_heads: int = 4):
+    def __init__(self, dim: int, n_heads: int = 4, attn: bool = True):
         super().__init__()
         self.norm1 = nn.LayerNorm(dim)
-        self.attn = nn.MultiheadAttention(dim, n_heads, batch_first=True)
+        self.attn = nn.MultiheadAttention(dim, n_heads, batch_first=True) if attn else None
         self.norm2 = nn.LayerNorm(dim)
         self.mlp = nn.Sequential(
             nn.Linear(dim, 2 * dim), nn.GELU(), nn.Linear(2 * dim, dim)
         )
 
     def forward(self, rows: torch.Tensor) -> torch.Tensor:
-        h = self.norm1(rows)
-        rows = rows + self.attn(h, h, h, need_weights=False)[0]
+        if self.attn is not None:
+            h = self.norm1(rows)
+            rows = rows + self.attn(h, h, h, need_weights=False)[0]
         return rows + self.mlp(self.norm2(rows))
 
 
@@ -419,6 +437,7 @@ class CompFWPCore(FastWeightCore):
         gate: bool = False,
         out_norm: bool = False,
         out_gate: bool = False,
+        set_attn: bool = True,
     ):
         super().__init__(features_dim, fwp_dim=fwp_dim, n_heads=n_heads, decay=decay,
                          w_o_gain=w_o_gain, read_norm=read_norm,
@@ -437,7 +456,9 @@ class CompFWPCore(FastWeightCore):
         # Rows are d_h wide (== fwp_dim single-head). Multihead appends one
         # write-key row PER head, so the block sees 2H rows and W_p is shared
         # across heads.
-        self.set_block = SetBlock(self.d_h, attn_heads) if read == "joint" else None
+        self.set_attn = bool(set_attn)
+        self.set_block = (SetBlock(self.d_h, attn_heads, attn=self.set_attn)
+                          if read == "joint" else None)
         self.W_p = nn.Linear(self.d_h, self.d_h, bias=False) if error == "joint" else None
         if self.W_p is not None:
             # Zero by default: the write path starts as the plain delta rule.

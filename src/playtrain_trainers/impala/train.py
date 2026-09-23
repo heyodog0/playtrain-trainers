@@ -176,6 +176,9 @@ class ImpalaConfig:
     fwp_w_o_gain: float = 0.1
     fwp_read_norm: bool = False
     fwp_w_p_init: float = 0.0
+    # fwp-equi E.1: False drops the set block's attention residual, keeping
+    # its LayerNorms and row-wise MLP — "the block without the competition".
+    fwp_set_attn: bool = True
     # core="deltanet_ref": Irie et al.'s RL DeltaNet, per-head fast weights.
     # H * dh must equal features_dim.
     fwp_ref_heads: int = 4
@@ -698,7 +701,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                       core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
@@ -790,7 +793,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                           core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
@@ -844,7 +847,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                           core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
@@ -905,7 +908,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                               fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
@@ -935,7 +938,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                                     fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
@@ -1207,7 +1210,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
             core=cfg.core, fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,
@@ -1259,7 +1262,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                                fwp_dim=cfg.fwp_dim, fwp_heads=cfg.fwp_heads,
                       fwp_read=cfg.fwp_read, fwp_error=cfg.fwp_error,
                       fwp_write=cfg.fwp_write, fwp_decay=cfg.fwp_decay, fwp_w_o_gain=cfg.fwp_w_o_gain,
-                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init,
+                      fwp_read_norm=cfg.fwp_read_norm, fwp_w_p_init=cfg.fwp_w_p_init, fwp_set_attn=cfg.fwp_set_attn,
                       fwp_ref_heads=cfg.fwp_ref_heads, fwp_ref_dim_head=cfg.fwp_ref_dim_head,
                       fwp_feature_map=cfg.fwp_feature_map, fwp_multihead=cfg.fwp_multihead,
                       fwp_key_scale=cfg.fwp_key_scale, fwp_beta_max=cfg.fwp_beta_max,

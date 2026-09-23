@@ -137,6 +137,7 @@ class ImpalaNet(nn.Module):
         fwp_w_o_gain: float = 0.1,
         fwp_read_norm: bool = False,
         fwp_w_p_init: float = 0.0,
+        fwp_set_attn: bool = True,
         fwp_ref_heads: int = 4,
         fwp_ref_dim_head: int = 64,
         fwp_feature_map: str = "l2k",
@@ -192,7 +193,7 @@ class ImpalaNet(nn.Module):
                 key_scale=fwp_key_scale, beta_max=fwp_beta_max, gate=fwp_gate,
                 out_norm=fwp_out_norm, out_gate=fwp_out_gate,
                 read=fwp_read, error=fwp_error, write=fwp_write,
-                w_p_init=fwp_w_p_init,
+                w_p_init=fwp_w_p_init, set_attn=fwp_set_attn,
             )
         self.policy = nn.Linear(core_in, num_actions)
         self.baseline = nn.Linear(core_in, 1)
