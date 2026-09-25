@@ -1,0 +1,67 @@
+{
+  "run_id": "ref_ppo_frostbite_100k_sampled",
+  "unit": "U11",
+  "env_backend": "playtrain",
+  "game": "frostbite",
+  "replay_ratio": 64,
+  "gradient_steps_per_env_step": 2,
+  "commits": [
+    "2d480bb5520e06c69f2d060e660aba83f30cd245"
+  ],
+  "n_seeds": 3,
+  "seeds": [
+    1,
+    15839,
+    7920
+  ],
+  "per_seed_score_mean": {
+    "1": 45.5,
+    "15839": 40.2,
+    "7920": 46.8
+  },
+  "score_mean": 44.166666666666664,
+  "score_sd_over_seeds": 3.496188400720607,
+  "score_ci95_over_seeds": [
+    40.2,
+    46.79999999999999
+  ],
+  "score_min": 40.2,
+  "score_max": 46.8,
+  "wall_hours_per_seed": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "gradient_steps": null,
+  "agent_steps": [
+    100000
+  ],
+  "trainer": "ppo",
+  "random_baseline": 33.5,
+  "score_ceiling": 260.0,
+  "win_rate_mean": 0.0033333333333333335,
+  "win_rate_per_seed": {
+    "1": 0.0,
+    "15839": 0.0,
+    "7920": 0.01
+  },
+  "floes_visited_mean": 4.383333333333334,
+  "floes_visited_per_seed": {
+    "1": 4.55,
+    "15839": 4.02,
+    "7920": 4.58
+  },
+  "normalized_progress_mean": 0.047093451066961,
+  "normalized_progress_per_seed": {
+    "1": 0.052980132450331126,
+    "15839": 0.02958057395143489,
+    "7920": 0.05871964679911699
+  },
+  "normalized_progress_ci95_over_seeds": [
+    0.02958057395143489,
+    0.05871964679911699
+  ],
+  "paper_frostbite_hns_for_reference": 0.543,
+  "caveat": "normalized progress is (score - random) / (260 - random) on PlayTrain frostbite. The paper's Frostbite HNS of 0.543 is (score - 65.2) / (4334.7 - 65.2) on ALE, where the score is unbounded across levels. The two are NOT the same quantity and must not be subtracted or ranked against each other; they are printed together only to give the reader a scale.",
+  "late_run_trend": {}
+}

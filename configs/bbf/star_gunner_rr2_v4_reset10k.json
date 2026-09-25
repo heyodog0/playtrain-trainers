@@ -1,0 +1,9 @@
+{
+  "run_id": "bbf_playtrain_star_gunner_rr2_v4_reset10k",
+  "seed": 0,
+  "env_backend": "playtrain",
+  "game": "star_gunner",
+  "replay_ratio": 64,
+  "reset_every": 10000,
+  "no_resets_after": 65000
+}

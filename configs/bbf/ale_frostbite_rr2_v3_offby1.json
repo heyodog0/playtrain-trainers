@@ -1,0 +1,12 @@
+{
+  "run_id": "bbf_ale_frostbite_rr2_v3_offby1",
+  "seed": 0,
+  "env_backend": "ale",
+  "game": "ALE/Frostbite-v5",
+  "replay_ratio": 64,
+  "max_pool_frames": true,
+  "action_space": "ale_minimal",
+  "reset_every": 20000,
+  "no_resets_after": 100000,
+  "official_offby1_bootstrap": true
+}

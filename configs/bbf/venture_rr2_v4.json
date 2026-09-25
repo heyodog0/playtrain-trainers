@@ -1,0 +1,9 @@
+{
+  "run_id": "bbf_playtrain_venture_rr2_v4",
+  "seed": 0,
+  "env_backend": "playtrain",
+  "game": "venture",
+  "replay_ratio": 64,
+  "reset_every": 20000,
+  "no_resets_after": 100000
+}

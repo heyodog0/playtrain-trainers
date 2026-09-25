@@ -1,0 +1,9 @@
+{
+  "run_id": "bbf_playtrain_frostbite_rr8_v4",
+  "seed": 0,
+  "env_backend": "playtrain",
+  "game": "frostbite",
+  "replay_ratio": 256,
+  "reset_every": 5000,
+  "no_resets_after": 100000
+}
