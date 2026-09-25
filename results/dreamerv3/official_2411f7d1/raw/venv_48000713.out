@@ -1,0 +1,131 @@
++ TREE=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1
++ export PATH=/n/home06/truong/.local/bin:/n/home06/truong/.cargo/bin:/n/home06/truong/.local/bin:/n/home06/truong/.local-node/bin:/n/home06/truong/.local/bin:/n/home06/truong/julia-1.11.5/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/usr/local/bin
++ PATH=/n/home06/truong/.local/bin:/n/home06/truong/.cargo/bin:/n/home06/truong/.local/bin:/n/home06/truong/.local-node/bin:/n/home06/truong/.local/bin:/n/home06/truong/julia-1.11.5/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/usr/local/bin
++ cd /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1
++ uv venv --python 3.11 /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/.venv
+Using CPython 3.11.14
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
++ uv pip install --python /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/.venv/bin/python --index-strategy unsafe-best-match --find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html 'jax[cuda12]==0.4.26' tensorflow-cpu==2.16.1 tensorflow-probability==0.24.0 chex==0.1.86 einops optax==0.2.2 'numpy<2' cloudpickle colored gputil msgpack psutil ruamel.yaml pyzmq ale-py==0.8.1 pillow opencv-python-headless
+Resolved 73 packages in 9.83s
+   Building gputil==1.4.0
+Downloading nvidia-nccl-cu12 (335.2MiB)
+Downloading grpcio (6.9MiB)
+Downloading h5py (4.8MiB)
+Downloading libclang (23.4MiB)
+Downloading ale-py (1.6MiB)
+Downloading tensorflow-io-gcs-filesystem (4.9MiB)
+Downloading keras (2.3MiB)
+Downloading jax-cuda12-plugin (11.8MiB)
+Downloading tensorflow-cpu (204.1MiB)
+Downloading jax-cuda12-pjrt (81.8MiB)
+Downloading jax (1.8MiB)
+Downloading nvidia-cudnn-cu12 (672.1MiB)
+Downloading tensorflow-probability (6.6MiB)
+Downloading ml-dtypes (2.1MiB)
+Downloading tensorboard (5.2MiB)
+Downloading jaxlib (137.5MiB)
+      Built gputil==1.4.0
+ Downloaded ale-py
+ Downloaded ml-dtypes
+ Downloaded tensorflow-io-gcs-filesystem
+ Downloaded jaxlib
+ Downloaded h5py
+ Downloaded grpcio
+ Downloaded jax
+ Downloaded jax-cuda12-plugin
+ Downloaded tensorboard
+ Downloaded libclang
+ Downloaded jax-cuda12-pjrt
+ Downloaded keras
+ Downloaded tensorflow-probability
+ Downloaded nvidia-nccl-cu12
+ Downloaded nvidia-cudnn-cu12
+ Downloaded tensorflow-cpu
+Prepared 33 packages in 2m 14s
+warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.
+         If the cache and target directories are on different filesystems, hardlinking may not be supported.
+         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.
+Installed 73 packages in 2m 37s
+ + absl-py==2.5.0
+ + ale-py==0.8.1
+ + astunparse==1.6.3
+ + attrs==26.1.0
+ + certifi==2026.7.22
+ + charset-normalizer==3.5.1
+ + chex==0.1.86
+ + cloudpickle==3.1.2
+ + colored==2.3.2
+ + decorator==5.3.1
+ + dm-tree==0.1.10
+ + einops==0.8.2
+ + flatbuffers==25.12.19
+ + gast==0.7.0
+ + google-pasta==0.2.0
+ + gputil==1.4.0
+ + grpcio==1.84.0
+ + h5py==3.16.0
+ + idna==3.20
+ + importlib-resources==7.1.0
+ + jax==0.4.26
+ + jax-cuda12-pjrt==0.4.26
+ + jax-cuda12-plugin==0.4.26
+ + jaxlib==0.4.26+cuda12.cudnn89
+ + keras==3.15.1
+ + libclang==18.1.1
+ + markdown==3.10.3
+ + markdown-it-py==4.2.0
+ + markupsafe==3.0.3
+ + mdurl==0.1.2
+ + ml-dtypes==0.3.2
+ + msgpack==1.2.2
+ + namex==0.1.0
+ + numpy==1.26.4
+ + nvidia-cublas-cu12==12.9.2.10
+ + nvidia-cuda-cupti-cu12==12.9.79
+ + nvidia-cuda-nvcc-cu12==12.9.86
+ + nvidia-cuda-nvrtc-cu12==12.9.86
+ + nvidia-cuda-runtime-cu12==12.9.79
+ + nvidia-cudnn-cu12==8.9.7.29
+ + nvidia-cufft-cu12==11.4.1.4
+ + nvidia-cusolver-cu12==11.7.5.82
+ + nvidia-cusparse-cu12==12.5.10.65
+ + nvidia-nccl-cu12==2.32.3
+ + nvidia-nvjitlink-cu12==12.9.86
+ + opencv-python-headless==4.11.0.86
+ + opt-einsum==3.4.0
+ + optax==0.2.2
+ + optree==0.20.0
+ + packaging==26.3
+ + pillow==12.3.0
+ + protobuf==4.25.9
+ + psutil==7.2.2
+ + pygments==2.21.0
+ + pyzmq==27.2.0
+ + requests==2.34.2
+ + rich==15.0.0
+ + ruamel-yaml==0.19.1
+ + scipy==1.17.1
+ + setuptools==84.0.0
+ + six==1.17.0
+ + tensorboard==2.16.2
+ + tensorboard-data-server==0.7.2
+ + tensorflow-cpu==2.16.1
+ + tensorflow-io-gcs-filesystem==0.37.1
+ + tensorflow-probability==0.24.0
+ + termcolor==3.3.0
+ + toolz==1.1.0
+ + typing-extensions==4.16.0
+ + urllib3==2.8.0
+ + werkzeug==3.1.8
+ + wheel==0.48.0
+ + wrapt==2.4.1
++ /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/.venv/bin/python -c '
+import jax, ale_py, tensorflow_probability, optax
+print('\''jax'\'', jax.__version__, '\''ale_py'\'', ale_py.__version__)
+'
+jax 0.4.26 ale_py 0.8.1
++ rc=0
++ echo EXIT=0
+EXIT=0
++ exit 0

@@ -1,0 +1,9 @@
+port acts     [2, 14, 14, 14, 14, 11, 11, 14, 14, 14, 10, 13, 13, 13, 13, 13, 13, 13, 1, 14, 2, 14, 14, 14, 11, 14, 11, 14, 14, 10, 10, 13, 13, 13, 13, 13, 13, 1, 14, 14]
+official acts [2, 14, 14, 14, 14, 11, 11, 14, 14, 14, 10, 13, 13, 13, 13, 13, 13, 13, 1, 14, 2, 14, 14, 14, 11, 14, 11, 14, 14, 10, 10, 13, 13, 13, 13, 13, 13, 1, 14, 14]
+actions equal: 40 / 40
+deter rel max err per step: 0.0e+00 8.9e-07 7.0e-07 6.9e-07 6.7e-07 7.8e-07 6.3e-07 5.7e-07 5.3e-07 5.8e-07 5.1e-07 5.5e-07 5.0e-07 4.9e-07 5.1e-07 4.2e-07 4.8e-07 4.0e-07 4.8e-07 5.2e-07 0.0e+00 8.9e-07 7.0e-07 5.9e-07 6.6e-07 6.1e-07 6.1e-07 6.3e-07 6.2e-07 5.4e-07 5.9e-07 6.1e-07 6.3e-07 5.3e-07 5.2e-07 5.1e-07 4.5e-07 5.1e-07 5.0e-07 4.5e-07
+stoch categorical mismatches per step (of 32): 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+off_bf16 vs off_fp32     actions equal  9/40  deter rel step1 8.90e-01 step2 8.77e-01 step5 1.05e+00 mean(1-19) 7.27e-01  stoch mismatches steps1-5 [4, 3, 3, 5, 4]
+port_bf16 vs port_fp32   actions equal  0/40  deter rel step1 8.27e-01 step2 9.26e-01 step5 1.08e+00 mean(1-19) 9.28e-01  stoch mismatches steps1-5 [4, 5, 4, 6, 5]
+port_bf16 vs off_bf16    actions equal 14/40  deter rel step1 2.67e-01 step2 1.46e-01 step5 1.36e-01 mean(1-19) 5.56e-01  stoch mismatches steps1-5 [0, 2, 1, 1, 1]
+port_fp32 vs off_fp32    actions equal 40/40  deter rel step1 8.88e-07 step2 7.00e-07 step5 7.77e-07 mean(1-19) 5.73e-07  stoch mismatches steps1-5 [0, 0, 0, 0, 0]

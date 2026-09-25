@@ -1,0 +1,480 @@
+NVIDIA A100-SXM4-40GB, 40960 MiB
+jax 0.4.33 ale_py 0.9.0 [CudaDevice(id=0)]
+---  ___                           __   ______ ---
+--- |   \ _ _ ___ __ _ _ __  ___ _ \ \ / /__ / ---
+--- | |) | '_/ -_) _` | '  \/ -_) '/\ V / |_ \ ---
+--- |___/|_| \___\__,_|_|_|_\___|_|  \_/ |___/ ---
+Replica: 0 / 1
+Logdir: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1
+Run script: train
+Observations
+  image            Space(uint8, shape=(64, 64, 3), low=0, high=255)
+  reward           Space(float32, shape=(), low=-inf, high=inf)
+  is_first         Space(bool, shape=(), low=False, high=True)
+  is_last          Space(bool, shape=(), low=False, high=True)
+  is_terminal      Space(bool, shape=(), low=False, high=True)
+Actions
+  action           Space(int32, shape=(), low=0, high=18)
+Extras
+  consec           Space(int32, shape=(), low=-2147483648, high=2147483647)
+  stepid           Space(uint8, shape=(20,), low=0, high=255)
+  dyn/deter        Space(float32, shape=(8192,), low=-inf, high=inf)
+  dyn/stoch        Space(float32, shape=(32, 64), low=-inf, high=inf)
+JAX devices (1): [cuda:0]
+Policy devices: cuda:0
+Train devices:  cuda:0
+Initializing parameters...
+Optimizer opt has 165,967,124 params:
+    95,496,192 dyn
+    20,282,115 dec
+    12,850,431 val
+    12,607,506 pol
+    10,749,183 rew
+    10,488,833 con
+     3,492,864 enc
+Done initializing!
+Compiling 1 checkpoint groups...
+Largest checkpoint group: 2 GB
+Compiling train and report...
+Train cost analysis:
+  FLOPS:            4.3e+11
+  Memory (temp):    5.8e+09
+  Memory (inputs):  2.1e+09
+  Memory (outputs): 2.1e+09
+  Memory (code):    3.9e+06
+
+Report cost analysis:
+  FLOPS:            9.6e+09
+  Memory (temp):    6.7e+08
+  Memory (inputs):  5.1e+08
+  Memory (outputs): 1.0e+07
+  Memory (code):    8.2e+06
+
+Done compiling!
+Did not find any checkpoint.
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T174837F389158
+Saved checkpoint.
+Start training loop
+Start JAX profiler: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1
+Stop JAX profiler
+
+--------------------[Agent Step 11_400]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 100 / episode/length 433 / train/loss/con 0.08 / train/loss/dyn 7.44 / train/loss/image 234.3 / train/loss/policy 1.56 / train/loss/rep 7.44 / train/loss/repval 7.99 / train/loss/rew 2.72 / train/loss/value 6.03 / train/rand/action 1 / replay/replay_ratio 165 / fps/policy 22.19 / fps/train 3515.34
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 19_000]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 90 / episode/length 435 / train/loss/con 0.03 / train/loss/dyn 2.59 / train/loss/image 11.04 / train/loss/policy 1.23 / train/loss/rep 2.59 / train/loss/repval 4.31 / train/loss/rew 0.09 / train/loss/value 3.09 / train/rand/action 0.72 / replay/replay_ratio 260 / fps/policy 15.82 / fps/train 4050.12
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 26_640]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 100 / episode/length 355 / train/loss/con 0.03 / train/loss/dyn 2.66 / train/loss/image 7.66 / train/loss/policy 0.01 / train/loss/rep 2.66 / train/loss/repval 3.37 / train/loss/rew 0.07 / train/loss/value 2.26 / train/rand/action 0.07 / replay/replay_ratio 260.27 / fps/policy 15.91 / fps/train 4077.57
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 34_320]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 120 / episode/length 339 / train/loss/con 0.03 / train/loss/dyn 2.59 / train/loss/image 5.64 / train/loss/policy 7.1e-3 / train/loss/rep 2.59 / train/loss/repval 2.87 / train/loss/rew 0.05 / train/loss/value 1.89 / train/rand/action 0.07 / replay/replay_ratio 260 / fps/policy 15.94 / fps/train 4080.48
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 41_960]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 140 / episode/length 450 / train/loss/con 0.02 / train/loss/dyn 2.67 / train/loss/image 4.31 / train/loss/policy 8.8e-3 / train/loss/rep 2.67 / train/loss/repval 2.42 / train/loss/rew 0.05 / train/loss/value 1.65 / train/rand/action 0.11 / replay/replay_ratio 259.73 / fps/policy 15.9 / fps/train 4066.42
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+--------------------[Agent Step 49_640]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 200 / episode/length 481 / train/loss/con 0.02 / train/loss/dyn 2.39 / train/loss/image 3.56 / train/loss/policy 4e-3 / train/loss/rep 2.39 / train/loss/repval 2.17 / train/loss/rew 0.04 / train/loss/value 1.52 / train/rand/action 0.09 / replay/replay_ratio 260 / fps/policy 15.91 / fps/train 4073.81
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 57_320]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 170 / episode/length 447 / train/loss/con 0.02 / train/loss/dyn 2.25 / train/loss/image 3.09 / train/loss/policy 2.6e-3 / train/loss/rep 2.25 / train/loss/repval 2.07 / train/loss/rew 0.03 / train/loss/value 1.51 / train/rand/action 0.08 / replay/replay_ratio 260 / fps/policy 15.91 / fps/train 4072.67
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T180345F439982
+Saved checkpoint.
+
+--------------------[Agent Step 64_360]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 220 / episode/length 499 / train/loss/con 0.02 / train/loss/dyn 2.07 / train/loss/image 2.72 / train/loss/policy 6.9e-4 / train/loss/rep 2.07 / train/loss/repval 1.9 / train/loss/rew 0.03 / train/loss/value 1.41 / train/rand/action 0.09 / replay/replay_ratio 260 / fps/policy 14.65 / fps/train 3749.56
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 72_000]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 220 / episode/length 486 / train/loss/con 0.02 / train/loss/dyn 1.94 / train/loss/image 2.44 / train/loss/policy 1.9e-3 / train/loss/rep 1.94 / train/loss/repval 1.84 / train/loss/rew 0.03 / train/loss/value 1.37 / train/rand/action 0.11 / replay/replay_ratio 260.27 / fps/policy 15.91 / fps/train 4078.33
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 79_640]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 170 / episode/length 429 / train/loss/con 0.02 / train/loss/dyn 1.88 / train/loss/image 2.25 / train/loss/policy 3e-3 / train/loss/rep 1.88 / train/loss/repval 1.92 / train/loss/rew 0.02 / train/loss/value 1.43 / train/rand/action 0.13 / replay/replay_ratio 259.73 / fps/policy 15.9 / fps/train 4066.94
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 87_280]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 210 / episode/length 510 / train/loss/con 0.02 / train/loss/dyn 1.76 / train/loss/image 2.01 / train/loss/policy 2.5e-3 / train/loss/rep 1.76 / train/loss/repval 1.78 / train/loss/rew 0.02 / train/loss/value 1.36 / train/rand/action 0.13 / replay/replay_ratio 260.27 / fps/policy 15.9 / fps/train 4075.8
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+--------------------[Agent Step 94_960]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 220 / episode/length 489 / train/loss/con 0.02 / train/loss/dyn 1.74 / train/loss/image 1.81 / train/loss/policy 2.1e-3 / train/loss/rep 1.74 / train/loss/repval 1.88 / train/loss/rew 0.02 / train/loss/value 1.41 / train/rand/action 0.13 / replay/replay_ratio 260 / fps/policy 15.93 / fps/train 4077.99
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 102_600]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 220 / episode/length 501 / train/loss/con 0.02 / train/loss/dyn 1.83 / train/loss/image 1.75 / train/loss/policy 1.9e-3 / train/loss/rep 1.83 / train/loss/repval 1.86 / train/loss/rew 0.02 / train/loss/value 1.4 / train/rand/action 0.13 / replay/replay_ratio 259.73 / fps/policy 15.9 / fps/train 4065.26
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 110_240]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 270 / episode/length 570 / train/loss/con 0.02 / train/loss/dyn 1.84 / train/loss/image 1.59 / train/loss/policy 2.9e-3 / train/loss/rep 1.84 / train/loss/repval 1.85 / train/loss/rew 0.02 / train/loss/value 1.42 / train/rand/action 0.17 / replay/replay_ratio 260.27 / fps/policy 15.92 / fps/train 4079.01
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T181845F468958
+Saved checkpoint.
+
+--------------------[Agent Step 117_720]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 220 / episode/length 486 / train/loss/con 0.02 / train/loss/dyn 1.82 / train/loss/image 1.5 / train/loss/policy 2.6e-3 / train/loss/rep 1.82 / train/loss/repval 1.86 / train/loss/rew 0.02 / train/loss/value 1.42 / train/rand/action 0.18 / replay/replay_ratio 259.72 / fps/policy 15.04 / fps/train 3845.87
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+--------------------[Agent Step 125_360]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 270 / episode/length 761 / train/loss/con 0.02 / train/loss/dyn 1.82 / train/loss/image 1.36 / train/loss/policy 2.3e-3 / train/loss/rep 1.82 / train/loss/repval 1.83 / train/loss/rew 0.02 / train/loss/value 1.42 / train/rand/action 0.16 / replay/replay_ratio 260.27 / fps/policy 15.86 / fps/train 4065.45
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+--------------------[Agent Step 133_040]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 270 / episode/length 571 / train/loss/con 0.02 / train/loss/dyn 1.69 / train/loss/image 1.27 / train/loss/policy 2.5e-3 / train/loss/rep 1.69 / train/loss/repval 1.7 / train/loss/rew 0.02 / train/loss/value 1.35 / train/rand/action 0.21 / replay/replay_ratio 260 / fps/policy 15.93 / fps/train 4078.22
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 140_680]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 220 / episode/length 548 / train/loss/con 0.02 / train/loss/dyn 1.7 / train/loss/image 1.25 / train/loss/policy 2.5e-3 / train/loss/rep 1.7 / train/loss/repval 1.7 / train/loss/rew 0.02 / train/loss/value 1.36 / train/rand/action 0.21 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4069.73
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 148_320]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 260 / episode/length 579 / train/loss/con 0.02 / train/loss/dyn 1.64 / train/loss/image 1.27 / train/loss/policy 3.5e-3 / train/loss/rep 1.64 / train/loss/repval 1.76 / train/loss/rew 0.03 / train/loss/value 1.39 / train/rand/action 0.21 / replay/replay_ratio 260.27 / fps/policy 15.91 / fps/train 4077.32
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 155_960]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 800 / episode/length 931 / train/loss/con 0.02 / train/loss/dyn 1.64 / train/loss/image 1.35 / train/loss/policy 4e-3 / train/loss/rep 1.64 / train/loss/repval 1.67 / train/loss/rew 0.03 / train/loss/value 1.34 / train/rand/action 0.19 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4068.06
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 163_600]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 270 / episode/length 581 / train/loss/con 0.02 / train/loss/dyn 1.64 / train/loss/image 1.61 / train/loss/policy 6.4e-3 / train/loss/rep 1.64 / train/loss/repval 1.76 / train/loss/rew 0.03 / train/loss/value 1.37 / train/rand/action 0.15 / replay/replay_ratio 260.27 / fps/policy 15.92 / fps/train 4079.52
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 171_240]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 230 / episode/length 530 / train/loss/con 0.02 / train/loss/dyn 1.61 / train/loss/image 1.39 / train/loss/policy 5.5e-3 / train/loss/rep 1.61 / train/loss/repval 1.72 / train/loss/rew 0.03 / train/loss/value 1.33 / train/rand/action 0.16 / replay/replay_ratio 259.73 / fps/policy 15.92 / fps/train 4070.18
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T183345F640832
+Saved checkpoint.
+
+--------------------[Agent Step 178_480]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 260 / episode/length 522 / train/loss/con 0.02 / train/loss/dyn 1.52 / train/loss/image 1.14 / train/loss/policy 5.7e-3 / train/loss/rep 1.52 / train/loss/repval 1.75 / train/loss/rew 0.03 / train/loss/value 1.36 / train/rand/action 0.14 / replay/replay_ratio 260.29 / fps/policy 15.03 / fps/train 3852.08
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 186_120]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 240 / episode/length 535 / train/loss/con 0.02 / train/loss/dyn 1.57 / train/loss/image 1.18 / train/loss/policy 6.3e-3 / train/loss/rep 1.57 / train/loss/repval 1.74 / train/loss/rew 0.04 / train/loss/value 1.34 / train/rand/action 0.15 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4069.92
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+--------------------[Agent Step 193_800]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1540 / episode/length 869 / train/loss/con 0.02 / train/loss/dyn 1.62 / train/loss/image 1.17 / train/loss/policy 5.8e-3 / train/loss/rep 1.62 / train/loss/repval 1.77 / train/loss/rew 0.04 / train/loss/value 1.36 / train/rand/action 0.18 / replay/replay_ratio 260 / fps/policy 15.92 / fps/train 4074.39
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 201_480]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1100 / episode/length 877 / train/loss/con 0.02 / train/loss/dyn 1.54 / train/loss/image 1.26 / train/loss/policy 7.6e-3 / train/loss/rep 1.54 / train/loss/repval 2.05 / train/loss/rew 0.05 / train/loss/value 1.57 / train/rand/action 0.17 / replay/replay_ratio 260 / fps/policy 15.91 / fps/train 4073.33
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 209_120]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 200 / episode/length 470 / train/loss/con 0.02 / train/loss/dyn 1.49 / train/loss/image 1.21 / train/loss/policy 8.3e-3 / train/loss/rep 1.49 / train/loss/repval 1.95 / train/loss/rew 0.04 / train/loss/value 1.54 / train/rand/action 0.18 / replay/replay_ratio 260.27 / fps/policy 15.91 / fps/train 4077.66
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 216_760]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 960 / episode/length 685 / train/loss/con 0.02 / train/loss/dyn 1.59 / train/loss/image 1.17 / train/loss/policy 5.9e-3 / train/loss/rep 1.59 / train/loss/repval 1.97 / train/loss/rew 0.05 / train/loss/value 1.52 / train/rand/action 0.15 / replay/replay_ratio 259.73 / fps/policy 15.9 / fps/train 4066.69
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 224_440]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2690 / episode/length 1018 / train/loss/con 0.02 / train/loss/dyn 1.49 / train/loss/image 1.23 / train/loss/policy 7.9e-3 / train/loss/rep 1.49 / train/loss/repval 1.89 / train/loss/rew 0.05 / train/loss/value 1.49 / train/rand/action 0.15 / replay/replay_ratio 260 / fps/policy 15.91 / fps/train 4072.28
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T184846F071635
+Saved checkpoint.
+
+--------------------[Agent Step 231_640]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1480 / episode/length 799 / train/loss/con 0.02 / train/loss/dyn 1.5 / train/loss/image 1.18 / train/loss/policy 7.1e-3 / train/loss/rep 1.5 / train/loss/repval 1.75 / train/loss/rew 0.05 / train/loss/value 1.39 / train/rand/action 0.14 / replay/replay_ratio 260 / fps/policy 15 / fps/train 3839.44
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 239_280]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1880 / episode/length 917 / train/loss/con 0.02 / train/loss/dyn 1.57 / train/loss/image 1.19 / train/loss/policy 6.4e-3 / train/loss/rep 1.57 / train/loss/repval 1.77 / train/loss/rew 0.05 / train/loss/value 1.36 / train/rand/action 0.13 / replay/replay_ratio 260.27 / fps/policy 15.9 / fps/train 4075.12
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 246_920]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2040 / episode/length 878 / train/loss/con 0.02 / train/loss/dyn 1.55 / train/loss/image 1.29 / train/loss/policy 4.8e-3 / train/loss/rep 1.55 / train/loss/repval 1.66 / train/loss/rew 0.06 / train/loss/value 1.28 / train/rand/action 0.13 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4069.42
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 254_560]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 3280 / episode/length 1054 / train/loss/con 0.02 / train/loss/dyn 1.45 / train/loss/image 1.09 / train/loss/policy 4.7e-3 / train/loss/rep 1.45 / train/loss/repval 1.64 / train/loss/rew 0.05 / train/loss/value 1.27 / train/rand/action 0.12 / replay/replay_ratio 260.27 / fps/policy 15.91 / fps/train 4077.43
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 262_240]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2310 / episode/length 1008 / train/loss/con 0.02 / train/loss/dyn 1.48 / train/loss/image 1.08 / train/loss/policy 4.7e-3 / train/loss/rep 1.48 / train/loss/repval 1.61 / train/loss/rew 0.06 / train/loss/value 1.26 / train/rand/action 0.12 / replay/replay_ratio 260 / fps/policy 15.94 / fps/train 4080.15
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 269_880]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1700 / episode/length 982 / train/loss/con 0.02 / train/loss/dyn 1.5 / train/loss/image 1.11 / train/loss/policy 3.7e-3 / train/loss/rep 1.5 / train/loss/repval 1.63 / train/loss/rew 0.06 / train/loss/value 1.25 / train/rand/action 0.12 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4067.95
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 277_560]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 3090 / episode/length 945 / train/loss/con 0.02 / train/loss/dyn 1.48 / train/loss/image 1.07 / train/loss/policy 3.2e-3 / train/loss/rep 1.48 / train/loss/repval 1.69 / train/loss/rew 0.06 / train/loss/value 1.28 / train/rand/action 0.13 / replay/replay_ratio 260 / fps/policy 15.92 / fps/train 4075.68
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 285_240]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 190 / episode/length 448 / train/loss/con 0.02 / train/loss/dyn 1.46 / train/loss/image 1.03 / train/loss/policy 2.5e-3 / train/loss/rep 1.46 / train/loss/repval 1.7 / train/loss/rew 0.07 / train/loss/value 1.29 / train/rand/action 0.13 / replay/replay_ratio 260 / fps/policy 15.93 / fps/train 4077.68
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T190346F274657
+Saved checkpoint.
+
+--------------------[Agent Step 292_480]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2740 / episode/length 863 / train/loss/con 0.02 / train/loss/dyn 1.45 / train/loss/image 0.97 / train/loss/policy 2.5e-3 / train/loss/rep 1.45 / train/loss/repval 1.71 / train/loss/rew 0.07 / train/loss/value 1.29 / train/rand/action 0.14 / replay/replay_ratio 260.29 / fps/policy 15.08 / fps/train 3864.13
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 300_160]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 3160 / episode/length 984 / train/loss/con 0.02 / train/loss/dyn 1.44 / train/loss/image 0.97 / train/loss/policy 2.4e-3 / train/loss/rep 1.44 / train/loss/repval 1.67 / train/loss/rew 0.07 / train/loss/value 1.29 / train/rand/action 0.14 / replay/replay_ratio 260 / fps/policy 15.95 / fps/train 4083.06
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 307_840]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2600 / episode/length 888 / train/loss/con 0.02 / train/loss/dyn 1.44 / train/loss/image 0.96 / train/loss/policy 2.3e-3 / train/loss/rep 1.44 / train/loss/repval 1.7 / train/loss/rew 0.07 / train/loss/value 1.3 / train/rand/action 0.14 / replay/replay_ratio 260 / fps/policy 15.94 / fps/train 4079.64
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 315_480]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1250 / episode/length 787 / train/loss/con 0.02 / train/loss/dyn 1.39 / train/loss/image 0.92 / train/loss/policy 2.5e-3 / train/loss/rep 1.39 / train/loss/repval 1.68 / train/loss/rew 0.07 / train/loss/value 1.29 / train/rand/action 0.13 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4068.93
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 323_120]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2550 / episode/length 906 / train/loss/con 0.02 / train/loss/dyn 1.41 / train/loss/image 0.95 / train/loss/policy 2.1e-3 / train/loss/rep 1.41 / train/loss/repval 1.67 / train/loss/rew 0.07 / train/loss/value 1.26 / train/rand/action 0.13 / replay/replay_ratio 260.27 / fps/policy 15.89 / fps/train 4072.51
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 330_760]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2720 / episode/length 943 / train/loss/con 0.02 / train/loss/dyn 1.42 / train/loss/image 0.91 / train/loss/policy 2.1e-3 / train/loss/rep 1.42 / train/loss/repval 1.65 / train/loss/rew 0.08 / train/loss/value 1.25 / train/rand/action 0.13 / replay/replay_ratio 259.73 / fps/policy 15.9 / fps/train 4067.21
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 338_440]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1470 / episode/length 746 / train/loss/con 0.02 / train/loss/dyn 1.42 / train/loss/image 0.91 / train/loss/policy 1.9e-3 / train/loss/rep 1.42 / train/loss/repval 1.67 / train/loss/rew 0.08 / train/loss/value 1.25 / train/rand/action 0.14 / replay/replay_ratio 260 / fps/policy 15.92 / fps/train 4074.27
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T191846F476882
+Saved checkpoint.
+
+--------------------[Agent Step 345_720]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 1850 / episode/length 910 / train/loss/con 0.02 / train/loss/dyn 1.44 / train/loss/image 0.88 / train/loss/policy 1.6e-3 / train/loss/rep 1.44 / train/loss/repval 1.62 / train/loss/rew 0.08 / train/loss/value 1.22 / train/rand/action 0.14 / replay/replay_ratio 260 / fps/policy 15.1 / fps/train 3866.18
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 353_400]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2310 / episode/length 849 / train/loss/con 0.02 / train/loss/dyn 1.38 / train/loss/image 0.84 / train/loss/policy 1.7e-3 / train/loss/rep 1.38 / train/loss/repval 1.61 / train/loss/rew 0.08 / train/loss/value 1.24 / train/rand/action 0.14 / replay/replay_ratio 260 / fps/policy 15.94 / fps/train 4081.79
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 361_080]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2720 / episode/length 995 / train/loss/con 0.02 / train/loss/dyn 1.48 / train/loss/image 0.93 / train/loss/policy 1.7e-3 / train/loss/rep 1.48 / train/loss/repval 1.63 / train/loss/rew 0.08 / train/loss/value 1.24 / train/rand/action 0.15 / replay/replay_ratio 260 / fps/policy 15.92 / fps/train 4076.09
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 368_760]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2410 / episode/length 892 / train/loss/con 0.02 / train/loss/dyn 1.38 / train/loss/image 0.81 / train/loss/policy 2e-3 / train/loss/rep 1.38 / train/loss/repval 1.63 / train/loss/rew 0.07 / train/loss/value 1.24 / train/rand/action 0.15 / replay/replay_ratio 260 / fps/policy 15.93 / fps/train 4078.56
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 376_400]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2630 / episode/length 978 / train/loss/con 0.02 / train/loss/dyn 1.43 / train/loss/image 0.84 / train/loss/policy 1.9e-3 / train/loss/rep 1.43 / train/loss/repval 1.58 / train/loss/rew 0.08 / train/loss/value 1.21 / train/rand/action 0.14 / replay/replay_ratio 260.27 / fps/policy 15.92 / fps/train 4078.73
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 384_040]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2720 / episode/length 945 / train/loss/con 0.02 / train/loss/dyn 1.34 / train/loss/image 0.78 / train/loss/policy 1.6e-3 / train/loss/rep 1.34 / train/loss/repval 1.55 / train/loss/rew 0.07 / train/loss/value 1.2 / train/rand/action 0.13 / replay/replay_ratio 259.73 / fps/policy 15.91 / fps/train 4068.96
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 391_720]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2570 / episode/length 893 / train/loss/con 0.02 / train/loss/dyn 1.33 / train/loss/image 0.77 / train/loss/policy 2.1e-3 / train/loss/rep 1.33 / train/loss/repval 1.53 / train/loss/rew 0.07 / train/loss/value 1.19 / train/rand/action 0.16 / replay/replay_ratio 260 / fps/policy 15.94 / fps/train 4079.45
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 399_400]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 3200 / episode/length 977 / train/loss/con 0.02 / train/loss/dyn 1.33 / train/loss/image 0.77 / train/loss/policy 2.2e-3 / train/loss/rep 1.33 / train/loss/repval 1.52 / train/loss/rew 0.07 / train/loss/value 1.18 / train/rand/action 0.17 / replay/replay_ratio 260 / fps/policy 15.91 / fps/train 4072.95
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+Saving checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/ckpt/20260923T193346F500208
+Saved checkpoint.
+
+--------------------[Agent Step 406_680]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2440 / episode/length 904 / train/loss/con 0.02 / train/loss/dyn 1.33 / train/loss/image 0.74 / train/loss/policy 2.2e-3 / train/loss/rep 1.33 / train/loss/repval 1.6 / train/loss/rew 0.07 / train/loss/value 1.25 / train/rand/action 0.16 / replay/replay_ratio 260 / fps/policy 15.16 / fps/train 3879.94
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 414_320]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2730 / episode/length 876 / train/loss/con 0.02 / train/loss/dyn 1.38 / train/loss/image 0.77 / train/loss/policy 2.2e-3 / train/loss/rep 1.38 / train/loss/repval 1.54 / train/loss/rew 0.07 / train/loss/value 1.22 / train/rand/action 0.16 / replay/replay_ratio 260.27 / fps/policy 15.91 / fps/train 4076.02
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+--------------------[Agent Step 421_960]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2560 / episode/length 951 / train/loss/con 0.02 / train/loss/dyn 1.4 / train/loss/image 0.77 / train/loss/policy 1.7e-3 / train/loss/rep 1.4 / train/loss/repval 1.55 / train/loss/rew 0.07 / train/loss/value 1.21 / train/rand/action 0.17 / replay/replay_ratio 259.73 / fps/policy 15.92 / fps/train 4070.67
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 429_640]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2870 / episode/length 922 / train/loss/con 0.02 / train/loss/dyn 1.41 / train/loss/image 0.81 / train/loss/policy 1.7e-3 / train/loss/rep 1.41 / train/loss/repval 1.49 / train/loss/rew 0.07 / train/loss/value 1.19 / train/rand/action 0.17 / replay/replay_ratio 260 / fps/policy 15.93 / fps/train 4078.43
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonl
+
+
+--------------------[Agent Step 437_320]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 3210 / episode/length 1017 / train/loss/con 0.02 / train/loss/dyn 1.38 / train/loss/image 0.84 / train/loss/policy 2.3e-3 / train/loss/rep 1.38 / train/loss/repval 1.53 / train/loss/rew 0.06 / train/loss/value 1.22 / train/rand/action 0.18 / replay/replay_ratio 260 / fps/policy 15.93 / fps/train 4078.79
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+
+--------------------[Agent Step 439_216]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/loss/|train/rand/'
+episode/score 2950 / episode/length 937
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/logdir/u14_a100/frostbite_seed1/metrics.jsonl
+
+EXIT=0

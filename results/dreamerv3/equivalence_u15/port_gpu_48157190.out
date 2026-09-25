@@ -1,0 +1,76 @@
+NVIDIA H100 80GB HBM3
+warmup 0
+port device cpu
+loaded 104 tensors, 178817558 numbers; unmapped official: ['opt']
+step 1 PARAM UPDATES: 83 tensors changed; median rel diff 6.67e-06, max 3.42e-01; min sign agreement 0.9804
+    slowval/mlp/linear2/kernel           |d_off| 1.2726e-06 |d_port| 1.2274e-06 rel 3.42e-01 sign-agree 0.9804
+    slowval/mlp/linear1/kernel           |d_off| 1.2711e-06 |d_port| 1.2291e-06 rel 3.35e-01 sign-agree 0.9808
+    slowval/mlp/linear0/kernel           |d_off| 1.3062e-06 |d_port| 1.2559e-06 rel 3.28e-01 sign-agree 0.9807
+    enc/cnn1/kernel                      |d_off| 3.1353e-02 |d_port| 3.1354e-02 rel 1.57e-02 sign-agree 0.9999
+    dec/conv2/kernel                     |d_off| 5.1200e-02 |d_port| 5.1200e-02 rel 1.20e-02 sign-agree 1.0000
+    enc/cnn2/kernel                      |d_off| 4.4340e-02 |d_port| 4.4341e-02 rel 1.13e-02 sign-agree 1.0000
+    dec/conv1/kernel                     |d_off| 4.4340e-02 |d_port| 4.4341e-02 rel 7.86e-03 sign-agree 1.0000
+    pol/mlp/linear2/kernel               |d_off| 4.0960e-02 |d_port| 4.0960e-02 rel 7.02e-03 sign-agree 1.0000
+ALL COMMON METRICS, step 1 (official | port | rel):
+  adv                                       0              0  0.00e+00
+  adv_mag                                   0              0  0.00e+00
+  adv_std                                   0              0  0.00e+00
+  con                                0.516688       0.516688  0.00e+00
+  dyn_ent                             127.585        127.585  0.00e+00
+  loss/con                           0.684426       0.684425  2.61e-07
+  loss/dyn                            11.2639        11.2639  0.00e+00
+  loss/image                          1516.61        1516.61  1.61e-07
+  loss/policy                    -5.84027e-05   -5.84027e-05  1.25e-07
+  loss/rep                            11.2639        11.2639  0.00e+00
+  loss/repval                         11.0825        11.0825  0.00e+00
+  loss/rew                            5.54126        5.54126  0.00e+00
+  loss/value                         0.746446       0.746446  7.99e-08
+  rep_ent                             127.061        127.061  6.00e-08
+  ret                                       0              0  0.00e+00
+  ret_max                                   0              0  0.00e+00
+  ret_min                                   0              0  0.00e+00
+  ret_rate                                  0              0  0.00e+00
+  rew                                       0              0  0.00e+00
+  slowval                                   0              0  0.00e+00
+  tar                                       0              0  0.00e+00
+  val                                       0              0  0.00e+00
+  weight                            0.0631474      0.0631474  0.00e+00
+official-only: ['ent/action', 'opt/grad_norm', 'opt/grad_rms', 'opt/loss', 'opt/param_count', 'opt/param_rms', 'opt/update_rms', 'opt/updates', 'rand/action']
+port-only: ['ent', 'grad_norm', 'logpi', 'loss', 'lr', 'roffset', 'rscale']
+step 3 PARAM UPDATES: 101 tensors changed; median rel diff 1.08e-04, max 1.35e-02; min sign agreement 0.9974
+    enc/cnn1/kernel                      |d_off| 6.4906e-02 |d_port| 6.4906e-02 rel 1.35e-02 sign-agree 0.9999
+    slowval/mlp/norm2/scale              |d_off| 6.0092e-05 |d_port| 5.9973e-05 rel 1.18e-02 sign-agree 1.0000
+    dec/conv2/kernel                     |d_off| 1.0964e-01 |d_port| 1.0964e-01 rel 9.97e-03 sign-agree 1.0000
+    enc/cnn2/kernel                      |d_off| 9.1886e-02 |d_port| 9.1887e-02 rel 9.65e-03 sign-agree 1.0000
+    slowval/mlp/norm1/scale              |d_off| 5.7810e-05 |d_port| 5.7812e-05 rel 9.45e-03 sign-agree 1.0000
+    slowval/mlp/norm0/scale              |d_off| 5.6706e-05 |d_port| 5.6691e-05 rel 9.22e-03 sign-agree 1.0000
+    dec/conv1/kernel                     |d_off| 9.6747e-02 |d_port| 9.6748e-02 rel 6.39e-03 sign-agree 1.0000
+    pol/mlp/linear2/kernel               |d_off| 8.2428e-02 |d_port| 8.2429e-02 rel 6.18e-03 sign-agree 1.0000
+step 1 loss/con         official       0.684426  port       0.684425  rel 2.61e-07
+step 1 loss/dyn         official      11.263934  port      11.263934  rel 0.00e+00
+step 1 loss/image       official    1516.614746  port    1516.614502  rel 1.61e-07
+step 1 loss/policy      official      -0.000058  port      -0.000058  rel 1.25e-07
+step 1 loss/rep         official      11.263934  port      11.263934  rel 0.00e+00
+step 1 loss/repval      official      11.082526  port      11.082526  rel 0.00e+00
+step 1 loss/rew         official       5.541264  port       5.541264  rel 0.00e+00
+step 1 loss/value       official       0.746446  port       0.746446  rel 7.99e-08
+step 1 opt/grad_norm    official   21208.816406  port   21208.808986  rel 3.50e-07
+step 2 loss/con         official       0.205340  port       0.205338  rel 1.11e-05
+step 2 loss/dyn         official      10.320807  port      10.320812  rel 5.54e-07
+step 2 loss/image       official     910.600952  port     910.597412  rel 3.89e-06
+step 2 loss/policy      official      -0.000302  port      -0.000302  rel 9.25e-06
+step 2 loss/rep         official      10.320807  port      10.320812  rel 5.54e-07
+step 2 loss/repval      official      11.041076  port      11.041076  rel 0.00e+00
+step 2 loss/rew         official       5.525220  port       5.525219  rel 1.73e-07
+step 2 loss/value       official       3.849553  port       3.849588  rel 9.23e-06
+step 2 opt/grad_norm    official    8458.760742  port    8458.741471  rel 2.28e-06
+step 3 loss/con         official       0.054176  port       0.054174  rel 2.96e-05
+step 3 loss/dyn         official       9.909615  port       9.909582  rel 3.27e-06
+step 3 loss/image       official     720.735718  port     720.730835  rel 6.77e-06
+step 3 loss/policy      official      -0.000676  port      -0.000676  rel 1.05e-05
+step 3 loss/rep         official       9.909615  port       9.909582  rel 3.27e-06
+step 3 loss/repval      official      10.980213  port      10.980212  rel 8.69e-08
+step 3 loss/rew         official       5.493288  port       5.493288  rel 0.00e+00
+step 3 loss/value       official       8.564803  port       8.564894  rel 1.06e-05
+step 3 opt/grad_norm    official    7622.400879  port    7622.338927  rel 8.13e-06
+DONE

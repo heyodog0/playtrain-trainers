@@ -1,0 +1,56 @@
+NVIDIA H100 80GB HBM3
+warmup 0
+A.L.E: Arcade Learning Environment (version 0.9.0+750d7f9)
+[Powered by Stella]
+Observations
+  image            Space(uint8, shape=(64, 64, 3), low=0, high=255)
+  reward           Space(float32, shape=(), low=-inf, high=inf)
+  is_first         Space(bool, shape=(), low=False, high=True)
+  is_last          Space(bool, shape=(), low=False, high=True)
+  is_terminal      Space(bool, shape=(), low=False, high=True)
+Actions
+  action           Space(int32, shape=(), low=0, high=18)
+Extras
+  consec           Space(int32, shape=(), low=-2147483648, high=2147483647)
+  stepid           Space(uint8, shape=(20,), low=0, high=255)
+  dyn/deter        Space(float32, shape=(8192,), low=-inf, high=inf)
+  dyn/stoch        Space(float32, shape=(32, 64), low=-inf, high=inf)
+JAX devices (1): [cuda:0]
+Policy devices: cuda:0
+Train devices:  cuda:0
+Initializing parameters...
+Optimizer opt has 165,967,124 params:
+    95,496,192 dyn
+    20,282,115 dec
+    12,850,431 val
+    12,607,506 pol
+    10,749,183 rew
+    10,488,833 con
+     3,492,864 enc
+Done initializing!
+Compiling 1 checkpoint groups...
+Largest checkpoint group: 2 GB
+Compiling train and report...
+Train cost analysis:
+  FLOPS:            4.2e+09
+  Memory (temp):    1.2e+09
+  Memory (inputs):  2.0e+09
+  Memory (outputs): 2.0e+09
+  Memory (code):    3.1e+06
+
+Report cost analysis:
+  FLOPS:            6.8e+07
+  Memory (temp):    4.2e+07
+  Memory (inputs):  4.8e+08
+  Memory (outputs): 1.4e+06
+  Memory (code):    9.0e+05
+
+Done compiling!
+spaces {'image': ['uint8', [64, 64, 3]], 'reward': ['float32', []], 'is_first': ['bool', []], 'is_last': ['bool', []], 'is_terminal': ['bool', []], 'action': ['int32', []], 'consec': ['int32', []], 'stepid': ['uint8', [20]], 'dyn/deter': ['float32', [8192]], 'dyn/stoch': ['float32', [32, 64]]}
+loaded params0 and batch from /n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/official_w0
+params 288 510751810
+batch {'image': (dtype('uint8'), (2, 9, 64, 64, 3)), 'reward': (dtype('float32'), (2, 9)), 'is_first': (dtype('bool'), (2, 9)), 'is_last': (dtype('bool'), (2, 9)), 'is_terminal': (dtype('bool'), (2, 9)), 'action': (dtype('int32'), (2, 9)), 'consec': (dtype('int32'), (2, 9)), 'stepid': (dtype('uint8'), (2, 9, 20)), 'dyn/deter': (dtype('float32'), (2, 9, 8192)), 'dyn/stoch': (dtype('float32'), (2, 9, 32, 64))}
+step 1 {'loss/con': 0.6844255924224854, 'loss/dyn': 11.263934135437012, 'loss/image': 1516.61474609375, 'loss/policy': -5.840267112944275e-05, 'loss/rep': 11.263934135437012, 'loss/repval': 11.082526206970215, 'loss/rew': 5.541263580322266, 'loss/value': 0.7464457750320435, 'opt/grad_norm': 21208.81640625, 'opt/grad_rms': 1.6462864875793457, 'opt/loss': 1539.3018798828125, 'opt/param_count': 165967120.0, 'opt/param_rms': 0.01850341632962227, 'opt/update_rms': 3.581288910936564e-05, 'opt/updates': 1.0}
+step 2 {'loss/con': 0.2053404450416565, 'loss/dyn': 10.320806503295898, 'loss/image': 910.6009521484375, 'loss/policy': -0.00030209735268726945, 'loss/rep': 10.320806503295898, 'loss/repval': 11.041075706481934, 'loss/rew': 5.525219917297363, 'loss/value': 3.849552869796753, 'opt/grad_norm': 8458.7607421875, 'opt/grad_rms': 0.6565921902656555, 'opt/loss': 934.845947265625, 'opt/param_count': 165967120.0, 'opt/param_rms': 0.01850344054400921, 'opt/update_rms': 2.8580292564583942e-05, 'opt/updates': 2.0}
+step 3 {'loss/con': 0.05417606234550476, 'loss/dyn': 9.909614562988281, 'loss/image': 720.7357177734375, 'loss/policy': -0.0006758026429452002, 'loss/rep': 9.909614562988281, 'loss/repval': 10.980213165283203, 'loss/rew': 5.493288040161133, 'loss/value': 8.564803123474121, 'opt/grad_norm': 7622.40087890625, 'opt/grad_rms': 0.5916716456413269, 'opt/loss': 749.0419921875, 'opt/param_count': 165967120.0, 'opt/param_rms': 0.018503479659557343, 'opt/update_rms': 2.5439941964577883e-05, 'opt/updates': 3.0}
+DONE

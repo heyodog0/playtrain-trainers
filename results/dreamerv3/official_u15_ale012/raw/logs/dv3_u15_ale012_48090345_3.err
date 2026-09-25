@@ -1,0 +1,15 @@
++ TREE=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-ale012
++ cd /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-ale012
++ ARM=ale012
++ shift
++ SEED=3
++ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
++ /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-ale012/.venv/bin/python -c 'import jax, ale_py; print('\''jax'\'', jax.__version__, '\''ale_py'\'', ale_py.__version__, jax.devices())'
++ /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-ale012/.venv/bin/python -u dreamerv3/main.py --configs atari100k --task atari100k_frostbite --seed 3 --logdir /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-ale012/logdir/u15_ale012/frostbite_seed3
+A.L.E: Arcade Learning Environment (version 0.12.1+8a8fafb)
+[Powered by Stella]
+2026-09-24 04:39:05.027986: E external/xla/xla/python/profiler/internal/python_hooks.cc:400] Can't import tensorflow.python.profiler.trace
+2026-09-24 04:39:07.975879: E external/xla/xla/python/profiler/internal/python_hooks.cc:400] Can't import tensorflow.python.profiler.trace
++ rc=0
++ echo EXIT=0
++ exit 0

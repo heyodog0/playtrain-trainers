@@ -1,0 +1,7 @@
+Source: https://github.com/danijar/dreamerv3
+Commit: 2411f7d136832378c0291c587cdbf2fca6506873
+Commit date: 2024-04-15  "Update agent and infrastructure"
+Why this commit: it is the commit that ADDED scores/atari100k-dreamerv3.json.gz, i.e.
+the code most plausibly behind the published Frostbite numbers (2938 last-50k).
+The loop's pin (e3f0224, 2026-05-25) is two years later, and the official code at the
+pin scores 306.2 on our cluster. Cloned 2026-09-23, .git removed. Do not edit.

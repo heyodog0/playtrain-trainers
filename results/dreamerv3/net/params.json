@@ -1,0 +1,21 @@
+{
+  "config": "atari100k (defaults = size200m)",
+  "action_dim": 18,
+  "obs_shape_hwc": [
+    64,
+    64,
+    3
+  ],
+  "token_dim": 4096,
+  "modules": {
+    "enc": 3492864,
+    "dyn": 95496192,
+    "dec": 20282115,
+    "rew": 10749183,
+    "con": 10488833,
+    "pol": 12607506,
+    "val": 12850431
+  },
+  "total_trainable": 165967124,
+  "note": "Optimizer covers dyn, enc, dec, rew, con, pol, val (agent.modules); slowval is an EMA copy of val and is not optimized, so it is not counted here. The official run prints 'Optimizer ... has N params:' at startup; that number is the cross-check (D-016)."
+}

@@ -1,0 +1,34 @@
+{
+ "atari100k_frostbite": {
+  "n": 5,
+  "last50k_per_seed": [
+   1748.0,
+   391.1,
+   259.1,
+   376.8,
+   373.2
+  ],
+  "mean_last50k": 629.6,
+  "sd_last50k": 627.4,
+  "escaped": 1,
+  "welch_t_vs_pinned_here": 1.14,
+  "welch_t_vs_published": -3.0,
+  "fisher_p_published_escapes_more": 0.1032
+ },
+ "atari_frostbite": {
+  "n": 5,
+  "last50k_per_seed": [
+   301.8,
+   248.2,
+   275.0,
+   2943.1,
+   402.8
+  ],
+  "mean_last50k": 834.2,
+  "sd_last50k": 1180.4,
+  "escaped": 1,
+  "welch_t_vs_pinned_here": 1.0,
+  "welch_t_vs_published": -2.36,
+  "fisher_p_published_escapes_more": 0.1032
+ }
+}

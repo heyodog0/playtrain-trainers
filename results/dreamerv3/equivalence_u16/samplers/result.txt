@@ -1,0 +1,6 @@
+probs max|port-off|: policy 5.96e-08 latent 1.79e-07
+policy port      draws 200000 rows    4  chi2 p: min 0.188 median 0.484 frac<0.01 0.000  KS(p~U) 0.595
+policy official  draws 200000 rows    4  chi2 p: min 0.014 median 0.250 frac<0.01 0.000  KS(p~U) 0.253
+latent port      draws  20000 rows  128  chi2 p: min 0.003 median 0.563 frac<0.01 0.016  KS(p~U) 0.162
+latent official  draws  20000 rows  128  chi2 p: min 0.011 median 0.448 frac<0.01 0.000  KS(p~U) 0.343
+straight-through value max|port-off| 0.00e+00  grad max|port-off| 1.79e-07 (grad scale 6.20e-01)

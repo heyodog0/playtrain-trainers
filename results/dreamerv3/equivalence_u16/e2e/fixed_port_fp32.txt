@@ -1,0 +1,68 @@
+official: steps 1330 trains 61 batches sampled 62 mets 61
+port: loaded 104 official tensors
+port: steps 1330 trains 61 batches sampled 62
+transitions: official 1330 port 1330; identical through step 1222 of 1330; first difference at step 1222: official [16.0, 0.0, 0.0, 0.0] port [17.0, 0.0, 0.0, 0.0]
+episodes: official 0 port 1
+batches sampled: official 62 port 62
+  batch   0: exact keys equal 6/6  entries deter rel 7.3e-07  stoch argmax mismatches 0
+  batch   1: exact keys equal 6/6  entries deter rel 8.3e-07  stoch argmax mismatches 0
+  batch   2: exact keys equal 6/6  entries deter rel 8.4e-07  stoch argmax mismatches 0
+  batch   3: exact keys equal 6/6  entries deter rel 8.4e-07  stoch argmax mismatches 0
+  batch   4: exact keys equal 6/6  entries deter rel 6.9e-07  stoch argmax mismatches 0
+  batch   5: exact keys equal 6/6  entries deter rel 6.9e-07  stoch argmax mismatches 0
+  batch  10: exact keys equal 6/6  entries deter rel 6.8e-07  stoch argmax mismatches 0
+  batch  20: exact keys equal 6/6  entries deter rel 9.0e-07  stoch argmax mismatches 0
+  batch  30: exact keys equal 6/6  entries deter rel 2.0e-06  stoch argmax mismatches 0
+  batch  35: exact keys equal 6/6  entries deter rel 3.2e-02  stoch argmax mismatches 0
+  batch  38: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 2.9e-01  stoch argmax mismatches 2
+  batch  39: exact keys equal 6/6  entries deter rel 4.7e-02  stoch argmax mismatches 12
+  batch  40: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 2.9e-01  stoch argmax mismatches 7
+  batch  41: exact keys equal 5/6 missing ['action']  entries deter rel 7.1e-02  stoch argmax mismatches 4
+  batch  42: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 6.6e-01  stoch argmax mismatches 28
+  batch  43: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 6.9e-01  stoch argmax mismatches 31
+  batch  44: exact keys equal 6/6  entries deter rel 1.4e-01  stoch argmax mismatches 14
+  batch  45: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 7.1e-01  stoch argmax mismatches 46
+  batch  46: exact keys equal 6/6  entries deter rel 1.0e-01  stoch argmax mismatches 12
+  batch  47: exact keys equal 6/6  entries deter rel 1.3e-01  stoch argmax mismatches 17
+  batch  48: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 7.9e-01  stoch argmax mismatches 77
+  batch  49: exact keys equal 6/6  entries deter rel 1.2e-01  stoch argmax mismatches 32
+  batch  50: exact keys equal 6/6  entries deter rel 1.7e-01  stoch argmax mismatches 28
+  batch  51: exact keys equal 4/6 missing ['image', 'action']  entries deter rel 1.7e-01  stoch argmax mismatches 35
+  batch  52: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 6.7e-01  stoch argmax mismatches 153
+  batch  53: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 7.2e-01  stoch argmax mismatches 111
+  batch  54: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 7.0e-01  stoch argmax mismatches 130
+  batch  55: exact keys equal 1/6 missing ['image', 'action', 'is_first', 'is_last', 'is_terminal']  entries deter rel 6.4e-01  stoch argmax mismatches 80
+  batch  56: exact keys equal 6/6  entries deter rel 1.0e-01  stoch argmax mismatches 55
+  batch  57: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 6.5e-01  stoch argmax mismatches 106
+  batch  58: exact keys equal 6/6  entries deter rel 8.9e-02  stoch argmax mismatches 52
+  batch  59: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 2.1e-01  stoch argmax mismatches 53
+  batch  60: exact keys equal 0/6 missing ['image', 'action', 'reward', 'is_first', 'is_last', 'is_terminal']  entries deter rel 6.9e-01  stoch argmax mismatches 70
+  batch  61: exact keys equal 6/6  entries deter rel 1.4e-01  stoch argmax mismatches 54
+train steps with metrics: official 61 port 61
+  train   0: worst loss/repval rel 1.7e-07  image rel 8.0e-08  grad_norm rel 3.8e-06
+  train   1: worst loss/repval rel 1.7e-07  image rel 0.0e+00  grad_norm rel 3.3e-06
+  train   2: worst loss/value rel 5.3e-05  image rel 8.1e-08  grad_norm rel 2.3e-06
+  train   3: worst loss/con rel 1.7e-07  image rel 1.6e-07  grad_norm rel 2.3e-06
+  train   4: worst loss/value rel 1.5e-07  image rel 0.0e+00  grad_norm rel 1.8e-06
+  train  10: worst loss/policy rel 6.9e-07  image rel 8.6e-08  grad_norm rel 2.7e-06
+  train  20: worst loss/policy rel 1.1e-05  image rel 8.0e-07  grad_norm rel 2.7e-06
+  train  30: worst loss/value rel 1.1e-04  image rel 1.8e-06  grad_norm rel 5.8e-06
+  train  40: worst loss/value rel 2.3e-03  image rel 5.8e-07  grad_norm rel 8.2e-04
+  train  42: worst loss/con rel 6.4e-02  image rel 7.0e-04  grad_norm rel 9.8e-05
+  train  43: worst loss/con rel 7.3e-02  image rel 8.9e-04  grad_norm rel 4.2e-05
+  train  44: worst loss/policy rel 1.2e-02  image rel 4.1e-04  grad_norm rel 4.5e-04
+  train  45: worst loss/con rel 7.9e-02  image rel 3.7e-04  grad_norm rel 9.7e-04
+  train  46: worst loss/policy rel 1.7e-02  image rel 9.2e-05  grad_norm rel 6.5e-04
+  train  48: worst loss/con rel 1.3e-01  image rel 2.2e-03  grad_norm rel 8.9e-04
+  train  49: worst loss/policy rel 6.8e-02  image rel 4.0e-05  grad_norm rel 9.4e-04
+  train  50: worst loss/policy rel 4.2e-01  image rel 8.1e-05  grad_norm rel 9.6e-04
+  train  51: worst loss/policy rel 2.8e-01  image rel 9.1e-04  grad_norm rel 2.1e-04
+  train  52: worst loss/policy rel 3.4e-01  image rel 4.5e-03  grad_norm rel 7.6e-03
+  train  53: worst loss/policy rel 3.1e-01  image rel 2.0e-03  grad_norm rel 2.5e-03
+  train  54: worst loss/policy rel 3.2e-01  image rel 5.2e-03  grad_norm rel 3.4e-04
+  train  55: worst loss/policy rel 3.0e-01  image rel 5.6e-03  grad_norm rel 3.9e-03
+  train  56: worst loss/policy rel 2.8e-01  image rel 9.3e-06  grad_norm rel 1.4e-02
+  train  57: worst loss/policy rel 3.4e-01  image rel 2.1e-03  grad_norm rel 8.2e-03
+  train  58: worst loss/policy rel 3.3e-01  image rel 9.4e-04  grad_norm rel 5.3e-03
+  train  59: worst loss/policy rel 2.2e-01  image rel 1.5e-03  grad_norm rel 5.0e-03
+  train  60: worst loss/con rel 1.6e-01  image rel 3.1e-03  grad_norm rel 6.1e-04

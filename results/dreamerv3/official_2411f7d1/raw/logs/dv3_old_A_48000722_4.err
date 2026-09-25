@@ -1,0 +1,71 @@
++ TREE=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1
++ cd /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1
++ TASK=atari_frostbite
++ SEED=4
++++ find /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv -name frostbite.bin
++++ head -1
+++ dirname /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv/lib/python3.11/site-packages/AutoROM/roms/frostbite.bin
++ export ALE_ROM_PATH=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv/lib/python3.11/site-packages/AutoROM/roms
++ ALE_ROM_PATH=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv/lib/python3.11/site-packages/AutoROM/roms
++ echo ALE_ROM_PATH=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv/lib/python3.11/site-packages/AutoROM/roms
++ nvidia-smi --query-gpu=name --format=csv,noheader
++ /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/.venv/bin/python -c 'import jax; print('\''jax'\'', jax.__version__, jax.devices())'
++ /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/.venv/bin/python -u dreamerv3/main.py --configs atari100k --task atari_frostbite --seed 4 --logdir /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed4
+A.L.E: Arcade Learning Environment (version 0.8.1+53f58b7)
+[Powered by Stella]
+2026-09-23 15:02:10.418715: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 0: 58112, expected 17152
+2026-09-23 15:02:10.419289: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 1: 58112, expected 18176
+2026-09-23 15:02:10.419306: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 2: 58112, expected 17152
+2026-09-23 15:02:10.419319: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 3: 58112, expected 18048
+2026-09-23 15:02:10.419332: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 4: 58112, expected 18304
+2026-09-23 15:02:10.419344: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 5: 58112, expected 17536
+2026-09-23 15:02:10.419357: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 6: 58112, expected 18048
+2026-09-23 15:02:10.419369: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 7: 58112, expected 17664
+2026-09-23 15:02:10.419381: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 8: 58112, expected 17536
+2026-09-23 15:02:10.419393: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 9: 58112, expected 18048
+2026-09-23 15:02:10.419411: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:747] Results mismatch between different convolution algorithms. This is likely a bug/unexpected loss of precision in cudnn.
+(bf16[192,5,5,128]{3,2,1,0}, u8[0]{0}) custom-call(bf16[1024,33,33,128]{3,2,1,0}, bf16[1024,16,16,192]{3,2,1,0}), window={size=5x5 stride=2x2 pad=1_1x1_1}, dim_labels=b01f_o01i->b01f, custom_call_target="__cudnn$convBackwardFilter", backend_config={"operation_queue_id":"0","wait_on_operation_queues":[],"cudnn_conv_backend_config":{"conv_result_scale":1,"activation_mode":"kNone","side_input_scale":0,"leakyrelu_alpha":0},"force_earliest_schedule":false} for eng65{k2=4,k13=1,k18=1,k25=0,k27=1,k28=4} vs eng20{k2=6,k3=0}
+2026-09-23 15:02:10.419422: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:307] Device: NVIDIA H100 80GB HBM3
+2026-09-23 15:02:10.419434: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:308] Platform: Compute Capability 9.0
+2026-09-23 15:02:10.419445: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:309] Driver: 13030 (610.57.4)
+2026-09-23 15:02:10.419455: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:310] Runtime: <undefined>
+2026-09-23 15:02:10.419469: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:317] cudnn version: 8.9.7
+2026-09-23 15:02:10.560368: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 0: 12608, expected 4320
+2026-09-23 15:02:10.560470: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 1: 12608, expected 4352
+2026-09-23 15:02:10.560493: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 2: 12672, expected 4256
+2026-09-23 15:02:10.560506: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 3: 12672, expected 4384
+2026-09-23 15:02:10.560519: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 4: 12672, expected 4160
+2026-09-23 15:02:10.560531: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 5: 12608, expected 4448
+2026-09-23 15:02:10.560543: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 6: 12672, expected 4288
+2026-09-23 15:02:10.560555: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 7: 12672, expected 4352
+2026-09-23 15:02:10.560568: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 8: 12672, expected 4384
+2026-09-23 15:02:10.560579: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 9: 12608, expected 4384
+2026-09-23 15:02:10.560595: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:747] Results mismatch between different convolution algorithms. This is likely a bug/unexpected loss of precision in cudnn.
+(bf16[256,5,5,192]{3,2,1,0}, u8[0]{0}) custom-call(bf16[1024,17,17,192]{3,2,1,0}, bf16[1024,8,8,256]{3,2,1,0}), window={size=5x5 stride=2x2 pad=1_1x1_1}, dim_labels=b01f_o01i->b01f, custom_call_target="__cudnn$convBackwardFilter", backend_config={"operation_queue_id":"0","wait_on_operation_queues":[],"cudnn_conv_backend_config":{"conv_result_scale":1,"activation_mode":"kNone","side_input_scale":0,"leakyrelu_alpha":0},"force_earliest_schedule":false} for eng65{k2=4,k13=1,k18=1,k25=0,k27=1,k28=4} vs eng20{k2=6,k3=0}
+2026-09-23 15:02:10.560607: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:307] Device: NVIDIA H100 80GB HBM3
+2026-09-23 15:02:10.560618: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:308] Platform: Compute Capability 9.0
+2026-09-23 15:02:10.560628: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:309] Driver: 13030 (610.57.4)
+2026-09-23 15:02:10.560639: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:310] Runtime: <undefined>
+2026-09-23 15:02:10.560653: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:317] cudnn version: 8.9.7
+2026-09-23 15:02:10.654717: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 0: 2336, expected 1048
+2026-09-23 15:02:10.654823: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 1: 2336, expected 1064
+2026-09-23 15:02:10.654837: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 2: 2304, expected 1056
+2026-09-23 15:02:10.654850: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 3: 2336, expected 1064
+2026-09-23 15:02:10.654863: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 4: 2320, expected 1048
+2026-09-23 15:02:10.654875: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 5: 2336, expected 1080
+2026-09-23 15:02:10.654888: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 6: 2304, expected 1064
+2026-09-23 15:02:10.654900: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 7: 2336, expected 1080
+2026-09-23 15:02:10.654912: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 8: 2320, expected 1064
+2026-09-23 15:02:10.654924: E external/xla/xla/service/gpu/buffer_comparator.cc:151] Difference at 9: 2336, expected 1040
+2026-09-23 15:02:10.654939: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:747] Results mismatch between different convolution algorithms. This is likely a bug/unexpected loss of precision in cudnn.
+(bf16[256,5,5,256]{3,2,1,0}, u8[0]{0}) custom-call(bf16[1024,9,9,256]{3,2,1,0}, bf16[1024,4,4,256]{3,2,1,0}), window={size=5x5 stride=2x2 pad=1_1x1_1}, dim_labels=b01f_o01i->b01f, custom_call_target="__cudnn$convBackwardFilter", backend_config={"operation_queue_id":"0","wait_on_operation_queues":[],"cudnn_conv_backend_config":{"conv_result_scale":1,"activation_mode":"kNone","side_input_scale":0,"leakyrelu_alpha":0},"force_earliest_schedule":false} for eng65{k2=4,k13=1,k18=1,k25=0,k27=1,k28=4} vs eng20{k2=6,k3=0}
+2026-09-23 15:02:10.654959: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:307] Device: NVIDIA H100 80GB HBM3
+2026-09-23 15:02:10.654970: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:308] Platform: Compute Capability 9.0
+2026-09-23 15:02:10.654981: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:309] Driver: 13030 (610.57.4)
+2026-09-23 15:02:10.654991: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:310] Runtime: <undefined>
+2026-09-23 15:02:10.655006: E external/xla/xla/service/gpu/conv_algorithm_picker.cc:317] cudnn version: 8.9.7
+A.L.E: Arcade Learning Environment (version 0.8.1+53f58b7)
+[Powered by Stella]
++ rc=0
++ echo EXIT=0
++ exit 0

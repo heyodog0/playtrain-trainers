@@ -1,0 +1,17 @@
+NVIDIA H100 80GB HBM3
+devices [CudaDevice(id=0)]
+zero logits: jit 0.0 eager 0.0
+std 0.0  center 0.0: exact mean -1.863e-09  jit-exact mean +1.863e-09  |jit-exact| mean 1.863e-09  max mass on |bin|>1e4: 0.541
+std 0.0  center 3.0: exact mean +0  jit-exact mean +0  |jit-exact| mean 0  max mass on |bin|>1e4: 9.9e-07
+std 0.01 center 0.0: exact mean -992.5  jit-exact mean +0.005658  |jit-exact| mean 0.2943  max mass on |bin|>1e4: 0.541
+std 0.01 center 3.0: exact mean -9.279e-05  jit-exact mean +3.68e-11  |jit-exact| mean 1.396e-08  max mass on |bin|>1e4: 9.9e-07
+std 0.1  center 0.0: exact mean +1.487e+04  jit-exact mean -0.004152  |jit-exact| mean 0.3111  max mass on |bin|>1e4: 0.541
+std 0.1  center 3.0: exact mean -0.0003452  jit-exact mean -1.835e-10  |jit-exact| mean 1.452e-08  max mass on |bin|>1e4: 9.91e-07
+std 0.5  center 0.0: exact mean +5.818e+04  jit-exact mean +0.001654  |jit-exact| mean 0.3867  max mass on |bin|>1e4: 0.541
+std 0.5  center 3.0: exact mean -0.0005  jit-exact mean +1.738e-10  |jit-exact| mean 1.938e-08  max mass on |bin|>1e4: 1e-06
+std 1.0  center 0.0: exact mean -3.84e+04  jit-exact mean -0.006408  |jit-exact| mean 0.5996  max mass on |bin|>1e4: 0.54
+std 1.0  center 3.0: exact mean -0.003194  jit-exact mean -4.437e-10  |jit-exact| mean 3.402e-08  max mass on |bin|>1e4: 1.09e-06
+std 2.0  center 0.0: exact mean +5.163e+05  jit-exact mean -0.02698  |jit-exact| mean 1.212  max mass on |bin|>1e4: 0.541
+std 2.0  center 3.0: exact mean -0.03545  jit-exact mean -1.613e-09  |jit-exact| mean 1.011e-07  max mass on |bin|>1e4: 1.74e-06
+std 4.0  center 0.0: exact mean +3.651e+05  jit-exact mean +0.09996  |jit-exact| mean 2.189  max mass on |bin|>1e4: 0.543
+std 4.0  center 3.0: exact mean +0.3853  jit-exact mean -6.056e-09  |jit-exact| mean 7.009e-07  max mass on |bin|>1e4: 1.75e-05

@@ -1,0 +1,7 @@
+{
+  "preset": "debug",
+  "run_id": "dreamerv3_debug_playtrain",
+  "env_backend": "playtrain",
+  "game": "frostbite",
+  "seed": 0
+}

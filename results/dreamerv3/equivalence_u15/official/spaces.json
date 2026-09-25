@@ -1,0 +1,53 @@
+{
+ "image": [
+  "uint8",
+  [
+   64,
+   64,
+   3
+  ]
+ ],
+ "reward": [
+  "float32",
+  []
+ ],
+ "is_first": [
+  "bool",
+  []
+ ],
+ "is_last": [
+  "bool",
+  []
+ ],
+ "is_terminal": [
+  "bool",
+  []
+ ],
+ "action": [
+  "int32",
+  []
+ ],
+ "consec": [
+  "int32",
+  []
+ ],
+ "stepid": [
+  "uint8",
+  [
+   20
+  ]
+ ],
+ "dyn/deter": [
+  "float32",
+  [
+   8192
+  ]
+ ],
+ "dyn/stoch": [
+  "float32",
+  [
+   32,
+   64
+  ]
+ ]
+}

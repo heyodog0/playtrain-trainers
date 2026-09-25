@@ -1,0 +1,4 @@
+convolution  torch.bfloat16xtorch.bfloat16->bwd           n     8  GFLOP    139.251   44.31%
+dot          torch.bfloat16xtorch.bfloat16->torch.bfloat16 n   418  GFLOP    105.423   33.54%
+convolution  torch.bfloat16xtorch.bfloat16->torch.bfloat16 n     8  GFLOP     69.625   22.15%
+TOTAL GFLOP 314.299580416

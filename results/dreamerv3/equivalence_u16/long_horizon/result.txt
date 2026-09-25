@@ -1,0 +1,9 @@
+official saved 162 arrays over 10000 steps
+optimizer step  2500: params rel 3.3e-06  displacement-from-init rel 9.5e-05
+optimizer step  5000: params rel 2.6e-06  displacement-from-init rel 4.6e-05
+optimizer step  7500: params rel 2.4e-06  displacement-from-init rel 3.8e-05
+optimizer step 10000: params rel 2.3e-06  displacement-from-init rel 3.6e-05
+optimizer worst displacement rel over 10000 steps: 2.0e-04
+retnorm offset max abs err 1.9e-06 (scale of offset 20.7); scale max rel err 1.9e-06; final offset 9.4871/9.4871 scale 1.0000/1.0000
+slow model rate 0.02 every 1: worst rel err over 10000 steps 5.3e-05
+slow model rate 0.1 every 3: worst rel err over 10000 steps 6.8e-07

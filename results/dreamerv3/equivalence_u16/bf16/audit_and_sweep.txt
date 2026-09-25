@@ -1,0 +1,13 @@
+dot          bf16xbf16->bf16      static instances 112
+    e.g. dot.1653 = bf16[2,1024]{1,0} dot(get-tuple-element.1650, Arg_3.1592), lhs_contracting_dims={1}, rhs_contracting_dims={0}, operand_precision={highest,highest}
+convolution  bf16xbf16->bf16      static instances 23
+    e.g. convolution.1062 = bf16[16,64,64,128]{3,2,1,0} convolution(reshape.1060, convert.1061), window={size=5x5 pad=2_2x2_2}, dim_labels=b01f_01io->b01f, operand_precision={highest,highest}
+metric         |port32-off32|    |off16-off32|   |port16-off32|   |port16-off16|   (step 1, mean over seeds)
+loss/image           0.00e+00         5.31e-03         3.94e-03         2.82e-03   n=4
+loss/dyn             8.78e-08         2.02e-03         2.10e-03         2.09e-03   n=4
+loss/con             4.84e-08         9.90e-03         2.37e-02         1.38e-02   n=4
+loss/rew             0.00e+00         0.00e+00         0.00e+00         0.00e+00   n=4
+loss/value           8.27e-08         3.14e-02         3.69e-02         1.76e-02   n=4
+loss/repval          1.72e-07         0.00e+00         1.72e-07         1.72e-07   n=4
+loss/policy          2.56e-08         3.14e-02         3.69e-02         1.76e-02   n=4
+grad_norm            9.85e-08         3.19e-03         4.09e-03         4.46e-03   n=4

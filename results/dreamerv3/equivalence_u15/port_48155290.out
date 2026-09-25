@@ -1,0 +1,65 @@
++ TREE=/n/holylabs/gershman_lab/Users/rtruong/playtrain-trainers-dreamerv3
++ export PYTHONPATH=/n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/port_src_8be1a32
++ PYTHONPATH=/n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/port_src_8be1a32
++ /n/holylabs/gershman_lab/Users/rtruong/playtrain-trainers-dreamerv3/.venv/bin/python -c 'import playtrain_trainers.dreamerv3.world_model as w; print(w.__file__)'
+/n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/port_src_8be1a32/playtrain_trainers/dreamerv3/world_model.py
++ /n/holylabs/gershman_lab/Users/rtruong/playtrain-trainers-dreamerv3/.venv/bin/python -u /n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/equiv_port.py /n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/official
+loaded 104 tensors, 178817558 numbers; unmapped official: ['opt']
+ALL COMMON METRICS, step 1 (official | port | rel):
+  adv                               -0.160663              0  1.00e+00
+  adv_mag                            0.160663              0  1.00e+00
+  adv_std                           0.0427656              0  1.00e+00
+  con                                0.517374       0.517374  1.15e-07
+  dyn_ent                             127.611        127.611  2.99e-07
+  loss/con                           0.698458       0.698458  8.53e-08
+  loss/dyn                             11.242         11.242  0.00e+00
+  loss/image                          1514.87        1514.87  4.11e-06
+  loss/policy                      -0.0288661   -5.69038e-05  9.98e-01
+  loss/rep                             11.242         11.242  0.00e+00
+  loss/repval                         11.0825        11.0825  0.00e+00
+  loss/rew                            5.54126        5.54126  1.72e-07
+  loss/value                         0.727289       0.727289  8.20e-08
+  rep_ent                             127.061        127.061  0.00e+00
+  ret                               -0.321199              0  1.00e+00
+  ret_max                            -0.22319              0  1.00e+00
+  ret_min                           -0.433711              0  1.00e+00
+  ret_rate                                  0              0  0.00e+00
+  rew                               -0.164475              0  1.00e+00
+  slowval                           -0.164475              0  1.00e+00
+  tar                               -0.325138              0  1.00e+00
+  val                               -0.164475              0  1.00e+00
+  weight                            0.0615257      0.0615257  0.00e+00
+official-only: ['ent/action', 'opt/grad_norm', 'opt/grad_rms', 'opt/loss', 'opt/param_count', 'opt/param_rms', 'opt/update_rms', 'opt/updates', 'rand/action']
+port-only: ['ent', 'grad_norm', 'logpi', 'loss', 'lr', 'roffset', 'rscale']
+step 1 loss/con         official       0.698458  port       0.698458  rel 8.53e-08
+step 1 loss/dyn         official      11.241980  port      11.241980  rel 0.00e+00
+step 1 loss/image       official    1514.866211  port    1514.872437  rel 4.11e-06
+step 1 loss/policy      official      -0.028866  port      -0.000057  rel 9.98e-01   <-- DIFFERS
+step 1 loss/rep         official      11.241980  port      11.241980  rel 0.00e+00
+step 1 loss/repval      official      11.082526  port      11.082526  rel 0.00e+00
+step 1 loss/rew         official       5.541263  port       5.541264  rel 1.72e-07
+step 1 loss/value       official       0.727289  port       0.727289  rel 8.20e-08
+step 1 opt/grad_norm    official   21099.320312  port   21099.328056  rel 3.67e-07
+step 2 loss/con         official       0.698458  port       0.698458  rel 8.53e-08
+step 2 loss/dyn         official      11.241980  port      11.241980  rel 0.00e+00
+step 2 loss/image       official    1514.866211  port    1514.872437  rel 4.11e-06
+step 2 loss/policy      official      -0.028866  port      -0.000057  rel 9.98e-01   <-- DIFFERS
+step 2 loss/rep         official      11.241980  port      11.241980  rel 0.00e+00
+step 2 loss/repval      official      11.082526  port      11.082526  rel 0.00e+00
+step 2 loss/rew         official       5.541263  port       5.541264  rel 1.72e-07
+step 2 loss/value       official       0.727289  port       0.727289  rel 8.20e-08
+step 2 opt/grad_norm    official   21099.320312  port   21099.328056  rel 3.67e-07
+step 3 loss/con         official       0.696969  port       0.696968  rel 8.55e-08
+step 3 loss/dyn         official      11.240831  port      11.240830  rel 8.48e-08
+step 3 loss/image       official    1511.678345  port    1511.680664  rel 1.53e-06
+step 3 loss/policy      official       0.070970  port      -0.000057  rel 1.00e+00   <-- DIFFERS
+step 3 loss/rep         official      11.240831  port      11.240830  rel 8.48e-08
+step 3 loss/repval      official      11.082499  port      11.082468  rel 2.75e-06
+step 3 loss/rew         official       5.541235  port       5.541234  rel 2.58e-07
+step 3 loss/value       official       0.731253  port       0.731251  rel 2.53e-06
+step 3 opt/grad_norm    official   21036.042969  port   21036.052184  rel 4.38e-07
+DONE
++ rc=0
++ echo EXIT=0
+EXIT=0
++ exit 0

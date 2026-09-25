@@ -1,0 +1,61 @@
++ TREE=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run
++ OUT=/n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/official
++ cd /n/netscratch/gershman_lab/Everyone/truong/dv3-equiv
++ /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv/bin/python -u equiv_official.py /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run /n/netscratch/gershman_lab/Everyone/truong/dv3-equiv/official
+A.L.E: Arcade Learning Environment (version 0.9.0+750d7f9)
+[Powered by Stella]
+Observations
+  image            Space(uint8, shape=(64, 64, 3), low=0, high=255)
+  reward           Space(float32, shape=(), low=-inf, high=inf)
+  is_first         Space(bool, shape=(), low=False, high=True)
+  is_last          Space(bool, shape=(), low=False, high=True)
+  is_terminal      Space(bool, shape=(), low=False, high=True)
+Actions
+  action           Space(int32, shape=(), low=0, high=18)
+Extras
+  consec           Space(int32, shape=(), low=-2147483648, high=2147483647)
+  stepid           Space(uint8, shape=(20,), low=0, high=255)
+  dyn/deter        Space(float32, shape=(8192,), low=-inf, high=inf)
+  dyn/stoch        Space(float32, shape=(32, 64), low=-inf, high=inf)
+JAX devices (1): [TFRT_CPU_0]
+Policy devices: TFRT_CPU_0
+Train devices:  TFRT_CPU_0
+Initializing parameters...
+Optimizer opt has 165,967,124 params:
+    95,496,192 dyn
+    20,282,115 dec
+    12,850,431 val
+    12,607,506 pol
+    10,749,183 rew
+    10,488,833 con
+     3,492,864 enc
+Done initializing!
+Compiling 1 checkpoint groups...
+Largest checkpoint group: 2 GB
+Compiling train and report...
+Train cost analysis:
+  FLOPS:            2.5e+11
+  Memory (temp):    1.3e+09
+  Memory (inputs):  2.0e+09
+  Memory (outputs): 2.0e+09
+  Memory (code):    1.4e+06
+
+Report cost analysis:
+  FLOPS:            6.3e+10
+  Memory (temp):    6.7e+07
+  Memory (inputs):  4.8e+08
+  Memory (outputs): 1.4e+06
+  Memory (code):    7.9e+05
+
+Done compiling!
+spaces {'image': ['uint8', [64, 64, 3]], 'reward': ['float32', []], 'is_first': ['bool', []], 'is_last': ['bool', []], 'is_terminal': ['bool', []], 'action': ['int32', []], 'consec': ['int32', []], 'stepid': ['uint8', [20]], 'dyn/deter': ['float32', [8192]], 'dyn/stoch': ['float32', [32, 64]]}
+params 288 510751810
+batch {'image': (dtype('uint8'), (2, 9, 64, 64, 3)), 'reward': (dtype('float32'), (2, 9)), 'is_first': (dtype('bool'), (2, 9)), 'is_last': (dtype('bool'), (2, 9)), 'is_terminal': (dtype('bool'), (2, 9)), 'action': (dtype('int32'), (2, 9)), 'consec': (dtype('int32'), (2, 9)), 'stepid': (dtype('uint8'), (2, 9, 20)), 'dyn/deter': (dtype('float32'), (2, 9, 8192)), 'dyn/stoch': (dtype('float32'), (2, 9, 32, 64))}
+step 1 {'loss/con': 0.698458194732666, 'loss/dyn': 11.241979598999023, 'loss/image': 1514.8662109375, 'loss/policy': -0.028866061940789223, 'loss/rep': 11.241979598999023, 'loss/repval': 11.082526206970215, 'loss/rew': 5.541262626647949, 'loss/value': 0.7272891998291016, 'opt/grad_norm': 21099.3203125, 'opt/grad_rms': 1.6377869844436646, 'opt/loss': 1537.495361328125, 'opt/param_count': 165967120.0, 'opt/param_rms': 0.01850341074168682, 'opt/update_rms': 0.0, 'opt/updates': 1.0}
+step 2 {'loss/con': 0.698458194732666, 'loss/dyn': 11.241979598999023, 'loss/image': 1514.8662109375, 'loss/policy': -0.028866061940789223, 'loss/rep': 11.241979598999023, 'loss/repval': 11.082526206970215, 'loss/rew': 5.541262626647949, 'loss/value': 0.7272891998291016, 'opt/grad_norm': 21099.3203125, 'opt/grad_rms': 1.6377869844436646, 'opt/loss': 1537.495361328125, 'opt/param_count': 165967120.0, 'opt/param_rms': 0.01850341074168682, 'opt/update_rms': 3.581426355481199e-08, 'opt/updates': 2.0}
+step 3 {'loss/con': 0.6969685554504395, 'loss/dyn': 11.24083137512207, 'loss/image': 1511.6783447265625, 'loss/policy': 0.0709695965051651, 'loss/rep': 11.24083137512207, 'loss/repval': 11.082498550415039, 'loss/rew': 5.541234970092773, 'loss/value': 0.7312532663345337, 'opt/grad_norm': 21036.04296875, 'opt/grad_rms': 1.6328753232955933, 'opt/loss': 1534.4083251953125, 'opt/param_count': 165967120.0, 'opt/param_rms': 0.01850341074168682, 'opt/update_rms': 7.095009380009287e-08, 'opt/updates': 3.0}
+DONE
++ rc=0
++ echo EXIT=0
+EXIT=0
++ exit 0

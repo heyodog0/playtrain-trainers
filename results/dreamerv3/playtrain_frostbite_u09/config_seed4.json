@@ -1,0 +1,228 @@
+{
+  "run_id": "dreamerv3_playtrain_frostbite",
+  "output_root": "outputs/dreamerv3",
+  "results_root": "results/dreamerv3",
+  "env_backend": "playtrain",
+  "game": "frostbite",
+  "seed": 0,
+  "script": "train",
+  "batch_size": 16,
+  "batch_length": 64,
+  "report_length": 32,
+  "consec_train": 1,
+  "consec_report": 1,
+  "replay_context": 1,
+  "device": "auto",
+  "compute_dtype": "bfloat16",
+  "size": "size200m",
+  "allow_size_override": false,
+  "env": {
+    "size": [
+      64,
+      64
+    ],
+    "repeat": 4,
+    "sticky": false,
+    "gray": false,
+    "actions": "needed",
+    "lives": "unused",
+    "noops": 30,
+    "autostart": false,
+    "resize": "pillow",
+    "clip_reward": false,
+    "length": 108000,
+    "pooling": 2,
+    "aggregate": "max"
+  },
+  "replay": {
+    "size": 5000000.0,
+    "online": true,
+    "fracs_uniform": 1.0,
+    "fracs_priority": 0.0,
+    "fracs_recency": 0.0,
+    "chunksize": 1024
+  },
+  "run": {
+    "steps": 110000,
+    "train_ratio": 256.0,
+    "envs": 1,
+    "log_every": 120.0,
+    "report_every": 300.0,
+    "save_every": 900.0,
+    "report_batches": 1,
+    "from_checkpoint": ""
+  },
+  "agent": {
+    "loss_scales": {
+      "rec": 1.0,
+      "rew": 1.0,
+      "con": 1.0,
+      "dyn": 1.0,
+      "rep": 0.1,
+      "policy": 1.0,
+      "value": 1.0,
+      "repval": 0.3
+    },
+    "opt": {
+      "lr": 4e-05,
+      "agc": 0.3,
+      "eps": 1e-20,
+      "beta1": 0.9,
+      "beta2": 0.999,
+      "momentum": true,
+      "wd": 0.0,
+      "schedule": "const",
+      "warmup": 1000,
+      "anneal": 0
+    },
+    "ac_grads": false,
+    "dyn_typ": "rssm",
+    "rssm": {
+      "deter": 8192,
+      "hidden": 1024,
+      "stoch": 32,
+      "classes": 64,
+      "act": "silu",
+      "norm": "rms",
+      "unimix": 0.01,
+      "outscale": 1.0,
+      "winit": "trunc_normal_in",
+      "imglayers": 2,
+      "obslayers": 1,
+      "dynlayers": 1,
+      "absolute": false,
+      "blocks": 8,
+      "free_nats": 1.0
+    },
+    "enc_typ": "simple",
+    "enc": {
+      "depth": 64,
+      "mults": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "layers": 3,
+      "units": 1024,
+      "act": "silu",
+      "norm": "rms",
+      "winit": "trunc_normal_in",
+      "symlog": true,
+      "outer": false,
+      "kernel": 5,
+      "strided": false
+    },
+    "dec_typ": "simple",
+    "dec": {
+      "depth": 64,
+      "mults": [
+        2,
+        3,
+        4,
+        4
+      ],
+      "layers": 3,
+      "units": 1024,
+      "act": "silu",
+      "norm": "rms",
+      "outscale": 1.0,
+      "winit": "trunc_normal_in",
+      "outer": false,
+      "kernel": 5,
+      "bspace": 8,
+      "strided": false
+    },
+    "rewhead": {
+      "layers": 1,
+      "units": 1024,
+      "act": "silu",
+      "norm": "rms",
+      "output": "symexp_twohot",
+      "outscale": 0.0,
+      "winit": "trunc_normal_in",
+      "bins": 255
+    },
+    "conhead": {
+      "layers": 1,
+      "units": 1024,
+      "act": "silu",
+      "norm": "rms",
+      "output": "binary",
+      "outscale": 1.0,
+      "winit": "trunc_normal_in",
+      "bins": 255
+    },
+    "policy": {
+      "layers": 3,
+      "units": 1024,
+      "act": "silu",
+      "norm": "rms",
+      "minstd": 0.1,
+      "maxstd": 1.0,
+      "outscale": 0.01,
+      "unimix": 0.01,
+      "winit": "trunc_normal_in"
+    },
+    "value": {
+      "layers": 3,
+      "units": 1024,
+      "act": "silu",
+      "norm": "rms",
+      "output": "symexp_twohot",
+      "outscale": 0.0,
+      "winit": "trunc_normal_in",
+      "bins": 255
+    },
+    "policy_dist_disc": "categorical",
+    "policy_dist_cont": "bounded_normal",
+    "imag_last": 0,
+    "imag_length": 15,
+    "horizon": 333,
+    "contdisc": true,
+    "imag_loss": {
+      "slowtar": false,
+      "lam": 0.95,
+      "actent": 0.0003,
+      "slowreg": 1.0
+    },
+    "repl_loss": {
+      "slowtar": false,
+      "lam": 0.95,
+      "slowreg": 1.0
+    },
+    "slowvalue": {
+      "rate": 0.02,
+      "every": 1
+    },
+    "retnorm": {
+      "impl": "perc",
+      "rate": 0.01,
+      "limit": 1.0,
+      "perclo": 5.0,
+      "perchi": 95.0,
+      "debias": false
+    },
+    "valnorm": {
+      "impl": "none",
+      "rate": 0.01,
+      "limit": 1e-08,
+      "perclo": 5.0,
+      "perchi": 95.0,
+      "debias": false
+    },
+    "advnorm": {
+      "impl": "none",
+      "rate": 0.01,
+      "limit": 1e-08,
+      "perclo": 5.0,
+      "perchi": 95.0,
+      "debias": false
+    },
+    "reward_grad": true,
+    "repval_loss": true,
+    "repval_grad": true,
+    "report": true,
+    "report_gradnorms": false
+  }
+}

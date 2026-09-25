@@ -1,0 +1,16 @@
+port: loaded 104 official tensors
+port: steps 1330 trains 61 batches sampled 61
+transitions: official 1330 port 1330; identical through step 175 of 1330; first difference at step 175: official [4.0, 0.0, 0.0, 0.0] port [2.0, 0.0, 0.0, 0.0]
+episodes: official 0 port 0
+batches sampled: official 62 port 61
+  batch   0: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 9.3e-01  stoch argmax mismatches 1575
+  batch   1: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 8.5e-01  stoch argmax mismatches 1986
+  batch   2: exact keys equal 4/6 missing ['image', 'action']  entries deter rel 8.1e-01  stoch argmax mismatches 2037
+  batch   3: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 7.8e-01  stoch argmax mismatches 2298
+  batch   4: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 8.7e-01  stoch argmax mismatches 2142
+  batch   5: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 7.9e-01  stoch argmax mismatches 2197
+  batch   6: exact keys equal 4/6 missing ['image', 'action']  entries deter rel 8.8e-01  stoch argmax mismatches 2228
+  batch   7: exact keys equal 4/6 missing ['image', 'action']  entries deter rel 7.6e-01  stoch argmax mismatches 2560
+  batch   8: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 8.2e-01  stoch argmax mismatches 2480
+  batch   9: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 8.6e-01  stoch argmax mismatches 2405
+  batch  10: exact keys equal 3/6 missing ['image', 'action', 'reward']  entries deter rel 8.6e-01  stoch argmax mismatches 2590

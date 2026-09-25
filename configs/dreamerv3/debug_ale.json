@@ -1,0 +1,7 @@
+{
+  "preset": "debug",
+  "run_id": "dreamerv3_debug_ale",
+  "env_backend": "ale",
+  "game": "frostbite",
+  "seed": 0
+}

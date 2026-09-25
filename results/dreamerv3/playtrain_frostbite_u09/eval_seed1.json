@@ -1,0 +1,2074 @@
+{
+ "seed": 1,
+ "game_seeds": [
+  8000000,
+  8000099
+ ],
+ "episodes": 100,
+ "sampled": {
+  "aggregate": {
+   "episodes": 100,
+   "score_mean": 85.8,
+   "score_std": 26.937263439632495,
+   "score_sem": 2.6937263439632497,
+   "score_ci95": [
+    80.9,
+    91.4
+   ],
+   "score_min": 30.0,
+   "score_median": 85.0,
+   "score_max": 220.0,
+   "agent_steps_mean": 118.8,
+   "game_frames_mean": 474.74,
+   "lives_left_mean": 0.02,
+   "truncated": 0,
+   "game_states": {
+    "GAMEOVER": 98,
+    "WIN": 2
+   },
+   "win_rate": 0.02,
+   "wins": 2,
+   "floes_visited_mean": 8.38,
+   "random_mean": 33.5,
+   "score_over_random": 52.3,
+   "score_ceiling": 260.0,
+   "normalized_progress": 0.23090507726269313
+  },
+  "per_episode": [
+   {
+    "seed": 8000000,
+    "score": 60.0,
+    "agent_steps": 62,
+    "game_frames": 247,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000001,
+    "score": 80.0,
+    "agent_steps": 116,
+    "game_frames": 464,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000002,
+    "score": 60.0,
+    "agent_steps": 76,
+    "game_frames": 304,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000003,
+    "score": 90.0,
+    "agent_steps": 174,
+    "game_frames": 695,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000004,
+    "score": 60.0,
+    "agent_steps": 90,
+    "game_frames": 360,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000005,
+    "score": 110.0,
+    "agent_steps": 295,
+    "game_frames": 1180,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000006,
+    "score": 110.0,
+    "agent_steps": 132,
+    "game_frames": 527,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000007,
+    "score": 90.0,
+    "agent_steps": 146,
+    "game_frames": 584,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000008,
+    "score": 60.0,
+    "agent_steps": 85,
+    "game_frames": 339,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000009,
+    "score": 70.0,
+    "agent_steps": 63,
+    "game_frames": 252,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000010,
+    "score": 80.0,
+    "agent_steps": 98,
+    "game_frames": 389,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000011,
+    "score": 90.0,
+    "agent_steps": 77,
+    "game_frames": 307,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000012,
+    "score": 80.0,
+    "agent_steps": 105,
+    "game_frames": 420,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000013,
+    "score": 110.0,
+    "agent_steps": 114,
+    "game_frames": 453,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000014,
+    "score": 80.0,
+    "agent_steps": 78,
+    "game_frames": 312,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000015,
+    "score": 90.0,
+    "agent_steps": 122,
+    "game_frames": 488,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000016,
+    "score": 80.0,
+    "agent_steps": 96,
+    "game_frames": 384,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000017,
+    "score": 70.0,
+    "agent_steps": 104,
+    "game_frames": 415,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000018,
+    "score": 80.0,
+    "agent_steps": 163,
+    "game_frames": 651,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000019,
+    "score": 90.0,
+    "agent_steps": 105,
+    "game_frames": 419,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000020,
+    "score": 60.0,
+    "agent_steps": 98,
+    "game_frames": 391,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000021,
+    "score": 100.0,
+    "agent_steps": 191,
+    "game_frames": 764,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000022,
+    "score": 100.0,
+    "agent_steps": 137,
+    "game_frames": 548,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000023,
+    "score": 90.0,
+    "agent_steps": 130,
+    "game_frames": 520,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000024,
+    "score": 90.0,
+    "agent_steps": 117,
+    "game_frames": 468,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000025,
+    "score": 70.0,
+    "agent_steps": 86,
+    "game_frames": 344,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000026,
+    "score": 90.0,
+    "agent_steps": 99,
+    "game_frames": 396,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000027,
+    "score": 80.0,
+    "agent_steps": 117,
+    "game_frames": 468,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000028,
+    "score": 90.0,
+    "agent_steps": 126,
+    "game_frames": 504,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000029,
+    "score": 70.0,
+    "agent_steps": 120,
+    "game_frames": 479,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000030,
+    "score": 90.0,
+    "agent_steps": 99,
+    "game_frames": 395,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000031,
+    "score": 90.0,
+    "agent_steps": 190,
+    "game_frames": 760,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000032,
+    "score": 130.0,
+    "agent_steps": 186,
+    "game_frames": 743,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000033,
+    "score": 70.0,
+    "agent_steps": 105,
+    "game_frames": 420,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000034,
+    "score": 50.0,
+    "agent_steps": 65,
+    "game_frames": 260,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000035,
+    "score": 80.0,
+    "agent_steps": 94,
+    "game_frames": 376,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000036,
+    "score": 80.0,
+    "agent_steps": 120,
+    "game_frames": 480,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000037,
+    "score": 100.0,
+    "agent_steps": 191,
+    "game_frames": 764,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000038,
+    "score": 90.0,
+    "agent_steps": 162,
+    "game_frames": 647,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000039,
+    "score": 110.0,
+    "agent_steps": 150,
+    "game_frames": 600,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000040,
+    "score": 70.0,
+    "agent_steps": 97,
+    "game_frames": 388,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000041,
+    "score": 120.0,
+    "agent_steps": 135,
+    "game_frames": 540,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000042,
+    "score": 50.0,
+    "agent_steps": 61,
+    "game_frames": 244,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000043,
+    "score": 70.0,
+    "agent_steps": 90,
+    "game_frames": 359,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000044,
+    "score": 80.0,
+    "agent_steps": 145,
+    "game_frames": 578,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000045,
+    "score": 80.0,
+    "agent_steps": 118,
+    "game_frames": 472,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000046,
+    "score": 70.0,
+    "agent_steps": 95,
+    "game_frames": 380,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000047,
+    "score": 110.0,
+    "agent_steps": 177,
+    "game_frames": 705,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000048,
+    "score": 90.0,
+    "agent_steps": 142,
+    "game_frames": 568,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000049,
+    "score": 120.0,
+    "agent_steps": 271,
+    "game_frames": 1083,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000050,
+    "score": 80.0,
+    "agent_steps": 107,
+    "game_frames": 428,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000051,
+    "score": 60.0,
+    "agent_steps": 78,
+    "game_frames": 311,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000052,
+    "score": 100.0,
+    "agent_steps": 117,
+    "game_frames": 468,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000053,
+    "score": 220.0,
+    "agent_steps": 146,
+    "game_frames": 584,
+    "lives_left": 1,
+    "game_state": "WIN",
+    "won": true,
+    "truncated": false
+   },
+   {
+    "seed": 8000054,
+    "score": 90.0,
+    "agent_steps": 159,
+    "game_frames": 636,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000055,
+    "score": 90.0,
+    "agent_steps": 211,
+    "game_frames": 844,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000056,
+    "score": 90.0,
+    "agent_steps": 78,
+    "game_frames": 312,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000057,
+    "score": 80.0,
+    "agent_steps": 145,
+    "game_frames": 580,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000058,
+    "score": 60.0,
+    "agent_steps": 118,
+    "game_frames": 471,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000059,
+    "score": 70.0,
+    "agent_steps": 76,
+    "game_frames": 303,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000060,
+    "score": 90.0,
+    "agent_steps": 116,
+    "game_frames": 464,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000061,
+    "score": 100.0,
+    "agent_steps": 99,
+    "game_frames": 396,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000062,
+    "score": 30.0,
+    "agent_steps": 44,
+    "game_frames": 176,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000063,
+    "score": 80.0,
+    "agent_steps": 74,
+    "game_frames": 295,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000064,
+    "score": 100.0,
+    "agent_steps": 122,
+    "game_frames": 487,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000065,
+    "score": 60.0,
+    "agent_steps": 65,
+    "game_frames": 260,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000066,
+    "score": 220.0,
+    "agent_steps": 158,
+    "game_frames": 632,
+    "lives_left": 1,
+    "game_state": "WIN",
+    "won": true,
+    "truncated": false
+   },
+   {
+    "seed": 8000067,
+    "score": 60.0,
+    "agent_steps": 82,
+    "game_frames": 328,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000068,
+    "score": 80.0,
+    "agent_steps": 94,
+    "game_frames": 375,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000069,
+    "score": 110.0,
+    "agent_steps": 172,
+    "game_frames": 688,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000070,
+    "score": 90.0,
+    "agent_steps": 126,
+    "game_frames": 504,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000071,
+    "score": 120.0,
+    "agent_steps": 148,
+    "game_frames": 591,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000072,
+    "score": 60.0,
+    "agent_steps": 85,
+    "game_frames": 340,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000073,
+    "score": 70.0,
+    "agent_steps": 85,
+    "game_frames": 340,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000074,
+    "score": 90.0,
+    "agent_steps": 141,
+    "game_frames": 563,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000075,
+    "score": 80.0,
+    "agent_steps": 125,
+    "game_frames": 499,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000076,
+    "score": 90.0,
+    "agent_steps": 127,
+    "game_frames": 508,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000077,
+    "score": 50.0,
+    "agent_steps": 74,
+    "game_frames": 296,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000078,
+    "score": 100.0,
+    "agent_steps": 114,
+    "game_frames": 455,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000079,
+    "score": 70.0,
+    "agent_steps": 72,
+    "game_frames": 288,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000080,
+    "score": 80.0,
+    "agent_steps": 117,
+    "game_frames": 467,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000081,
+    "score": 70.0,
+    "agent_steps": 79,
+    "game_frames": 316,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000082,
+    "score": 100.0,
+    "agent_steps": 109,
+    "game_frames": 436,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000083,
+    "score": 100.0,
+    "agent_steps": 144,
+    "game_frames": 575,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000084,
+    "score": 70.0,
+    "agent_steps": 95,
+    "game_frames": 380,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000085,
+    "score": 80.0,
+    "agent_steps": 105,
+    "game_frames": 420,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000086,
+    "score": 100.0,
+    "agent_steps": 133,
+    "game_frames": 529,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000087,
+    "score": 40.0,
+    "agent_steps": 75,
+    "game_frames": 300,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000088,
+    "score": 70.0,
+    "agent_steps": 89,
+    "game_frames": 356,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000089,
+    "score": 80.0,
+    "agent_steps": 150,
+    "game_frames": 600,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000090,
+    "score": 110.0,
+    "agent_steps": 131,
+    "game_frames": 522,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000091,
+    "score": 90.0,
+    "agent_steps": 186,
+    "game_frames": 744,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000092,
+    "score": 100.0,
+    "agent_steps": 143,
+    "game_frames": 572,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000093,
+    "score": 70.0,
+    "agent_steps": 77,
+    "game_frames": 307,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000094,
+    "score": 100.0,
+    "agent_steps": 160,
+    "game_frames": 640,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000095,
+    "score": 90.0,
+    "agent_steps": 128,
+    "game_frames": 511,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000096,
+    "score": 30.0,
+    "agent_steps": 45,
+    "game_frames": 180,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000097,
+    "score": 100.0,
+    "agent_steps": 96,
+    "game_frames": 384,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000098,
+    "score": 90.0,
+    "agent_steps": 123,
+    "game_frames": 491,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000099,
+    "score": 90.0,
+    "agent_steps": 122,
+    "game_frames": 488,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   }
+  ],
+  "seconds": 32.9
+ },
+ "greedy": {
+  "aggregate": {
+   "episodes": 100,
+   "score_mean": 88.5,
+   "score_std": 30.496729415635787,
+   "score_sem": 3.049672941563579,
+   "score_ci95": [
+    82.9,
+    94.9
+   ],
+   "score_min": 30.0,
+   "score_median": 80.0,
+   "score_max": 230.0,
+   "agent_steps_mean": 118.64,
+   "game_frames_mean": 474.24,
+   "lives_left_mean": 0.03,
+   "truncated": 0,
+   "game_states": {
+    "GAMEOVER": 97,
+    "WIN": 3
+   },
+   "win_rate": 0.03,
+   "wins": 3,
+   "floes_visited_mean": 8.55,
+   "random_mean": 33.5,
+   "score_over_random": 55.0,
+   "score_ceiling": 260.0,
+   "normalized_progress": 0.24282560706401765
+  },
+  "per_episode": [
+   {
+    "seed": 8000000,
+    "score": 30.0,
+    "agent_steps": 53,
+    "game_frames": 212,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000001,
+    "score": 110.0,
+    "agent_steps": 149,
+    "game_frames": 596,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000002,
+    "score": 60.0,
+    "agent_steps": 134,
+    "game_frames": 536,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000003,
+    "score": 30.0,
+    "agent_steps": 47,
+    "game_frames": 187,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000004,
+    "score": 80.0,
+    "agent_steps": 75,
+    "game_frames": 300,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000005,
+    "score": 90.0,
+    "agent_steps": 101,
+    "game_frames": 404,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000006,
+    "score": 110.0,
+    "agent_steps": 132,
+    "game_frames": 528,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000007,
+    "score": 90.0,
+    "agent_steps": 71,
+    "game_frames": 283,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000008,
+    "score": 80.0,
+    "agent_steps": 127,
+    "game_frames": 508,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000009,
+    "score": 90.0,
+    "agent_steps": 83,
+    "game_frames": 332,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000010,
+    "score": 80.0,
+    "agent_steps": 115,
+    "game_frames": 460,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000011,
+    "score": 70.0,
+    "agent_steps": 84,
+    "game_frames": 334,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000012,
+    "score": 60.0,
+    "agent_steps": 66,
+    "game_frames": 264,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000013,
+    "score": 100.0,
+    "agent_steps": 115,
+    "game_frames": 460,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000014,
+    "score": 110.0,
+    "agent_steps": 148,
+    "game_frames": 590,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000015,
+    "score": 100.0,
+    "agent_steps": 109,
+    "game_frames": 436,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000016,
+    "score": 70.0,
+    "agent_steps": 88,
+    "game_frames": 352,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000017,
+    "score": 70.0,
+    "agent_steps": 101,
+    "game_frames": 404,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000018,
+    "score": 90.0,
+    "agent_steps": 181,
+    "game_frames": 723,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000019,
+    "score": 100.0,
+    "agent_steps": 134,
+    "game_frames": 536,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000020,
+    "score": 70.0,
+    "agent_steps": 86,
+    "game_frames": 344,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000021,
+    "score": 80.0,
+    "agent_steps": 147,
+    "game_frames": 588,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000022,
+    "score": 90.0,
+    "agent_steps": 102,
+    "game_frames": 408,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000023,
+    "score": 100.0,
+    "agent_steps": 208,
+    "game_frames": 830,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000024,
+    "score": 80.0,
+    "agent_steps": 90,
+    "game_frames": 360,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000025,
+    "score": 50.0,
+    "agent_steps": 66,
+    "game_frames": 264,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000026,
+    "score": 220.0,
+    "agent_steps": 156,
+    "game_frames": 621,
+    "lives_left": 1,
+    "game_state": "WIN",
+    "won": true,
+    "truncated": false
+   },
+   {
+    "seed": 8000027,
+    "score": 90.0,
+    "agent_steps": 102,
+    "game_frames": 407,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000028,
+    "score": 100.0,
+    "agent_steps": 145,
+    "game_frames": 580,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000029,
+    "score": 80.0,
+    "agent_steps": 120,
+    "game_frames": 479,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000030,
+    "score": 80.0,
+    "agent_steps": 105,
+    "game_frames": 419,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000031,
+    "score": 110.0,
+    "agent_steps": 190,
+    "game_frames": 760,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000032,
+    "score": 90.0,
+    "agent_steps": 102,
+    "game_frames": 407,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000033,
+    "score": 80.0,
+    "agent_steps": 134,
+    "game_frames": 536,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000034,
+    "score": 40.0,
+    "agent_steps": 57,
+    "game_frames": 228,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000035,
+    "score": 80.0,
+    "agent_steps": 94,
+    "game_frames": 376,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000036,
+    "score": 100.0,
+    "agent_steps": 138,
+    "game_frames": 552,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000037,
+    "score": 80.0,
+    "agent_steps": 122,
+    "game_frames": 487,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000038,
+    "score": 80.0,
+    "agent_steps": 80,
+    "game_frames": 320,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000039,
+    "score": 100.0,
+    "agent_steps": 150,
+    "game_frames": 600,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000040,
+    "score": 70.0,
+    "agent_steps": 90,
+    "game_frames": 360,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000041,
+    "score": 60.0,
+    "agent_steps": 99,
+    "game_frames": 396,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000042,
+    "score": 70.0,
+    "agent_steps": 124,
+    "game_frames": 496,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000043,
+    "score": 80.0,
+    "agent_steps": 119,
+    "game_frames": 473,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000044,
+    "score": 80.0,
+    "agent_steps": 176,
+    "game_frames": 703,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000045,
+    "score": 120.0,
+    "agent_steps": 135,
+    "game_frames": 539,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000046,
+    "score": 100.0,
+    "agent_steps": 111,
+    "game_frames": 444,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000047,
+    "score": 100.0,
+    "agent_steps": 123,
+    "game_frames": 492,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000048,
+    "score": 100.0,
+    "agent_steps": 243,
+    "game_frames": 972,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000049,
+    "score": 100.0,
+    "agent_steps": 342,
+    "game_frames": 1368,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000050,
+    "score": 80.0,
+    "agent_steps": 89,
+    "game_frames": 356,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000051,
+    "score": 60.0,
+    "agent_steps": 78,
+    "game_frames": 311,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000052,
+    "score": 70.0,
+    "agent_steps": 76,
+    "game_frames": 303,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000053,
+    "score": 100.0,
+    "agent_steps": 95,
+    "game_frames": 380,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000054,
+    "score": 100.0,
+    "agent_steps": 110,
+    "game_frames": 440,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000055,
+    "score": 110.0,
+    "agent_steps": 117,
+    "game_frames": 468,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000056,
+    "score": 80.0,
+    "agent_steps": 82,
+    "game_frames": 328,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000057,
+    "score": 60.0,
+    "agent_steps": 84,
+    "game_frames": 336,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000058,
+    "score": 50.0,
+    "agent_steps": 103,
+    "game_frames": 412,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000059,
+    "score": 80.0,
+    "agent_steps": 117,
+    "game_frames": 468,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000060,
+    "score": 100.0,
+    "agent_steps": 100,
+    "game_frames": 400,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000061,
+    "score": 230.0,
+    "agent_steps": 277,
+    "game_frames": 1108,
+    "lives_left": 1,
+    "game_state": "WIN",
+    "won": true,
+    "truncated": false
+   },
+   {
+    "seed": 8000062,
+    "score": 80.0,
+    "agent_steps": 86,
+    "game_frames": 343,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000063,
+    "score": 80.0,
+    "agent_steps": 74,
+    "game_frames": 295,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000064,
+    "score": 100.0,
+    "agent_steps": 141,
+    "game_frames": 564,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000065,
+    "score": 70.0,
+    "agent_steps": 70,
+    "game_frames": 280,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000066,
+    "score": 100.0,
+    "agent_steps": 96,
+    "game_frames": 384,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000067,
+    "score": 70.0,
+    "agent_steps": 113,
+    "game_frames": 452,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000068,
+    "score": 60.0,
+    "agent_steps": 68,
+    "game_frames": 272,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000069,
+    "score": 100.0,
+    "agent_steps": 132,
+    "game_frames": 528,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000070,
+    "score": 90.0,
+    "agent_steps": 99,
+    "game_frames": 396,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000071,
+    "score": 80.0,
+    "agent_steps": 92,
+    "game_frames": 367,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000072,
+    "score": 120.0,
+    "agent_steps": 156,
+    "game_frames": 624,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000073,
+    "score": 70.0,
+    "agent_steps": 85,
+    "game_frames": 340,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000074,
+    "score": 110.0,
+    "agent_steps": 171,
+    "game_frames": 684,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000075,
+    "score": 60.0,
+    "agent_steps": 86,
+    "game_frames": 344,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000076,
+    "score": 50.0,
+    "agent_steps": 85,
+    "game_frames": 340,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000077,
+    "score": 60.0,
+    "agent_steps": 78,
+    "game_frames": 312,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000078,
+    "score": 80.0,
+    "agent_steps": 110,
+    "game_frames": 440,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000079,
+    "score": 90.0,
+    "agent_steps": 136,
+    "game_frames": 544,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000080,
+    "score": 80.0,
+    "agent_steps": 117,
+    "game_frames": 467,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000081,
+    "score": 80.0,
+    "agent_steps": 80,
+    "game_frames": 320,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000082,
+    "score": 120.0,
+    "agent_steps": 168,
+    "game_frames": 671,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000083,
+    "score": 90.0,
+    "agent_steps": 140,
+    "game_frames": 560,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000084,
+    "score": 100.0,
+    "agent_steps": 136,
+    "game_frames": 544,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000085,
+    "score": 90.0,
+    "agent_steps": 178,
+    "game_frames": 712,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000086,
+    "score": 90.0,
+    "agent_steps": 121,
+    "game_frames": 484,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000087,
+    "score": 80.0,
+    "agent_steps": 103,
+    "game_frames": 412,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000088,
+    "score": 110.0,
+    "agent_steps": 129,
+    "game_frames": 516,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000089,
+    "score": 70.0,
+    "agent_steps": 151,
+    "game_frames": 604,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000090,
+    "score": 70.0,
+    "agent_steps": 106,
+    "game_frames": 424,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000091,
+    "score": 90.0,
+    "agent_steps": 163,
+    "game_frames": 652,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000092,
+    "score": 60.0,
+    "agent_steps": 58,
+    "game_frames": 231,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000093,
+    "score": 100.0,
+    "agent_steps": 111,
+    "game_frames": 442,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000094,
+    "score": 110.0,
+    "agent_steps": 159,
+    "game_frames": 636,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000095,
+    "score": 80.0,
+    "agent_steps": 121,
+    "game_frames": 484,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000096,
+    "score": 120.0,
+    "agent_steps": 105,
+    "game_frames": 420,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000097,
+    "score": 90.0,
+    "agent_steps": 114,
+    "game_frames": 456,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000098,
+    "score": 110.0,
+    "agent_steps": 166,
+    "game_frames": 664,
+    "lives_left": 0,
+    "game_state": "GAMEOVER",
+    "won": false,
+    "truncated": false
+   },
+   {
+    "seed": 8000099,
+    "score": 220.0,
+    "agent_steps": 163,
+    "game_frames": 652,
+    "lives_left": 1,
+    "game_state": "WIN",
+    "won": true,
+    "truncated": false
+   }
+  ],
+  "seconds": 31.3
+ }
+}

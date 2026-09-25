@@ -1,0 +1,7 @@
+{
+  "preset": "atari100k",
+  "run_id": "dreamerv3_ale_frostbite",
+  "env_backend": "ale",
+  "game": "frostbite",
+  "seed": 0
+}

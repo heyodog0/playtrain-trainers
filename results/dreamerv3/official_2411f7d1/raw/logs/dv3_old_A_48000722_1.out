@@ -1,0 +1,528 @@
+ALE_ROM_PATH=/n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-run/.venv/lib/python3.11/site-packages/AutoROM/roms
+NVIDIA H100 80GB HBM3
+jax 0.4.26 [cuda(id=0)]
+---  ___                           __   ______ ---
+--- |   \ _ _ ___ __ _ _ __  ___ _ \ \ / /__ / ---
+--- | |) | '_/ -_) _` | '  \/ -_) '/\ V / |_ \ ---
+--- |___/|_| \___\__,_|_|_|_\___|_|  \_/ |___/ ---
+Run script: train
+Logdir: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1
+Observation space
+  image            Space(dtype=uint8, shape=(64, 64, 1), low=0, high=255)
+  reward           Space(dtype=float32, shape=(), low=-inf, high=inf)
+  is_first         Space(dtype=bool, shape=(), low=False, high=True)
+  is_last          Space(dtype=bool, shape=(), low=False, high=True)
+  is_terminal      Space(dtype=bool, shape=(), low=False, high=True)
+Action space
+  action           Space(dtype=int32, shape=(), low=0, high=18)
+  reset            Space(dtype=bool, shape=(), low=False, high=True)
+Encoder: {'image': (64, 64, 1)}
+Decoder: {'image': (64, 64, 1)}
+JAX devices (1): [cuda(id=0)]
+Policy devices: cuda:0
+Train devices:  cuda:0
+Tracing train function
+ENC
+(1024, 4096) out
+DEC
+(1024, 4, 4, 256) in
+(1024, 64, 64, 1) out
+ENC
+(1024, 4096) out
+DEC
+(1024, 4, 4, 256) in
+(1024, 64, 64, 1) out
+Optimizer opt has 166,363,028 variables:
+   166,363,028 agent
+    95,496,192 agent/dyn
+    20,479,041 agent/dec
+    12,851,456 agent/critic
+    12,607,506 agent/actor
+    10,750,208 agent/rew
+    10,488,833 agent/con
+     3,689,792 agent/enc
+Tracing train function
+ENC
+(1024, 4096) out
+DEC
+(1024, 4, 4, 256) in
+(1024, 64, 64, 1) out
+ENC
+(1024, 4096) out
+DEC
+(1024, 4, 4, 256) in
+(1024, 64, 64, 1) out
+Tracing report function
+ENC
+(528, 4096) out
+DEC
+(528, 4, 4, 256) in
+(528, 64, 64, 1) out
+DEC
+(48, 4, 4, 256) in
+(48, 64, 64, 1) out
+DEC
+(150, 4, 4, 256) in
+(150, 64, 64, 1) out
+Done compiling train and report!
+Logdir /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1
+Did not find any checkpoint.
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Start training loop
+Tracing policy function
+ENC
+(1, 4096) out
+Wrote checkpoint.
+
+--------------------[Agent Step 40]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+replay/replay_ratio nan / fps/policy 1.14 / fps/train 0
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+Creating new TensorBoard event file writer.
+
+--------------------[Agent Step 9200]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 140 / episode/length 474 / train/actor_loss 1.58 / train/constats/neg_loss 4.94 / train/constats/pos_loss 0.03 / train/cont_loss 0.05 / train/critic_loss 5.89 / train/dyn_loss 5.29 / train/image_loss 81.84 / train/opt_loss 99.62 / train/rand/action/mean 1 / train/rep_loss 5.29 / train/replay_critic_loss 7.54 / train/reward_loss 2.18 / train/rewstats/neg_loss 2.13 / train/rewstats/pos_loss 4.8 / replay/replay_ratio 260.47 / fps/policy 19.05 / fps/train 4736.83
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 18120]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 80 / episode/length 308 / train/actor_loss 0.65 / train/constats/neg_loss 3.31 / train/constats/pos_loss 5.4e-3 / train/cont_loss 0.03 / train/critic_loss 2.77 / train/dyn_loss 2.72 / train/image_loss 2.54 / train/opt_loss 10.24 / train/rand/action/mean 0.44 / train/rep_loss 2.72 / train/replay_critic_loss 3.96 / train/reward_loss 0.08 / train/rewstats/neg_loss 0.02 / train/rewstats/pos_loss 3.13 / replay/replay_ratio 260.23 / fps/policy 18.53 / fps/train 4738.76
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 27040]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 120 / episode/length 357 / train/actor_loss 0.03 / train/constats/neg_loss 2.61 / train/constats/pos_loss 5.4e-3 / train/cont_loss 0.03 / train/critic_loss 1.85 / train/dyn_loss 2.96 / train/image_loss 1.33 / train/opt_loss 7.42 / train/rand/action/mean 0.13 / train/rep_loss 2.96 / train/replay_critic_loss 2.9 / train/reward_loss 0.05 / train/rewstats/neg_loss 0.01 / train/rewstats/pos_loss 1.65 / replay/replay_ratio 260.7 / fps/policy 18.55 / fps/train 4753.72
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 35960]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 110 / episode/length 370 / train/actor_loss 0.02 / train/constats/neg_loss 2.07 / train/constats/pos_loss 5.1e-3 / train/cont_loss 0.03 / train/critic_loss 1.53 / train/dyn_loss 2.82 / train/image_loss 1.06 / train/opt_loss 6.48 / train/rand/action/mean 0.11 / train/rep_loss 2.82 / train/replay_critic_loss 2.34 / train/reward_loss 0.05 / train/rewstats/neg_loss 0.02 / train/rewstats/pos_loss 1.42 / replay/replay_ratio 259.77 / fps/policy 18.52 / fps/train 4737.61
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 44880]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 200 / episode/length 457 / train/actor_loss 9.1e-3 / train/constats/neg_loss 1.54 / train/constats/pos_loss 4.9e-3 / train/cont_loss 0.03 / train/critic_loss 1.53 / train/dyn_loss 2.28 / train/image_loss 0.86 / train/opt_loss 5.65 / train/rand/action/mean 0.1 / train/rep_loss 2.28 / train/replay_critic_loss 2.25 / train/reward_loss 0.05 / train/rewstats/neg_loss 0.01 / train/rewstats/pos_loss 1.14 / replay/replay_ratio 260.7 / fps/policy 18.57 / fps/train 4757.46
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 53760]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 210 / episode/length 534 / train/actor_loss 6.9e-3 / train/constats/neg_loss 1.1 / train/constats/pos_loss 4.6e-3 / train/cont_loss 0.02 / train/critic_loss 1.56 / train/dyn_loss 2 / train/image_loss 0.77 / train/opt_loss 5.25 / train/rand/action/mean 0.15 / train/rep_loss 2 / train/replay_critic_loss 2.16 / train/reward_loss 0.04 / train/rewstats/neg_loss 0.01 / train/rewstats/pos_loss 0.94 / replay/replay_ratio 260.47 / fps/policy 18.5 / fps/train 4736.43
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 62680]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 200 / episode/length 422 / train/actor_loss 4.8e-3 / train/constats/neg_loss 0.95 / train/constats/pos_loss 4.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.64 / train/dyn_loss 1.89 / train/image_loss 0.65 / train/opt_loss 5.08 / train/rand/action/mean 0.16 / train/rep_loss 1.89 / train/replay_critic_loss 2.2 / train/reward_loss 0.03 / train/rewstats/neg_loss 7.1e-3 / train/rewstats/pos_loss 0.77 / replay/replay_ratio 259.77 / fps/policy 18.56 / fps/train 4747.86
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Wrote checkpoint.
+
+--------------------[Agent Step 71520]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 180 / episode/length 509 / train/actor_loss 4e-3 / train/constats/neg_loss 0.83 / train/constats/pos_loss 4.1e-3 / train/cont_loss 0.02 / train/critic_loss 1.54 / train/dyn_loss 1.78 / train/image_loss 0.54 / train/opt_loss 4.71 / train/rand/action/mean 0.15 / train/rep_loss 1.78 / train/replay_critic_loss 2.06 / train/reward_loss 0.03 / train/rewstats/neg_loss 5.4e-3 / train/rewstats/pos_loss 0.69 / replay/replay_ratio 260.71 / fps/policy 18.33 / fps/train 4697.14
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 80440]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 220 / episode/length 490 / train/actor_loss 4.8e-3 / train/constats/neg_loss 0.85 / train/constats/pos_loss 4.1e-3 / train/cont_loss 0.02 / train/critic_loss 1.51 / train/dyn_loss 1.68 / train/image_loss 0.49 / train/opt_loss 4.49 / train/rand/action/mean 0.14 / train/rep_loss 1.68 / train/replay_critic_loss 1.99 / train/reward_loss 0.03 / train/rewstats/neg_loss 3.9e-3 / train/rewstats/pos_loss 0.64 / replay/replay_ratio 260.23 / fps/policy 18.57 / fps/train 4748.8
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 89360]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 200 / episode/length 487 / train/actor_loss 4.9e-3 / train/constats/neg_loss 0.86 / train/constats/pos_loss 4.1e-3 / train/cont_loss 0.02 / train/critic_loss 1.5 / train/dyn_loss 1.66 / train/image_loss 0.41 / train/opt_loss 4.39 / train/rand/action/mean 0.14 / train/rep_loss 1.66 / train/replay_critic_loss 2 / train/reward_loss 0.02 / train/rewstats/neg_loss 2.8e-3 / train/rewstats/pos_loss 0.6 / replay/replay_ratio 260.23 / fps/policy 18.54 / fps/train 4751.25
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 98280]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 499 / train/actor_loss 3.8e-3 / train/constats/neg_loss 0.62 / train/constats/pos_loss 3.8e-3 / train/cont_loss 0.02 / train/critic_loss 1.45 / train/dyn_loss 1.58 / train/image_loss 0.37 / train/opt_loss 4.17 / train/rand/action/mean 0.14 / train/rep_loss 1.58 / train/replay_critic_loss 1.87 / train/reward_loss 0.02 / train/rewstats/neg_loss 2.7e-3 / train/rewstats/pos_loss 0.6 / replay/replay_ratio 260.23 / fps/policy 18.54 / fps/train 4742.12
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 107200]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 220 / episode/length 434 / train/actor_loss 4e-3 / train/constats/neg_loss 0.67 / train/constats/pos_loss 4e-3 / train/cont_loss 0.02 / train/critic_loss 1.47 / train/dyn_loss 1.58 / train/image_loss 0.35 / train/opt_loss 4.18 / train/rand/action/mean 0.15 / train/rep_loss 1.58 / train/replay_critic_loss 1.89 / train/reward_loss 0.02 / train/rewstats/neg_loss 2.6e-3 / train/rewstats/pos_loss 0.59 / replay/replay_ratio 260.7 / fps/policy 18.55 / fps/train 4752.63
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 116120]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 464 / train/actor_loss 2.9e-3 / train/constats/neg_loss 0.64 / train/constats/pos_loss 3.9e-3 / train/cont_loss 0.02 / train/critic_loss 1.38 / train/dyn_loss 1.5 / train/image_loss 0.3 / train/opt_loss 3.91 / train/rand/action/mean 0.15 / train/rep_loss 1.5 / train/replay_critic_loss 1.77 / train/reward_loss 0.02 / train/rewstats/neg_loss 2.2e-3 / train/rewstats/pos_loss 0.57 / replay/replay_ratio 259.77 / fps/policy 18.52 / fps/train 4737.1
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 125040]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 473 / train/actor_loss 3.1e-3 / train/constats/neg_loss 0.56 / train/constats/pos_loss 3.8e-3 / train/cont_loss 0.02 / train/critic_loss 1.35 / train/dyn_loss 1.42 / train/image_loss 0.28 / train/opt_loss 3.76 / train/rand/action/mean 0.16 / train/rep_loss 1.42 / train/replay_critic_loss 1.7 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.8e-3 / train/rewstats/pos_loss 0.57 / replay/replay_ratio 260.7 / fps/policy 18.55 / fps/train 4752.84
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Wrote checkpoint.
+
+--------------------[Agent Step 133880]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 200 / episode/length 423 / train/actor_loss 2.7e-3 / train/constats/neg_loss 0.53 / train/constats/pos_loss 3.8e-3 / train/cont_loss 0.02 / train/critic_loss 1.36 / train/dyn_loss 1.42 / train/image_loss 0.26 / train/opt_loss 3.75 / train/rand/action/mean 0.17 / train/rep_loss 1.42 / train/replay_critic_loss 1.71 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.7e-3 / train/rewstats/pos_loss 0.56 / replay/replay_ratio 260.24 / fps/policy 18.36 / fps/train 4695.86
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 142800]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 240 / episode/length 511 / train/actor_loss 2.4e-3 / train/constats/neg_loss 0.61 / train/constats/pos_loss 3.9e-3 / train/cont_loss 0.02 / train/critic_loss 1.34 / train/dyn_loss 1.38 / train/image_loss 0.25 / train/opt_loss 3.65 / train/rand/action/mean 0.18 / train/rep_loss 1.38 / train/replay_critic_loss 1.66 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.5e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 260.23 / fps/policy 18.54 / fps/train 4749.32
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 151720]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 499 / train/actor_loss 2.4e-3 / train/constats/neg_loss 0.64 / train/constats/pos_loss 3.8e-3 / train/cont_loss 0.02 / train/critic_loss 1.32 / train/dyn_loss 1.37 / train/image_loss 0.24 / train/opt_loss 3.6 / train/rand/action/mean 0.2 / train/rep_loss 1.37 / train/replay_critic_loss 1.63 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.5e-3 / train/rewstats/pos_loss 0.56 / replay/replay_ratio 260.23 / fps/policy 18.52 / fps/train 4737.53
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 160640]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 495 / train/actor_loss 3e-3 / train/constats/neg_loss 0.52 / train/constats/pos_loss 3.8e-3 / train/cont_loss 0.02 / train/critic_loss 1.32 / train/dyn_loss 1.33 / train/image_loss 0.23 / train/opt_loss 3.54 / train/rand/action/mean 0.22 / train/rep_loss 1.33 / train/replay_critic_loss 1.59 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.2e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 260.7 / fps/policy 18.56 / fps/train 4754.59
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 169560]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 220 / episode/length 441 / train/actor_loss 3e-3 / train/constats/neg_loss 0.53 / train/constats/pos_loss 3.8e-3 / train/cont_loss 0.02 / train/critic_loss 1.39 / train/dyn_loss 1.37 / train/image_loss 0.23 / train/opt_loss 3.7 / train/rand/action/mean 0.21 / train/rep_loss 1.37 / train/replay_critic_loss 1.74 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.4e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 259.77 / fps/policy 18.56 / fps/train 4746.98
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 178440]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 210 / episode/length 452 / train/actor_loss 2.5e-3 / train/constats/neg_loss 0.42 / train/constats/pos_loss 3.7e-3 / train/cont_loss 0.02 / train/critic_loss 1.35 / train/dyn_loss 1.35 / train/image_loss 0.21 / train/opt_loss 3.6 / train/rand/action/mean 0.19 / train/rep_loss 1.35 / train/replay_critic_loss 1.66 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.3e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 260.47 / fps/policy 18.5 / fps/train 4735.03
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 187360]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 240 / episode/length 534 / train/actor_loss 2.1e-3 / train/constats/neg_loss 0.43 / train/constats/pos_loss 3.7e-3 / train/cont_loss 0.02 / train/critic_loss 1.3 / train/dyn_loss 1.32 / train/image_loss 0.2 / train/opt_loss 3.48 / train/rand/action/mean 0.23 / train/rep_loss 1.32 / train/replay_critic_loss 1.57 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.1e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 260.7 / fps/policy 18.53 / fps/train 4747.73
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 196280]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 230 / episode/length 468 / train/actor_loss 3.3e-3 / train/constats/neg_loss 0.45 / train/constats/pos_loss 3.7e-3 / train/cont_loss 0.02 / train/critic_loss 1.38 / train/dyn_loss 1.4 / train/image_loss 0.23 / train/opt_loss 3.72 / train/rand/action/mean 0.2 / train/rep_loss 1.4 / train/replay_critic_loss 1.76 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.1e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 259.77 / fps/policy 18.52 / fps/train 4736.46
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Wrote checkpoint.
+
+--------------------[Agent Step 205120]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 150 / episode/length 407 / train/actor_loss 1.8e-3 / train/constats/neg_loss 0.36 / train/constats/pos_loss 3.6e-3 / train/cont_loss 0.02 / train/critic_loss 1.31 / train/dyn_loss 1.35 / train/image_loss 0.21 / train/opt_loss 3.53 / train/rand/action/mean 0.21 / train/rep_loss 1.35 / train/replay_critic_loss 1.59 / train/reward_loss 0.02 / train/rewstats/neg_loss 1e-3 / train/rewstats/pos_loss 0.55 / replay/replay_ratio 260.71 / fps/policy 18.36 / fps/train 4705.63
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 214040]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 583 / train/actor_loss 1.8e-3 / train/constats/neg_loss 0.37 / train/constats/pos_loss 3.6e-3 / train/cont_loss 0.02 / train/critic_loss 1.32 / train/dyn_loss 1.31 / train/image_loss 0.2 / train/opt_loss 3.49 / train/rand/action/mean 0.23 / train/rep_loss 1.31 / train/replay_critic_loss 1.62 / train/reward_loss 0.02 / train/rewstats/neg_loss 1.1e-3 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.23 / fps/policy 18.52 / fps/train 4735.72
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 222960]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 596 / train/actor_loss 2.1e-3 / train/constats/neg_loss 0.34 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.33 / train/dyn_loss 1.29 / train/image_loss 0.19 / train/opt_loss 3.47 / train/rand/action/mean 0.24 / train/rep_loss 1.29 / train/replay_critic_loss 1.6 / train/reward_loss 0.02 / train/rewstats/neg_loss 9e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.23 / fps/policy 18.54 / fps/train 4750.34
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 231880]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 180 / episode/length 489 / train/actor_loss 2.1e-3 / train/constats/neg_loss 0.36 / train/constats/pos_loss 3.6e-3 / train/cont_loss 0.02 / train/critic_loss 1.32 / train/dyn_loss 1.27 / train/image_loss 0.19 / train/opt_loss 3.44 / train/rand/action/mean 0.26 / train/rep_loss 1.27 / train/replay_critic_loss 1.63 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.8e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.23 / fps/policy 18.55 / fps/train 4743.5
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 240800]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 533 / train/actor_loss 2.2e-3 / train/constats/neg_loss 0.34 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.29 / train/dyn_loss 1.29 / train/image_loss 0.18 / train/opt_loss 3.41 / train/rand/action/mean 0.27 / train/rep_loss 1.29 / train/replay_critic_loss 1.59 / train/reward_loss 0.02 / train/rewstats/neg_loss 8.7e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.7 / fps/policy 18.5 / fps/train 4739.81
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 249720]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 587 / train/actor_loss 1.8e-3 / train/constats/neg_loss 0.3 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.27 / train/dyn_loss 1.24 / train/image_loss 0.18 / train/opt_loss 3.32 / train/rand/action/mean 0.29 / train/rep_loss 1.24 / train/replay_critic_loss 1.52 / train/reward_loss 0.02 / train/rewstats/neg_loss 6.8e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 259.77 / fps/policy 18.58 / fps/train 4751.01
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 258600]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 220 / episode/length 451 / train/actor_loss 1.6e-3 / train/constats/neg_loss 0.31 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.24 / train/dyn_loss 1.24 / train/image_loss 0.18 / train/opt_loss 3.27 / train/rand/action/mean 0.3 / train/rep_loss 1.24 / train/replay_critic_loss 1.47 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.1e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.47 / fps/policy 18.5 / fps/train 4736.08
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Wrote checkpoint.
+
+--------------------[Agent Step 267440]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 270 / episode/length 533 / train/actor_loss 1.9e-3 / train/constats/neg_loss 0.3 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.29 / train/dyn_loss 1.24 / train/image_loss 0.16 / train/opt_loss 3.33 / train/rand/action/mean 0.29 / train/rep_loss 1.24 / train/replay_critic_loss 1.56 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.1e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.71 / fps/policy 18.35 / fps/train 4703.12
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 276360]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 525 / train/actor_loss 1.6e-3 / train/constats/neg_loss 0.36 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.22 / train/image_loss 0.17 / train/opt_loss 3.22 / train/rand/action/mean 0.33 / train/rep_loss 1.22 / train/replay_critic_loss 1.44 / train/reward_loss 0.02 / train/rewstats/neg_loss 8.4e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 259.77 / fps/policy 18.52 / fps/train 4736.58
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 285280]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 567 / train/actor_loss 1.9e-3 / train/constats/neg_loss 0.34 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.28 / train/dyn_loss 1.24 / train/image_loss 0.18 / train/opt_loss 3.32 / train/rand/action/mean 0.33 / train/rep_loss 1.24 / train/replay_critic_loss 1.52 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.5e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.7 / fps/policy 18.53 / fps/train 4747.17
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 294200]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 538 / train/actor_loss 1.8e-3 / train/constats/neg_loss 0.27 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.19 / train/image_loss 0.15 / train/opt_loss 3.16 / train/rand/action/mean 0.35 / train/rep_loss 1.19 / train/replay_critic_loss 1.42 / train/reward_loss 0.02 / train/rewstats/neg_loss 6.6e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.23 / fps/policy 18.56 / fps/train 4746
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 303080]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 300 / episode/length 733 / train/actor_loss 1.7e-3 / train/constats/neg_loss 0.3 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.26 / train/dyn_loss 1.24 / train/image_loss 0.17 / train/opt_loss 3.29 / train/rand/action/mean 0.37 / train/rep_loss 1.24 / train/replay_critic_loss 1.48 / train/reward_loss 0.02 / train/rewstats/neg_loss 5.9e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260 / fps/policy 18.5 / fps/train 4735.24
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 312000]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 240 / episode/length 529 / train/actor_loss 1.7e-3 / train/constats/neg_loss 0.28 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.26 / train/dyn_loss 1.23 / train/image_loss 0.16 / train/opt_loss 3.27 / train/rand/action/mean 0.37 / train/rep_loss 1.23 / train/replay_critic_loss 1.5 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.9e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.7 / fps/policy 18.53 / fps/train 4748.92
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 320920]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 240 / episode/length 502 / train/actor_loss 1.4e-3 / train/constats/neg_loss 0.25 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.24 / train/dyn_loss 1.19 / train/image_loss 0.15 / train/opt_loss 3.19 / train/rand/action/mean 0.37 / train/rep_loss 1.19 / train/replay_critic_loss 1.45 / train/reward_loss 0.02 / train/rewstats/neg_loss 4.6e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.23 / fps/policy 18.51 / fps/train 4734.7
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 329840]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 580 / train/actor_loss 2e-3 / train/constats/neg_loss 0.22 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.18 / train/image_loss 0.14 / train/opt_loss 3.14 / train/rand/action/mean 0.37 / train/rep_loss 1.18 / train/replay_critic_loss 1.41 / train/reward_loss 0.02 / train/rewstats/neg_loss 4.9e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.23 / fps/policy 18.53 / fps/train 4747.23
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Wrote checkpoint.
+
+--------------------[Agent Step 338680]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 230 / episode/length 581 / train/actor_loss 1.6e-3 / train/constats/neg_loss 0.26 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.2 / train/image_loss 0.16 / train/opt_loss 3.18 / train/rand/action/mean 0.38 / train/rep_loss 1.2 / train/replay_critic_loss 1.42 / train/reward_loss 0.02 / train/rewstats/neg_loss 5.5e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.24 / fps/policy 18.4 / fps/train 4707.12
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 347560]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 588 / train/actor_loss 1.3e-3 / train/constats/neg_loss 0.29 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.2 / train/dyn_loss 1.18 / train/image_loss 0.14 / train/opt_loss 3.1 / train/rand/action/mean 0.4 / train/rep_loss 1.18 / train/replay_critic_loss 1.38 / train/reward_loss 0.02 / train/rewstats/neg_loss 5e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.47 / fps/policy 18.49 / fps/train 4734
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 356480]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 200 / episode/length 490 / train/actor_loss 1.9e-3 / train/constats/neg_loss 0.24 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.21 / train/image_loss 0.16 / train/opt_loss 3.2 / train/rand/action/mean 0.42 / train/rep_loss 1.21 / train/replay_critic_loss 1.43 / train/reward_loss 0.02 / train/rewstats/neg_loss 5.3e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.23 / fps/policy 18.54 / fps/train 4749.32
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 365360]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 562 / train/actor_loss 1.8e-3 / train/constats/neg_loss 0.24 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.25 / train/dyn_loss 1.19 / train/image_loss 0.14 / train/opt_loss 3.17 / train/rand/action/mean 0.42 / train/rep_loss 1.19 / train/replay_critic_loss 1.45 / train/reward_loss 0.02 / train/rewstats/neg_loss 5.6e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.47 / fps/policy 18.49 / fps/train 4733.21
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 374280]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 646 / train/actor_loss 1.5e-3 / train/constats/neg_loss 0.21 / train/constats/pos_loss 3.3e-3 / train/cont_loss 0.02 / train/critic_loss 1.22 / train/dyn_loss 1.16 / train/image_loss 0.14 / train/opt_loss 3.1 / train/rand/action/mean 0.39 / train/rep_loss 1.16 / train/replay_critic_loss 1.4 / train/reward_loss 0.02 / train/rewstats/neg_loss 3.7e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.23 / fps/policy 18.54 / fps/train 4740.97
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 383160]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 562 / train/actor_loss 1.1e-3 / train/constats/neg_loss 0.35 / train/constats/pos_loss 3.5e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.21 / train/image_loss 0.16 / train/opt_loss 3.19 / train/rand/action/mean 0.42 / train/rep_loss 1.21 / train/replay_critic_loss 1.42 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.3e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260 / fps/policy 18.49 / fps/train 4733.39
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 392080]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 619 / train/actor_loss 6.7e-4 / train/constats/neg_loss 0.3 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.17 / train/dyn_loss 1.19 / train/image_loss 0.15 / train/opt_loss 3.09 / train/rand/action/mean 0.45 / train/rep_loss 1.19 / train/replay_critic_loss 1.35 / train/reward_loss 0.02 / train/rewstats/neg_loss 5.2e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.7 / fps/policy 18.52 / fps/train 4745.51
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+Writing checkpoint: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/checkpoint.ckpt
+Wrote checkpoint.
+
+--------------------[Agent Step 400920]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 250 / episode/length 605 / train/actor_loss 1.6e-3 / train/constats/neg_loss 0.23 / train/constats/pos_loss 3.3e-3 / train/cont_loss 0.02 / train/critic_loss 1.25 / train/dyn_loss 1.18 / train/image_loss 0.14 / train/opt_loss 3.17 / train/rand/action/mean 0.42 / train/rep_loss 1.18 / train/replay_critic_loss 1.47 / train/reward_loss 0.02 / train/rewstats/neg_loss 4.4e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.24 / fps/policy 18.38 / fps/train 4700.92
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 409800]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 530 / train/actor_loss 9e-4 / train/constats/neg_loss 0.27 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.21 / train/dyn_loss 1.16 / train/image_loss 0.13 / train/opt_loss 3.08 / train/rand/action/mean 0.44 / train/rep_loss 1.16 / train/replay_critic_loss 1.4 / train/reward_loss 0.02 / train/rewstats/neg_loss 3.7e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260 / fps/policy 18.48 / fps/train 4732.14
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 418720]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 621 / train/actor_loss 1.1e-3 / train/constats/neg_loss 0.24 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.19 / train/dyn_loss 1.18 / train/image_loss 0.15 / train/opt_loss 3.08 / train/rand/action/mean 0.46 / train/rep_loss 1.18 / train/replay_critic_loss 1.36 / train/reward_loss 0.02 / train/rewstats/neg_loss 7.7e-4 / train/rewstats/pos_loss 0.54 / replay/replay_ratio 260.7 / fps/policy 18.51 / fps/train 4743.1
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 427600]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 502 / train/actor_loss 1.3e-3 / train/constats/neg_loss 0.22 / train/constats/pos_loss 3.3e-3 / train/cont_loss 0.02 / train/critic_loss 1.2 / train/dyn_loss 1.17 / train/image_loss 0.14 / train/opt_loss 3.07 / train/rand/action/mean 0.47 / train/rep_loss 1.17 / train/replay_critic_loss 1.37 / train/reward_loss 0.02 / train/rewstats/neg_loss 4.8e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 260.47 / fps/policy 18.5 / fps/train 4735.05
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 436520]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 260 / episode/length 544 / train/actor_loss 1.5e-3 / train/constats/neg_loss 0.28 / train/constats/pos_loss 3.4e-3 / train/cont_loss 0.02 / train/critic_loss 1.23 / train/dyn_loss 1.16 / train/image_loss 0.13 / train/opt_loss 3.11 / train/rand/action/mean 0.46 / train/rep_loss 1.16 / train/replay_critic_loss 1.43 / train/reward_loss 0.02 / train/rewstats/neg_loss 4.1e-4 / train/rewstats/pos_loss 0.53 / replay/replay_ratio 259.77 / fps/policy 18.56 / fps/train 4747.83
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonlWriting metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+
+GIF summaries require ffmpeg in $PATH. [Errno 2] No such file or directory: 'ffmpeg'
+
+--------------------[Agent Step 438024]--------------------
+Metrics filtered by: 'score|length|fps|ratio|train/.*_loss$|train/rand/.*/mean'
+episode/score 230 / episode/length 481
+
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/metrics.jsonl
+Writing metrics: /n/holylabs/gershman_lab/Users/rtruong/dreamerv3-official-2411f7d1/logdir/atari_frostbite_seed1/scores.jsonl
+Closing env 0
+EXIT=0
