@@ -160,7 +160,7 @@ For a game outside the shipped catalog, set the directory as well.
 | directory | contents |
 |---|---|
 | `src/playtrain_trainers/` | the trainers |
-| `configs/` | three configs: a quickstart, a full-node run, and a throughput template |
+| `configs/` | a quickstart, a full-node run, a throughput template, and `paper/`: every configuration behind the paper's results |
 | `benchmarks/` | training-throughput measurement |
 | `tests/` | the test suite |
 | `tools/` | `remote_env_actor.py`, the worker for running environments on separate CPU nodes |
