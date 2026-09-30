@@ -416,13 +416,13 @@ class _NativeVecAdapter:
     terminated-flag path — same trade the IMPALA vec path makes.
     """
 
-    def __init__(self, nv, *, num_envs: int, n_actions: int = 8):
+    def __init__(self, nv, *, num_envs: int, n_actions: int | None = None):
         import gymnasium as gym
         self._nv = nv
         self.num_envs = num_envs
         self.observation_space = gym.spaces.Box(
             low=0, high=255, shape=(nv.obs_size, nv.obs_size, 3), dtype=np.uint8)
-        self.action_space = gym.spaces.Discrete(n_actions)
+        self.action_space = gym.spaces.Discrete(n_actions or nv.n_actions)
 
     def reset(self):
         return self._nv.reset(seeds=self._initial_seeds)
@@ -545,14 +545,14 @@ class _PingPongVecAdapter:
     and the flags into fresh arrays, which satisfies this.
     """
 
-    def __init__(self, pp, *, n_actions: int = 8):
+    def __init__(self, pp, *, n_actions: int | None = None):
         import gymnasium as gym
         self._pp = pp
         self.num_envs = pp.num_envs
         self.group_size = pp.group_size
         self.observation_space = gym.spaces.Box(
             low=0, high=255, shape=(pp.obs_size, pp.obs_size, 3), dtype=np.uint8)
-        self.action_space = gym.spaces.Discrete(n_actions)
+        self.action_space = gym.spaces.Discrete(n_actions or pp.n_actions)
 
     def reset(self):
         return self._pp.reset(seeds=self._initial_seeds)
