@@ -96,6 +96,10 @@ class ImpalaConfig:
     # win dominates the sub-goal breadcrumbs and the policy gets a gradient to
     # CONSOLIDATE winning (fixes argmax-collapse where only exploration wins).
     # None = plain abs_one. Value scale stays bounded (~win_bonus), so no PopArt.
+    # LR schedule: linear decay from learning_rate to 0 over the first lr_decay_frac
+    # of total_steps, then 0 (the weights stop changing). 1.0 = decay over the whole
+    # run, bit-identical to before. <1.0 freezes the policy early.
+    lr_decay_frac: float = 1.0
     win_bonus: float | None = None
     win_bonus_threshold: float = 10_000.0
     # GRADED win (terminal efficiency): if win_bonus_slope is set, the terminal
@@ -848,8 +852,12 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
         alpha=cfg.rmsprop_alpha,
     )
 
+    # Linear LR decay to zero over the first lr_decay_frac of total_steps, then held
+    # at zero. lr_decay_frac=1.0 is the original schedule (decay over the whole run).
+    _lr_span = max(1.0, cfg.total_steps * cfg.lr_decay_frac)
+
     def lr_lambda(epoch: int) -> float:
-        return 1 - min(epoch * T * B, cfg.total_steps) / cfg.total_steps
+        return 1 - min(epoch * T * B, _lr_span) / _lr_span
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
     step = 0
