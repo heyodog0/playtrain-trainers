@@ -272,6 +272,9 @@ class ImpalaConfig:
     # NHWC (channels_last) memory format for the learner's conv stem —
     # numerics-neutral layout change that tensor cores prefer in bf16.
     channels_last: bool = False
+    # Learner only: with learner_precision bf16, run the LSTM core + heads in fp32
+    # (see ImpalaNet.fp32_core). Keeps bf16 speed for the conv encoder.
+    learner_fp32_core: bool = False
     # Central-inference batching window. Server collects requests for up to
     # this many seconds after the first one arrives, then runs the forward.
     # Trade-off: higher = bigger batches (better GPU utilization) but higher
@@ -804,7 +807,7 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
     learner_model = ImpalaNet(cfg.obs_shape, cfg.num_actions,
                               features_dim=cfg.features_dim,
                               use_lstm=cfg.use_lstm,
-                              channels_last=cfg.channels_last,
+                              channels_last=cfg.channels_last, fp32_core=cfg.learner_fp32_core,
                               use_popart=cfg.use_popart,
                               net=cfg.net).to(device)
     learner_model.load_state_dict(model.state_dict())
@@ -989,6 +992,12 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                     "baseline_loss": float(new_stats["baseline_loss"].item()),
                     "entropy_loss": float(new_stats["entropy_loss"].item()),
                 }
+                if "guard_param_bad" in new_stats and float(new_stats["guard_skips"].item()) > 0:
+                    bad = new_stats["guard_param_bad"].cpu().tolist()
+                    from playtrain_trainers.impala.learn import guard_param_names
+                    top = sorted(((c, n) for c, n in zip(bad, guard_param_names()) if c > 0), reverse=True)[:5]
+                    logging.info("non-finite grads by param (cumulative): %s",
+                                 ", ".join(f"{n}={int(c)}" for c, n in top) or "-")
                 for k in ("grad_norm", "guard_skips", "guard_skips_pg", "guard_skips_baseline",
                           "guard_skips_entropy", "guard_skips_with_win", "guard_grad_norm_max"):
                     if k in new_stats:

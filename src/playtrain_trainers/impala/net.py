@@ -97,8 +97,13 @@ class ImpalaNet(nn.Module):
         channels_last: bool = False,
         use_popart: bool = False,
         net: str = "impala",
+        fp32_core: bool = False,
     ):
         super().__init__()
+        # fp32_core: under bf16 autocast, run the LSTM core, heads and everything after
+        # them in fp32 (encoder stays bf16). bf16 in the core/heads gave occasional
+        # inf/NaN gradients on long-horizon envs; the core is small next to the convs.
+        self.fp32_core = fp32_core
         c, h, w = observation_shape
         self.observation_shape = observation_shape
         self.num_actions = num_actions
@@ -209,7 +214,13 @@ class ImpalaNet(nn.Module):
         if self.channels_last:
             x = x.contiguous(memory_format=torch.channels_last)
         core_input = self.encoder(x)  # [T*B, features_dim]
+        if self.fp32_core:
+            with torch.autocast(device_type=core_input.device.type, enabled=False):
+                return self._core_and_heads(core_input.float(), inputs,
+                                            tuple(s.float() for s in core_state), T, B)
+        return self._core_and_heads(core_input, inputs, core_state, T, B)
 
+    def _core_and_heads(self, core_input, inputs, core_state, T, B):
         if self.use_lstm:
             # Episode-boundary handling: done[t] => frame[t] starts a fresh
             # episode => zero the state entering step t (monobeast semantics).

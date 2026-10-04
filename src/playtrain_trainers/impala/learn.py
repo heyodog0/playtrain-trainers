@@ -24,6 +24,17 @@ from playtrain_trainers.impala import losses, vtrace
 
 
 _GUARD: dict = {}
+_PARAM_NAMES: list = []
+
+
+def _set_param_names(names: list) -> None:
+    if not _PARAM_NAMES:
+        _PARAM_NAMES.extend(names)
+
+
+def guard_param_names() -> list:
+    """Parameter names matching the per-param non-finite counter (guard_param_bad)."""
+    return list(_PARAM_NAMES)
 
 
 def _guard_counters(device) -> dict:
@@ -200,6 +211,10 @@ def learn(
         # RMSprop momentum 0 a zero grad leaves the params unchanged. No .item()
         # here: counters stay device tensors and are read at the logging cadence.
         ok = torch.isfinite(total_norm)
+        # per-parameter non-finite counts (device tensors, sync-free) for diagnosis
+        named = [(n, p) for n, p in learner_model.named_parameters() if p.grad is not None]
+        _set_param_names([n for n, _ in named])
+        bad_now = torch.stack([(~torch.isfinite(p.grad).all()).float() for _, p in named])
         for p in params:
             p.grad.copy_(torch.where(ok, p.grad, torch.zeros_like(p.grad)))
         optimizer.step()
@@ -212,6 +227,9 @@ def learn(
         g["skips_with_win"] += bad * (rewards >= win_bonus_threshold).any().float() \
             if win_bonus_threshold is not None else bad * 0
         g["grad_norm_max"] = torch.maximum(g["grad_norm_max"], torch.where(ok, total_norm, g["grad_norm_max"]))
+        if "param_bad" not in g or g["param_bad"].numel() != bad_now.numel():
+            g["param_bad"] = torch.zeros_like(bad_now)
+        g["param_bad"] += bad_now
         stats.update({f"guard_{k}": v.detach().clone() for k, v in g.items()})
         stats["grad_norm"] = torch.where(ok, total_norm, torch.full_like(total_norm, float("nan"))).detach()
         if scheduler is not None:
