@@ -241,3 +241,38 @@ class TestLearnBasicSanity:
             actor.state_dict().items(), learner.state_dict().items()
         ):
             torch.testing.assert_close(a, l)
+
+
+class TestNonFiniteGuard:
+    """A batch whose loss is non-finite is dropped (params unchanged, skip counted);
+    a normal batch afterwards still updates. Guards the NaN-weights crash seen when
+    win bonuses spike the gradient."""
+
+    def _learn(self, learner, actor, opt, batch, reward_clipping):
+        return ours_learn(
+            actor_model=actor, learner_model=learner, batch=batch, initial_agent_state=(),
+            optimizer=opt, scheduler=None, discounting=0.99, baseline_cost=0.5,
+            entropy_cost=0.01, grad_norm_clipping=40.0, reward_clipping=reward_clipping,
+            lock=threading.Lock(),
+        )
+
+    def test_nonfinite_batch_is_skipped(self):
+        D, A, T, B = 8, 3, 5, 4
+        torch.manual_seed(0)
+        learner, actor = _TinyNet(D, A), _TinyNet(D, A)
+        opt = torch.optim.RMSprop(learner.parameters(), lr=1e-3, alpha=0.99, eps=0.01, momentum=0.0)
+        bad = _make_batch(T=T, B=B, D=D, A=A, seed=0)
+        bad["reward"][2, 1] = float("inf")          # unclipped -> inf value target -> inf grads
+        before = _clone_state_dict(learner.state_dict())
+        stats = self._learn(learner, actor, opt, bad, "none")
+        after = learner.state_dict()
+        for k in before:
+            assert torch.equal(before[k], after[k]), f"{k} changed on a non-finite batch"
+            assert torch.isfinite(after[k]).all()
+        assert stats["guard_skips"].item() >= 1
+        good = _make_batch(T=T, B=B, D=D, A=A, seed=1)
+        n0 = stats["guard_skips"].item()
+        stats2 = self._learn(learner, actor, opt, good, "abs_one")
+        assert stats2["guard_skips"].item() == n0
+        assert any(not torch.equal(before[k], learner.state_dict()[k]) for k in before)
+        assert all(torch.isfinite(v).all() for v in learner.state_dict().values())

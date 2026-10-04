@@ -23,6 +23,19 @@ from torch import nn
 from playtrain_trainers.impala import losses, vtrace
 
 
+_GUARD: dict = {}
+
+
+def _guard_counters(device) -> dict:
+    """Cumulative non-finite-guard counters (device tensors, one set per device)."""
+    key = str(device)
+    if key not in _GUARD:
+        z = lambda: torch.zeros((), device=device)
+        _GUARD[key] = dict(skips=z(), skips_pg=z(), skips_baseline=z(), skips_entropy=z(),
+                           skips_with_win=z(), grad_norm_max=z())
+    return _GUARD[key]
+
+
 def learn(
     *,
     actor_model: nn.Module | None,
@@ -179,8 +192,28 @@ def learn(
         # check (every N steps) if a non-finite ever recurs — never per-step.
         optimizer.zero_grad()
         total_loss.backward()
-        nn.utils.clip_grad_norm_(learner_model.parameters(), grad_norm_clipping)
+        params = [p for p in learner_model.parameters() if p.grad is not None]
+        total_norm = nn.utils.clip_grad_norm_(params, grad_norm_clipping)
+        # Non-finite guard, sync-free: if the pre-clip grad norm is inf/NaN, zero
+        # every grad ON DEVICE so this batch is dropped instead of writing NaN into
+        # all weights (clip_grad_norm_ turns an inf grad into inf*0 = NaN). With
+        # RMSprop momentum 0 a zero grad leaves the params unchanged. No .item()
+        # here: counters stay device tensors and are read at the logging cadence.
+        ok = torch.isfinite(total_norm)
+        for p in params:
+            p.grad.copy_(torch.where(ok, p.grad, torch.zeros_like(p.grad)))
         optimizer.step()
+        g = _guard_counters(total_norm.device)
+        bad = (~ok).float()
+        g["skips"] += bad
+        g["skips_pg"] += bad * (~torch.isfinite(pg_loss)).float()
+        g["skips_baseline"] += bad * (~torch.isfinite(baseline_loss)).float()
+        g["skips_entropy"] += bad * (~torch.isfinite(entropy_loss)).float()
+        g["skips_with_win"] += bad * (rewards >= win_bonus_threshold).any().float() \
+            if win_bonus_threshold is not None else bad * 0
+        g["grad_norm_max"] = torch.maximum(g["grad_norm_max"], torch.where(ok, total_norm, g["grad_norm_max"]))
+        stats.update({f"guard_{k}": v.detach().clone() for k, v in g.items()})
+        stats["grad_norm"] = torch.where(ok, total_norm, torch.full_like(total_norm, float("nan"))).detach()
         if scheduler is not None:
             scheduler.step()
 

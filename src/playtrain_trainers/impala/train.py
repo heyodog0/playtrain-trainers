@@ -989,6 +989,10 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                     "baseline_loss": float(new_stats["baseline_loss"].item()),
                     "entropy_loss": float(new_stats["entropy_loss"].item()),
                 }
+                for k in ("grad_norm", "guard_skips", "guard_skips_pg", "guard_skips_baseline",
+                          "guard_skips_entropy", "guard_skips_with_win", "guard_grad_norm_max"):
+                    if k in new_stats:
+                        synced[k] = float(new_stats[k].item())
                 with step_lock:
                     stats = synced
                     writer.add_scalar("losses/total", synced["total_loss"], cur_step)
@@ -1006,6 +1010,9 @@ def train(cfg: ImpalaConfig, env_fn: Callable[[int], "object"] | None = None) ->
                             "charts/ep_win_rate", synced["win_rate"], cur_step,
                         )
                     writer.add_scalar("charts/entropy_cost", cur_entropy, cur_step)
+                    for k in ("grad_norm", "guard_skips", "guard_grad_norm_max"):
+                        if k in synced:
+                            writer.add_scalar(f"guard/{k}", synced[k], cur_step)
             # In central_gpu mode, push fresh weights to the inference model
             # so subsequent actor requests reflect the just-trained policy.
             # Device-to-device copies; cadence configurable via
