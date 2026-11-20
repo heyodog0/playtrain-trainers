@@ -56,6 +56,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
+from playtrain_trainers.impala.lens import LENS_VARIANTS, build_lens_encoder
 from playtrain_trainers.policy import build_encoder
 
 
@@ -128,8 +129,17 @@ class ImpalaNet(nn.Module):
         # same kernels' math, different memory layout.
         self.channels_last = channels_last
 
-        self.encoder = build_encoder(net, in_channels=c,
-                                     features_dim=features_dim, input_hw=h)
+        # Lens encoders (impala/lens.py) carry an episodic fast-weight memory
+        # inside the encoder; its state rides after the LSTM's (h, c).
+        self.lens = net in LENS_VARIANTS
+        if self.lens:
+            if not use_lstm:
+                raise ValueError(f"net={net!r} needs use_lstm=True")
+            self.encoder = build_lens_encoder(net, in_channels=c,
+                                              features_dim=features_dim, input_hw=h)
+        else:
+            self.encoder = build_encoder(net, in_channels=c,
+                                         features_dim=features_dim, input_hw=h)
         core_in = features_dim
         if use_lstm:
             # Hidden size == feature size (matches monobeast AtariNet).
@@ -202,10 +212,13 @@ class ImpalaNet(nn.Module):
         pair of [num_layers, batch_size, hidden] tensors in LSTM mode."""
         if not self.use_lstm:
             return tuple()  # no recurrent state
-        return tuple(
+        state = tuple(
             torch.zeros(self.core.num_layers, batch_size, self.core.hidden_size)
             for _ in range(2)
         )
+        if self.lens:
+            state = state + self.encoder.initial_state(batch_size)
+        return state
 
     def forward(self, inputs: dict, core_state=()):
         x = inputs["frame"]  # [T, B, C, H, W] uint8
@@ -213,12 +226,20 @@ class ImpalaNet(nn.Module):
         x = torch.flatten(x, 0, 1)  # [T*B, C, H, W]
         if self.channels_last:
             x = x.contiguous(memory_format=torch.channels_last)
-        core_input = self.encoder(x)  # [T*B, features_dim]
+        lens_state = ()
+        if self.lens:
+            core_input, lens_state = self.encoder(
+                x, T, B, (~inputs["done"]).float(), core_state[2:])
+            core_state = core_state[:2]
+        else:
+            core_input = self.encoder(x)  # [T*B, features_dim]
         if self.fp32_core:
             with torch.autocast(device_type=core_input.device.type, enabled=False):
-                return self._core_and_heads(core_input.float(), inputs,
-                                            tuple(s.float() for s in core_state), T, B)
-        return self._core_and_heads(core_input, inputs, core_state, T, B)
+                out, core_state = self._core_and_heads(
+                    core_input.float(), inputs, tuple(s.float() for s in core_state), T, B)
+        else:
+            out, core_state = self._core_and_heads(core_input, inputs, core_state, T, B)
+        return out, tuple(core_state) + tuple(lens_state)
 
     def _core_and_heads(self, core_input, inputs, core_state, T, B):
         if self.use_lstm:
