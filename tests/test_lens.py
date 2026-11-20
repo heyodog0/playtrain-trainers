@@ -118,3 +118,20 @@ def test_gradient_reaches_keys_and_write_heads():
 def test_frozen_keys_have_no_grad():
     enc = LensEncoder(freeze_keys=True)
     assert not any(p.requires_grad for p in enc.key_stem.parameters())
+
+
+def test_keys_separate_different_content():
+    """Two different patches on a black frame must not share a key; the same
+    patch at two places must. Plain unit-norm keys fail the first half."""
+    torch.manual_seed(0)
+    enc = LensEncoder().eval()
+    x = torch.zeros(1, 3, 64, 64, dtype=torch.uint8)
+    a = torch.randint(0, 256, (3, 8, 8), dtype=torch.uint8)
+    b = torch.randint(0, 256, (3, 8, 8), dtype=torch.uint8)
+    x[0, :, 8:16, 8:16], x[0, :, 40:48, 16:24], x[0, :, 24:32, 48:56] = a, a, b
+    with torch.no_grad():
+        k = enc.normalise_keys(enc.key_stem(x.float() / 255))[0]
+    cos = lambda p, q: torch.nn.functional.cosine_similarity(k[:, p[0], p[1]], k[:, q[0], q[1]], dim=0)
+    assert cos((2, 2), (10, 4)) > 0.95          # same patch, two places
+    assert cos((2, 2), (6, 12)) < 0.8           # different patches
+    assert k.norm(dim=0).max() < 1.0

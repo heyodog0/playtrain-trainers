@@ -7,8 +7,9 @@ whole-frame vector. A sprite never has a key of its own there: the same item at
 another tile, or next to another item, is a different key. The lens moves the
 memory to where sprites still are separate things, the feature map.
 
-    key map    k[x,y]  = unit-norm local appearance, a shallow stem whose
-                         receptive field is about one tile (10 px, stride 4)
+    key map    k[x,y]  = local appearance relative to the rest of the frame: a
+                         shallow stem whose receptive field is about one tile
+                         (10 px, stride 4), standardised over locations
     memory     M       = one (role_dim x key_dim) matrix per env, zero at reset
     read       R[x,y]  = M k[x,y]            at EVERY location, every step
     write      a few heads each point at one location (spatial softmax over the
@@ -124,6 +125,26 @@ class LensEncoder(nn.Module):
     def initial_state(self, batch_size: int = 1) -> tuple[torch.Tensor, torch.Tensor]:
         return tuple(torch.zeros(1, batch_size, n) for n in self.state_sizes)
 
+    @staticmethod
+    def normalise_keys(k: torch.Tensor, eps: float = 1e-5) -> torch.Tensor:
+        """Raw key map [N, K, G, G] -> keys that describe how a location
+        differs from the rest of its frame.
+
+        ReLU features of one mostly-background frame share a large common
+        component: measured on cavequest_hard_pool36 at initialisation, plain
+        unit-norm keys of DIFFERENT sprites have cosine 0.98, so every read
+        would return the same thing everywhere. Each channel is therefore
+        standardised over the frame's locations first (different sprites drop
+        to ~0.5, the same sprite on another tile stays at ~0.86), then scaled
+        by a soft norm, ``c / sqrt(|c|^2 + mean_xy |c|^2)``: salient locations
+        approach unit length and typical ones shrink, with every key's norm
+        below 1 so reads stay bounded.
+        """
+        c = k - k.mean(dim=(2, 3), keepdim=True)
+        c = c / (c.std(dim=(2, 3), keepdim=True) + eps)
+        n2 = c.pow(2).sum(dim=1, keepdim=True)
+        return c / torch.sqrt(n2 + n2.mean(dim=(2, 3), keepdim=True) + eps)
+
     def proposals(self, d, kc, kp):
         """Write heads for every step at once.
 
@@ -155,7 +176,7 @@ class LensEncoder(nn.Module):
         dev = x.device.type
         with torch.autocast(device_type=dev, enabled=False):
             nd = notdone.float()
-            kc = F.normalize(k.float(), dim=1).reshape(T, B, K, G, G)
+            kc = self.normalise_keys(k.float()).reshape(T, B, K, G, G)
             kp = torch.cat([state[1].float().reshape(1, B, K, G, G), kc[:-1]], dim=0)
             kp = kp * nd.view(T, B, 1, 1, 1)
         kw, v, beta = self.proposals(d, kc.flatten(0, 1), kp.flatten(0, 1))
