@@ -52,6 +52,12 @@ LENS_VARIANTS: dict[str, dict] = {
     # The key stem stays at its random initialisation: keys are generic local
     # descriptors that cannot specialise to the training sprites.
     "impala_lens_frozenkey": {"freeze_keys": True},
+    # Each write head stores the key of exactly ONE location (argmax, with a
+    # straight-through gradient to the soft attention). The soft version's
+    # heads stayed uniform over all locations in every pilot run (attention
+    # entropy 5.9-6.2 of a maximum 6.24), so the written key was a frame
+    # average and the matrix served as a second whole-frame recurrent state.
+    "impala_lens_hard": {"hard_write": True},
 }
 
 
@@ -81,12 +87,14 @@ class LensEncoder(nn.Module):
     def __init__(self, in_channels: int = 3, features_dim: int = 256,
                  input_hw: int = 64, depths: tuple[int, int, int] = (16, 32, 32),
                  key_dim: int = 32, role_dim: int = 16, heads: int = 4,
-                 write: bool = True, freeze_keys: bool = False) -> None:
+                 write: bool = True, freeze_keys: bool = False,
+                 hard_write: bool = False) -> None:
         super().__init__()
         if input_hw % 4:
             raise ValueError(f"lens encoder needs input_hw divisible by 4, got {input_hw}")
         self.key_dim, self.role_dim, self.heads = key_dim, role_dim, heads
         self.write = write
+        self.hard_write = hard_write
         self.s0 = _ImpalaStage(in_channels, depths[0])
         self.s1 = _ImpalaStage(depths[0], depths[1])
         self.s2 = _ImpalaStage(depths[1] + role_dim, depths[2])
@@ -157,6 +165,11 @@ class LensEncoder(nn.Module):
                                         (kc - kp).to(d.dtype)], dim=1))
         logits = self.write_attn(w).float().reshape(N, 2, H, n)
         a = torch.softmax(torch.cat([logits[:, 0], logits[:, 1]], dim=-1), dim=-1)  # [N, H, 2n]
+        if self.hard_write:
+            # Deterministic (no Gumbel noise): the learner must replay exactly
+            # the writes the actor made, or the carried state stops matching.
+            hard = F.one_hot(a.argmax(dim=-1), a.shape[-1]).to(a.dtype)
+            a = hard + a - a.detach()
         cand = torch.cat([kc.reshape(N, K, n), kp.reshape(N, K, n)], dim=-1)        # [N, K, 2n]
         kw = F.normalize(torch.einsum("nhs,nks->nhk", a, cand), dim=-1)
         a_sp = a[..., :n] + a[..., n:]                                               # [N, H, n]

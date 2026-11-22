@@ -135,3 +135,35 @@ def test_keys_separate_different_content():
     assert cos((2, 2), (10, 4)) > 0.95          # same patch, two places
     assert cos((2, 2), (6, 12)) < 0.8           # different patches
     assert k.norm(dim=0).max() < 1.0
+
+
+def test_hard_write_stores_one_location():
+    """The hard variant writes the key of a single location, never a blend."""
+    torch.manual_seed(0)
+    enc = LensEncoder(hard_write=True).eval()
+    x = torch.randint(0, 256, (2, 3, 64, 64), dtype=torch.uint8).float() / 255
+    with torch.no_grad():
+        d = enc.s1(enc.s0(x))
+        kc = enc.normalise_keys(enc.key_stem(x))
+        kw, _, _ = enc.proposals(d, kc, kc)      # previous map = current: every candidate is a real key
+    unit = torch.nn.functional.normalize(kc.flatten(2), dim=1)        # [N, K, n]
+    best = torch.einsum("nhk,nks->nhs", kw, unit).max(-1).values
+    assert torch.allclose(best, torch.ones_like(best), atol=1e-5)
+
+
+def test_hard_write_unroll_equals_steps_and_has_grad():
+    T, B = 6, 2
+    done = torch.zeros(T, B, dtype=torch.bool); done[2, 1] = True
+    inp = _inputs(T, B, done)
+    m = _net("impala_lens_hard")
+    with torch.no_grad():
+        full, s_full = m(inp, m.initial_state(B))
+        s, steps = m.initial_state(B), []
+        for t in range(T):
+            o, s = m({k: v[t:t + 1] for k, v in inp.items()}, s)
+            steps.append(o["policy_logits"])
+    assert torch.allclose(full["policy_logits"], torch.cat(steps), atol=1e-5)
+    m.train()
+    out, _ = m(inp, m.initial_state(B))
+    out["policy_logits"][-1].sum().backward()
+    assert m.encoder.write_attn.weight.grad.abs().sum() > 0
